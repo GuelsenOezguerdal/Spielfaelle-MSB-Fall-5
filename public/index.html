@@ -1,0 +1,4786 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Einführung eines Patientenportals</title>
+  <style>
+   @import url('https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    :root{
+      --primary:#6366f1; --secondary:#8b5cf6; --accent:#ec4899;
+      --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
+      --bg-main:#0f172a; --bg-card:#1e293b;
+      --text-primary:#f1f5f9; --text-secondary:#cbd5e1; --border:#334155;
+    }
+    body{
+    font-family:'Work Sans','Inter',sans-serif;
+    background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#312e81 100%);
+    color:var(--text-primary);
+    line-height:1.6;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+  body::before{
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background:
+        radial-gradient(circle at 20% 50%,rgba(99,102,241,.1) 0%,transparent 50%),
+        radial-gradient(circle at 80% 80%,rgba(236,72,153,.1) 0%,transparent 50%),
+        radial-gradient(circle at 40% 20%,rgba(139,92,246,.1) 0%,transparent 50%);
+    }
+
+    /* Dropdown Optionen immer sichtbar */
+select option {
+  color: #000 !important;
+  background: #fff !important;
+}
+
+/* Ausgewählte Option */
+select option:checked {
+  background: #2563eb !important;
+  color: #fff !important;
+}
+
+/* Hover (je nach Browser) */
+select option:hover {
+  background: #2563eb !important;
+  color: #fff !important;
+}
+
+    .container{ max-width:1100px; margin:0 auto; padding:2rem; position:relative; z-index:1; }
+
+    /* HEADER */
+    header{
+      background:linear-gradient(135deg,rgba(79,70,229,.95),rgba(109,40,217,.95));
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.15);
+      box-shadow:0 8px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.12);
+      padding:1.75rem 2rem; border-radius:20px; margin-bottom:2rem;
+    }
+    .header-top{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:.75rem;
+    }
+    .header-titles h1{
+      font-family:'Bitter',serif; font-size:1.85rem; font-weight:700; line-height:1.2; margin-bottom:.3rem;
+    }
+    .header-titles .subtitle{ opacity:.75; font-size:.88rem; font-weight:300; }
+    .header-actions{
+      display:flex; flex-direction:column; gap:.35rem;
+      align-items:stretch; flex-shrink:0;
+    }
+    .header-nav-group{
+      display:flex; flex-direction:column; gap:0;
+      background:rgba(0,0,0,.25); border-radius:12px;
+      border:1px solid rgba(255,255,255,.1); overflow:hidden;
+    }
+    .btn-icon{
+      background:transparent; border:none; border-bottom:1px solid rgba(255,255,255,.07);
+      color:rgba(255,255,255,.85); padding:.55rem 1rem;
+      font-size:.8rem; font-weight:600; cursor:pointer; white-space:nowrap;
+      font-family:'Work Sans',sans-serif; transition:all .2s;
+      backdrop-filter:blur(6px); display:flex; align-items:center; gap:.5rem;
+      text-align:left; width:100%;
+    }
+    .btn-icon:last-child{ border-bottom:none; }
+    .btn-icon:hover{
+      background:rgba(255,255,255,.1); color:white;
+    }
+    .btn-icon:active{ background:rgba(255,255,255,.15); }
+    .btn-icon.active-nav{
+      background:rgba(255,255,255,.12); color:white;
+    }
+    .btn-logout{
+      background:transparent; border:none;
+      color:rgba(255,255,255,.3); padding:.4rem .75rem;
+      font-size:.72rem; font-weight:500; cursor:pointer;
+      font-family:'Work Sans',sans-serif; transition:all .2s;
+      text-align:center; border-radius:8px; letter-spacing:.3px;
+    }
+    .btn-logout:hover{ color:rgba(255,255,255,.65); background:rgba(255,255,255,.06); }
+    .progress-strip{ display:flex; align-items:center; gap:1rem; }
+    .progress-bar-outer{ flex:1; height:5px; background:rgba(255,255,255,.18); border-radius:99px; overflow:hidden; }
+    .progress-bar-inner{
+      height:100%; border-radius:99px;
+      background:linear-gradient(90deg,#6ee7b7,#a5b4fc,#f9a8d4);
+      transition:width .7s cubic-bezier(.4,0,.2,1);
+      box-shadow:0 0 14px rgba(165,180,252,.7);
+    }
+    .progress-text{ font-size:.78rem; font-weight:600; opacity:.75; white-space:nowrap; }
+    .current-step-row{ display:flex; align-items:center; gap:.75rem; margin-top:.9rem; }
+    .step-pill{
+      display:inline-flex; align-items:center; gap:.5rem;
+      background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
+      border-radius:99px; padding:.3rem .85rem .3rem .5rem; font-size:.82rem; font-weight:600;
+    }
+    .step-pill-icon{
+      width:1.6rem; height:1.6rem; border-radius:50%;
+      background:rgba(255,255,255,.2);
+      display:flex; align-items:center; justify-content:center; font-size:.85rem;
+    }
+    .step-hint{ font-size:.78rem; opacity:.6; }
+
+    /* DRAWER */
+    #drawerBackdrop{
+      position:fixed; inset:0; z-index:299;
+      background:rgba(0,0,0,.55); backdrop-filter:blur(5px);
+      opacity:0; pointer-events:none; transition:opacity .35s;
+    }
+    #drawerBackdrop.open{ opacity:1; pointer-events:all; }
+    #journeyDrawer{
+      position:fixed; top:0; right:0; width:min(440px,100vw); height:100vh;
+      background:linear-gradient(160deg,#0d1326,#14103a);
+      border-left:1px solid rgba(99,102,241,.3);
+      box-shadow:-16px 0 60px rgba(0,0,0,.7);
+      z-index:300; overflow-y:auto; padding:2rem;
+      transform:translateX(100%);
+      transition:transform .42s cubic-bezier(.4,0,.2,1);
+    }
+    #journeyDrawer.open{ transform:translateX(0); }
+    .drawer-head{
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:2rem; padding-bottom:1.25rem; border-bottom:1px solid rgba(99,102,241,.2);
+    }
+    .drawer-head-title{
+      font-family:'Bitter',serif; font-size:1.35rem;
+      background:linear-gradient(135deg,#a5b4fc,#f9a8d4);
+      background-clip:text; -webkit-background-clip:text; color:transparent;
+    }
+    .btn-close-drawer{
+      background:none; border:none; color:var(--text-secondary);
+      font-size:1.35rem; cursor:pointer; padding:.3rem .5rem; border-radius:8px; transition:all .2s;
+    }
+    .btn-close-drawer:hover{ background:rgba(255,255,255,.1); color:white; }
+    .journey-list{ display:flex; flex-direction:column; }
+    .journey-item{
+      display:flex; gap:1rem; padding:.9rem .5rem; cursor:pointer;
+      position:relative; align-items:flex-start; border-radius:10px; transition:background .2s;
+    }
+    .journey-item:hover{ background:rgba(99,102,241,.08); }
+    .journey-item:not(:last-child)::after{
+      content:''; position:absolute; left:1.55rem; top:3.1rem;
+      width:2px; height:calc(100% - 1.1rem); background:rgba(255,255,255,.08); z-index:0;
+    }
+    .journey-item.j-done:not(:last-child)::after{ background:rgba(16,185,129,.3); }
+    .journey-item.j-active:not(:last-child)::after{ background:rgba(99,102,241,.35); }
+    .j-dot{
+      flex-shrink:0; width:2.1rem; height:2.1rem; border-radius:50%; z-index:1;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.95rem; border:2px solid rgba(255,255,255,.12);
+      background:rgba(20,30,55,.9); transition:all .25s; position:relative;
+    }
+    .journey-item.j-done .j-dot{ background:rgba(16,185,129,.15); border-color:#10b981; font-size:.75rem; }
+    .journey-item.j-active .j-dot{
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      border-color:rgba(255,255,255,.35); box-shadow:0 0 18px rgba(99,102,241,.8);
+    }
+    .journey-item:hover .j-dot{ border-color:rgba(165,180,252,.5); transform:scale(1.1); }
+    .j-body{ flex:1; min-width:0; padding-top:.05rem; }
+    .j-title{ font-weight:600; font-size:.92rem; color:var(--text-primary); margin-bottom:.15rem; transition:color .2s; }
+    .journey-item.j-active .j-title{ color:#a5b4fc; }
+    .journey-item.j-done  .j-title{ color:#6ee7b7; }
+    .journey-item:hover   .j-title{ color:#c4b5fd; }
+    .j-sub{ font-size:.75rem; color:var(--text-secondary); line-height:1.45; }
+    .journey-item.j-active .j-sub{ color:rgba(165,180,252,.65); }
+    .j-badge{ flex-shrink:0; padding:.18rem .55rem; border-radius:99px; font-size:.68rem; font-weight:700; align-self:center; }
+    .jb-active{ background:rgba(99,102,241,.2); color:#a5b4fc; border:1px solid rgba(99,102,241,.35); }
+    .jb-done{   background:rgba(16,185,129,.15); color:#6ee7b7;  border:1px solid rgba(16,185,129,.3); }
+    .jb-todo{   background:rgba(255,255,255,.05); color:rgba(255,255,255,.3); border:1px solid rgba(255,255,255,.1); }
+
+
+
+    .phase-nav{
+      display:flex; justify-content:space-between; align-items:center;
+      margin-top:2rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,.07);
+    }
+    .module-tools{
+      display:flex; flex-wrap:wrap; gap:.875rem; align-items:center;
+      margin-top:1.75rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,.07);
+    }
+
+    /* FAVORITES */
+    .fav-star-btn{
+      position:absolute; top:.6rem; right:.6rem;
+      background:none; border:none; cursor:pointer;
+      font-size:1.25rem; line-height:1; padding:.2rem;
+      opacity:.5; transition:opacity .2s, transform .2s;
+      z-index:10;
+    }
+    .fav-star-btn:hover{ opacity:1; transform:scale(1.2); }
+    .fav-star-btn.starred{ opacity:1; }
+    #responseBox{ position:relative; }
+
+
+
+    /* Favorites panel */
+    #favPanel{
+      display:none; margin-top:1.25rem;
+      animation:fadeUp .3s ease;
+    }
+    #favPanel.open{ display:block; }
+    .fav-header{
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:.875rem;
+    }
+    .fav-title{
+      font-family:'Bitter',serif; font-size:1rem;
+      background:linear-gradient(135deg,#fde68a,#f59e0b);
+      background-clip:text; -webkit-background-clip:text; color:transparent;
+      font-weight:700;
+    }
+    .fav-list{ display:flex; flex-direction:column; gap:.75rem; }
+    .fav-card{
+      background:rgba(15,23,42,.7); border:1px solid rgba(245,158,11,.2);
+      border-radius:12px; padding:1rem; position:relative;
+      transition:border-color .2s;
+    }
+    .fav-card:hover{ border-color:rgba(245,158,11,.45); }
+    .fav-meta{
+      display:flex; align-items:center; gap:.5rem;
+      font-size:.72rem; font-weight:600; margin-bottom:.6rem;
+      color:rgba(245,158,11,.8);
+    }
+    .fav-meta-dot{ width:6px; height:6px; border-radius:50%; background:rgba(245,158,11,.7); flex-shrink:0; }
+    .fav-q{ font-size:.82rem; color:rgba(165,180,252,.9); margin-bottom:.4rem; font-weight:600; }
+    .fav-a{ font-size:.82rem; color:var(--text-secondary); line-height:1.6; white-space:pre-wrap; }
+    .fav-comment{
+      margin-top:.65rem; padding:.55rem .75rem;
+      background:rgba(245,158,11,.08); border-radius:8px;
+      border-left:3px solid rgba(245,158,11,.5);
+      font-size:.8rem; color:#fde68a; font-style:italic; line-height:1.5;
+    }
+    .fav-comment-input{
+      width:100%; margin-top:.65rem; padding:.55rem .75rem;
+      background:rgba(255,255,255,.05); border:1px solid rgba(245,158,11,.3);
+      border-radius:8px; color:var(--text-primary);
+      font-family:'Work Sans',sans-serif; font-size:.82rem;
+      resize:none; transition:border-color .2s;
+    }
+    .fav-comment-input:focus{ outline:none; border-color:rgba(245,158,11,.7); }
+    .fav-actions{
+      display:flex; gap:.5rem; margin-top:.6rem; flex-wrap:wrap;
+    }
+    .fav-btn{
+      background:none; border:1px solid rgba(255,255,255,.12); color:var(--text-secondary);
+      border-radius:7px; padding:.25rem .65rem; font-size:.75rem; cursor:pointer;
+      font-family:'Work Sans',sans-serif; transition:all .2s;
+    }
+    .fav-btn:hover{ background:rgba(255,255,255,.08); color:white; }
+    .fav-btn.fav-btn-save{ border-color:rgba(245,158,11,.4); color:#fde68a; }
+    .fav-btn.fav-btn-save:hover{ background:rgba(245,158,11,.15); }
+    .fav-btn.fav-btn-del{ border-color:rgba(239,68,68,.3); color:rgba(239,68,68,.7); }
+    .fav-btn.fav-btn-del:hover{ background:rgba(239,68,68,.1); color:#ef4444; }
+    .fav-empty{ text-align:center; padding:1.5rem; color:var(--text-secondary); font-size:.85rem; }
+
+    /* Comment save modal */
+    #favCommentModal{
+      position:fixed; inset:0; z-index:9000;
+      display:flex; align-items:center; justify-content:center; padding:1.5rem;
+      background:rgba(0,0,0,.75); backdrop-filter:blur(8px);
+    }
+    .fav-modal-card{
+      width:min(480px,94vw);
+      background:linear-gradient(135deg,rgba(30,41,59,.99),rgba(51,65,85,.99));
+      border:1px solid rgba(245,158,11,.3); border-radius:16px; padding:1.75rem;
+      box-shadow:0 20px 60px rgba(0,0,0,.6);
+    }
+    .fav-modal-card h3{
+      font-family:'Bitter',serif; font-size:1.25rem; margin-bottom:.4rem;
+      background:linear-gradient(135deg,#fde68a,#f59e0b);
+      background-clip:text; -webkit-background-clip:text; color:transparent;
+    }
+    .fav-modal-card p{ color:var(--text-secondary); font-size:.88rem; margin-bottom:.75rem; }
+    .fav-modal-preview{
+      background:rgba(15,23,42,.7); border-radius:10px; padding:.875rem;
+      margin-bottom:.875rem; border:1px solid rgba(255,255,255,.07);
+    }
+    .fav-modal-preview .fav-q{ font-size:.82rem; color:rgba(165,180,252,.9); font-weight:600; margin-bottom:.3rem; }
+    .fav-modal-preview .fav-a{ font-size:.8rem; color:var(--text-secondary); line-height:1.5;
+      display: -webkit-box;
+-webkit-line-clamp: 3;
+line-clamp: 3;              /* ← hinzufügen */
+-webkit-box-orient: vertical;
+overflow: hidden;}
+
+
+
+    /* TOP NAV BAR */
+    .top-nav-bar{
+      display:flex; gap:.5rem; margin-bottom:1.25rem; flex-wrap:wrap;
+    }
+    .top-nav-btn{
+      flex:1; min-width:120px;
+      background:rgba(30,41,59,.7);
+      border:1px solid rgba(255,255,255,.1);
+      color:rgba(255,255,255,.8);
+      border-radius:12px; padding:.65rem 1rem;
+      font-size:.82rem; font-weight:600; cursor:pointer;
+      font-family:'Work Sans',sans-serif;
+      backdrop-filter:blur(10px);
+      transition:all .22s cubic-bezier(.4,0,.2,1);
+      display:flex; align-items:center; justify-content:center; gap:.4rem;
+      white-space:nowrap;
+      box-shadow:0 2px 8px rgba(0,0,0,.2);
+    }
+    .top-nav-btn:hover{
+      background:rgba(99,102,241,.25);
+      border-color:rgba(99,102,241,.5);
+      color:white;
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(99,102,241,.3);
+    }
+    .top-nav-btn:active{ transform:translateY(0); }
+    .top-nav-btn.nav-active{
+      background:rgba(99,102,241,.3);
+      border-color:rgba(99,102,241,.6);
+      color:white;
+    }
+
+
+    /* HISTORY CARDS */
+    .hist-header{
+      padding:.65rem 1rem; font-weight:700; font-size:.8rem;
+      border-bottom:1px solid rgba(99,102,241,.2);
+      color:rgba(165,180,252,.8);
+    }
+    .hist-card{
+      padding:.75rem 1rem; border-bottom:1px solid rgba(255,255,255,.04);
+      position:relative;
+    }
+    .hist-card:last-child{ border-bottom:none; }
+    .hist-q{
+      font-size:.78rem; color:rgba(165,180,252,.85); font-weight:600;
+      margin-bottom:.3rem; padding-right:2rem;
+    }
+    .hist-a{
+      font-size:.78rem; color:var(--text-secondary); line-height:1.55;
+    }
+    .hist-star{
+      position:absolute; top:.65rem; right:.75rem;
+      background:none; border:none; cursor:pointer;
+      font-size:1rem; opacity:.4; transition:opacity .2s, transform .2s;
+      padding:.1rem;
+    }
+    .hist-star:hover{ opacity:1; transform:scale(1.2); }
+    .hist-star.starred{ opacity:1; }
+
+
+    /* FAV FILTER BAR */
+    .fav-filter-bar{
+      display:flex; gap:.5rem; flex-wrap:wrap;
+      margin-bottom:.875rem; padding:.875rem 1rem .5rem;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .fav-search{
+      flex:1; min-width:140px;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+      border-radius:8px; padding:.45rem .75rem;
+      color:var(--text-primary); font-family:'Work Sans',sans-serif; font-size:.82rem;
+    }
+    .fav-search:focus{ outline:none; border-color:rgba(245,158,11,.5); background:rgba(255,255,255,.09); }
+    .fav-search::placeholder{ color:rgba(255,255,255,.3); }
+    .fav-npc-filter{
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+      border-radius:8px; padding:.45rem .65rem;
+      color:var(--text-primary); font-family:'Work Sans',sans-serif; font-size:.82rem;
+      cursor:pointer;
+    }
+    .fav-npc-filter:focus{ outline:none; border-color:rgba(245,158,11,.5); }
+    .fav-filter-count{
+      font-size:.72rem; color:var(--text-secondary); padding:.45rem 0;
+      white-space:nowrap; align-self:center;
+    }
+    .fav-highlight{ background:rgba(245,158,11,.3); border-radius:3px; padding:0 1px; }
+
+    /* STAKEHOLDER OVERLAY */
+    #stakeholderBackdrop{
+      position:fixed; inset:0; z-index:399;
+      background:rgba(2,4,20,.85);
+      backdrop-filter:blur(8px);
+      opacity:0; pointer-events:none;
+      transition:opacity .4s ease;
+    }
+    #stakeholderBackdrop.open{ opacity:1; pointer-events:all; }
+    /* scanline grid on backdrop */
+    #stakeholderBackdrop::before{
+      content:''; position:absolute; inset:0;
+      background-image:
+        linear-gradient(rgba(99,102,241,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,.04) 1px, transparent 1px);
+      background-size:40px 40px;
+      animation:gridScroll 20s linear infinite;
+    }
+    #stakeholderBackdrop::after{
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 50%,
+        rgba(139,92,246,.12) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    @keyframes gridScroll{ from{background-position:0 0;} to{background-position:40px 40px;} }
+
+    #stakeholderModal{
+      position:fixed; inset:0; z-index:400;
+      display:flex; align-items:center; justify-content:center;
+      padding:1.5rem; pointer-events:none;
+    }
+    #stakeholderPanel{
+      width:min(860px,100%); max-height:90vh; overflow-y:auto;
+      background:linear-gradient(160deg,rgba(10,12,30,.98),rgba(18,10,40,.98));
+      border:1px solid rgba(139,92,246,.35);
+      border-radius:20px; padding:2rem;
+      box-shadow:0 0 0 1px rgba(99,102,241,.1),
+                 0 30px 80px rgba(0,0,0,.8),
+                 0 0 60px rgba(99,102,241,.15),
+                 inset 0 1px 0 rgba(255,255,255,.07);
+      pointer-events:none;
+      opacity:0; transform:scale(.94) translateY(20px);
+      transition:opacity .38s cubic-bezier(.4,0,.2,1), transform .38s cubic-bezier(.4,0,.2,1);
+    }
+    #stakeholderPanel.open{
+      opacity:1; transform:scale(1) translateY(0);
+      pointer-events:all;
+    }
+    /* corner accents */
+    #stakeholderPanel::before,#stakeholderPanel::after{
+      content:''; position:absolute; width:30px; height:30px; pointer-events:none;
+    }
+    #stakeholderPanel::before{
+      top:12px; left:12px;
+      border-top:2px solid rgba(236,72,153,.6);
+      border-left:2px solid rgba(236,72,153,.6);
+      border-radius:4px 0 0 0;
+    }
+    #stakeholderPanel::after{
+      bottom:12px; right:12px;
+      border-bottom:2px solid rgba(99,102,241,.6);
+      border-right:2px solid rgba(99,102,241,.6);
+      border-radius:0 0 4px 0;
+    }
+    #stakeholderPanel{ position:relative; }
+
+    .sh-header{
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:1.75rem;
+    }
+    .sh-title-wrap{ display:flex; align-items:center; gap:.875rem; }
+    .sh-icon-badge{
+      width:2.8rem; height:2.8rem; border-radius:12px;
+      background:linear-gradient(135deg,rgba(236,72,153,.25),rgba(139,92,246,.25));
+      border:1px solid rgba(236,72,153,.4);
+      display:flex; align-items:center; justify-content:center; font-size:1.3rem;
+      box-shadow:0 0 20px rgba(236,72,153,.25);
+    }
+    .sh-title{
+      font-family:'Bitter',serif; font-size:1.5rem;
+      background:linear-gradient(135deg,#f9a8d4,#c4b5fd);
+      background-clip:text; -webkit-background-clip:text; color:transparent;
+    }
+    .sh-subtitle{ font-size:.78rem; color:rgba(203,213,225,.5); margin-top:.1rem; }
+
+    /* NPC cards inside modal */
+    #stakeholderPanel .npc-grid{
+  display:grid;
+  grid-template-columns:repeat(5, minmax(120px, 1fr));
+  gap:.875rem;
+  margin-top:0;
+  margin-bottom:1rem;
+  align-items:stretch;
+  width:100%;
+}
+
+#npcGrid{
+  overflow:visible;
+}
+
+#stakeholderPanel{
+  overflow-x:hidden;
+}
+    #stakeholderPanel .npc-card{
+      opacity:0; transform:translateY(16px) scale(.95);
+      animation:npcIn .35s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    #stakeholderPanel .npc-card:nth-child(1){ animation-delay:.04s; }
+    #stakeholderPanel .npc-card:nth-child(2){ animation-delay:.1s; }
+    #stakeholderPanel .npc-card:nth-child(3){ animation-delay:.16s; }
+    #stakeholderPanel .npc-card:nth-child(4){ animation-delay:.22s; }
+    #stakeholderPanel .npc-card:nth-child(5){ animation-delay:.28s; }
+    #stakeholderPanel .npc-card{ min-width:0;}
+    @keyframes npcIn{
+      to{ opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    #npcGrid{
+  overflow:visible;
+}
+
+#stakeholderPanel .npc-card{
+  min-width:0;
+}
+.npc-card.selected,
+#stakeholderPanel .npc-card.selected{
+  opacity:1 !important;
+  border:2px solid #f59e0b !important;
+  background:var(--bg-main) !important;
+  box-shadow:0 0 0 2px rgba(245,158,11,.22) !important;
+  animation:none !important;
+  transform:none !important;
+}
+    @keyframes selectedPulse{
+      0%,100%{ box-shadow:0 0 20px rgba(236,72,153,.3); }
+      50%{     box-shadow:0 0 35px rgba(236,72,153,.6), 0 0 60px rgba(236,72,153,.2); }
+    }
+
+    /* Interview area */
+    #stakeholderPanel .interview-section{
+  border:1px solid rgba(236,72,153,.3);
+  background:rgba(10,12,30,.7);
+  border-radius:14px;
+  margin-top:1.25rem;
+  animation:fadeUp .3s ease;
+  position:relative;
+  z-index:1;
+}
+
+    /* Typewriter response */
+    #responseBox.typewriter{ white-space:pre-wrap; }
+    #responseBox .cursor{
+      display:inline-block; width:2px; height:1em;
+      background:var(--primary); margin-left:2px;
+      animation:blink .7s step-end infinite; vertical-align:text-bottom;
+    }
+    @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+    /* CARDS */
+    .card{
+      background:linear-gradient(135deg,rgba(30,41,59,.97),rgba(51,65,85,.97));
+      backdrop-filter:blur(10px); border-radius:18px; padding:2rem;
+      box-shadow:0 8px 40px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.05);
+      animation:fadeUp .35s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes fadeUp{ from{opacity:0;}to{opacity:1;} }
+    .card h2{
+      font-family:'Bitter',serif; color:transparent;
+      background:linear-gradient(135deg,#a5b4fc,#c4b5fd);
+      background-clip:text; -webkit-background-clip:text;
+      font-size:1.9rem; font-weight:700; margin-bottom:1rem;
+    }
+    .card h3{ font-family:'Bitter',serif; font-size:1.1rem; color:#a5b4fc; margin-bottom:.7rem; }
+
+    /* MODULE */
+    .module-header{
+      display:flex; align-items:center; gap:1.5rem; margin-bottom:2rem;
+      padding-bottom:1.5rem; border-bottom:1px solid rgba(255,255,255,.07);
+    }
+    .module-big-icon{ font-size:3.2rem; flex-shrink:0; line-height:1; }
+    .module-title-block h2{ margin-bottom:.25rem; }
+    .module-subtitle{ color:var(--text-secondary); font-size:.95rem; }
+   .module-section{
+  max-width: 900px;
+  margin: 0 auto 1.5rem auto;
+  padding: 1.4rem;
+  background: rgba(15,23,42,.5);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.055);
+}
+    .module-section p{ line-height:1.8; color:var(--text-secondary); }
+    .module-example-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:1rem;
+  margin-top:1rem;
+}
+
+.module-example-item{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  padding:0.8rem;
+  text-align:center;
+}
+
+.module-example-image{
+  width:100%;
+  border-radius:8px;
+  margin-bottom:0.5rem;
+}
+
+.module-example-caption{
+  font-size:.85rem;
+  color:var(--text-secondary);
+}
+    .step-list{ display:flex; flex-direction:column; gap:.65rem; }
+    .step-item{
+  display:flex;
+  gap:.875rem;
+  align-items:flex-start;
+  padding:.8rem .9rem;
+  background:rgba(99,102,241,.06);
+  border-radius:10px;
+  border:1px solid rgba(99,102,241,.13);
+  cursor:pointer;
+  transition:all .25s ease;
+  user-select:none;
+}
+
+.step-check{
+  flex:0 0 1.9rem;
+  width:1.9rem;
+  height:1.9rem;
+  border-radius:50%;
+  border:2px solid rgba(99,102,241,.45);
+  display:grid;
+  place-items:center;
+  font-size:.85rem;
+  line-height:1;
+  transition:all .3s cubic-bezier(.4,0,.2,1);
+  background:transparent;
+  position:relative;
+  margin-top:.08rem;
+}
+
+.step-number-txt,
+.step-check-icon{
+  grid-area:1 / 1;
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:100%;
+  line-height:1;
+  font-variant-numeric: tabular-nums;
+}
+
+.step-check-icon{
+  font-size:.8rem;
+  opacity:0;
+  transition:opacity .2s;
+}
+
+.step-item.done .step-check-icon{
+  opacity:1;
+}
+
+.step-number-txt{
+  font-weight:700;
+  font-size:.82rem;
+  color:rgba(165,180,252,.7);
+  transition:opacity .2s;
+}
+
+.step-item.done .step-number-txt{
+  opacity:0;
+}
+
+.step-text{
+  line-height:1.7;
+  color:var(--text-secondary);
+  padding-top:0;
+  font-size:.93rem;
+  transition:all .25s;
+}
+    
+    .step-item.locked{ opacity:.4; cursor:not-allowed; }
+    .step-item.locked:hover{ background:rgba(99,102,241,.06); border-color:rgba(99,102,241,.13); transform:none; box-shadow:none; }
+    .step-item.locked .step-check{ border-color:rgba(255,255,255,.15); }
+    .step-progress-bar{
+      height:3px; background:rgba(255,255,255,.06); border-radius:99px;
+      margin-top:.6rem; overflow:hidden;
+    }
+    .step-progress-fill{
+      height:100%; border-radius:99px;
+      background:linear-gradient(90deg,#6ee7b7,#10b981);
+      transition:width .5s cubic-bezier(.4,0,.2,1);
+      box-shadow:0 0 8px rgba(16,185,129,.5);
+    }
+    .step-counter{
+      font-size:.75rem; color:rgba(110,231,183,.7); font-weight:600;
+      display:flex; align-items:center; gap:.5rem; margin-bottom:.75rem;
+    }
+    .resource-list{ display:flex; flex-direction:column; gap:.5rem; }
+    .resource-item{
+      display:flex; align-items:center; gap:.8rem; padding:.8rem 1rem;
+      border-radius:10px; background:rgba(30,41,59,.8); border:1px solid rgba(255,255,255,.055);
+      color:var(--text-primary); text-decoration:none; transition:all .22s ease; font-size:.9rem;
+    }
+    .resource-item:hover{
+      border-color:rgba(99,102,241,.5); background:rgba(99,102,241,.1);
+      transform:translateX(5px); color:#a5b4fc;
+    }
+    .resource-icon{ font-size:1.1rem; flex-shrink:0; }
+    .module-actions{
+      display:flex; flex-wrap:wrap; gap:.875rem; align-items:center;
+      margin-top:1.75rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,.07);
+    }
+    .module-complete-badge{
+      padding:.875rem 1.5rem; border-radius:12px;
+      background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(5,150,105,.2));
+      border:2px solid var(--success); color:#6ee7b7; font-weight:700;
+    }
+
+    /* NPC GRID */
+    .npc-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:1rem; margin-top:1rem; }
+    .npc-card{
+      background:var(--bg-main); border:2px solid var(--border);
+      border-radius:12px; padding:1.25rem 1rem; cursor:pointer; transition:all .25s ease; text-align:center;
+    }
+    .npc-card:hover{ border-color:var(--secondary); transform:translateY(-3px); box-shadow:0 6px 20px rgba(139,92,246,.3); }
+   
+    .npc-avatar{ font-size:2.5rem; margin-bottom:.5rem; }
+    .npc-name{ font-weight:600; margin-bottom:.2rem; font-size:.88rem; }
+    .npc-role{ font-size:.78rem; color:var(--text-secondary); line-height:1.4; word-break:break-word; }
+    .interview-section{
+      display:none; margin-top:1.5rem; padding:1.5rem;
+      background:var(--bg-main); border-radius:12px; border:2px solid var(--accent);
+    }
+    .interview-section.active{ display:block; animation:fadeUp .3s ease; }
+
+    /* BUTTONS */
+    .btn{
+      padding:.875rem 1.75rem; border:none; border-radius:12px; font-size:1rem; font-weight:600;
+      cursor:pointer; transition:all .3s cubic-bezier(.4,0,.2,1);
+      font-family:'Work Sans',sans-serif; position:relative; overflow:hidden;
+      text-transform:uppercase; letter-spacing:.4px; user-select:none;
+    }
+    .btn::before{
+      content:''; position:absolute; top:50%; left:50%; width:0; height:0;
+      border-radius:50%; background:rgba(255,255,255,.25); transform:translate(-50%,-50%);
+      transition:width .55s,height .55s;
+    }
+    .btn:hover::before{ width:280px; height:280px; }
+    .btn-primary{
+      background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white;
+      box-shadow:0 4px 15px rgba(99,102,241,.4),inset 0 1px 0 rgba(255,255,255,.2);
+    }
+    .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 8px 28px rgba(99,102,241,.55); }
+    .btn-primary:disabled{ opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn-secondary{ background:rgba(30,41,59,.8); color:var(--text-primary); border:2px solid rgba(99,102,241,.28); }
+    .btn-secondary:hover{ border-color:var(--primary); background:rgba(99,102,241,.1); }
+    .btn-small{ padding:.5rem 1rem; font-size:.83rem; }
+    .question-input{
+      width:100%; padding:.75rem; border:2px solid var(--border); border-radius:10px;
+      font-size:.95rem; font-family:'Work Sans',sans-serif; margin-bottom:1rem;
+      background:rgba(255,255,255,.05); color:var(--text-primary);
+    }
+    .question-input:focus{ outline:none; border-color:var(--secondary); background:rgba(255,255,255,.08); }
+    .response-box{
+      margin-top:1rem; padding:1.4rem; background:rgba(99,102,241,.05);
+      border:1px solid rgba(99,102,241,.2); border-left:4px solid var(--primary);
+      border-radius:12px; display:none; white-space:pre-wrap; font-size:.93rem;
+    }
+    .response-box.active{ display:block; animation:fadeUp .3s ease; }
+    .response-box strong{ color:var(--primary); }
+
+    /* LOGIN */
+    #loginOverlay{
+      position:fixed; inset:0; z-index:9999;
+      display:flex; align-items:center; justify-content:center; padding:20px;
+      background:rgba(0,0,0,.65); backdrop-filter:blur(12px);
+    }
+    #loginCard{
+      width:min(500px,94vw);
+      background:linear-gradient(135deg,rgba(30,41,59,.99),rgba(51,65,85,.99));
+      border:1px solid rgba(255,255,255,.12); border-radius:18px; padding:2.25rem;
+      box-shadow:0 20px 70px rgba(0,0,0,.6);
+    }
+    #loginCard h2{
+      font-family:'Bitter',serif; font-size:1.65rem; margin-bottom:.4rem;
+      background:linear-gradient(135deg,#a5b4fc,#c4b5fd);
+      background-clip:text; -webkit-background-clip:text; color:transparent;
+    }
+    #loginCard p{ color:var(--text-secondary); margin-bottom:1rem; font-size:.92rem; }
+    .login-label{ display:block; font-size:.82rem; color:var(--text-secondary); margin:.8rem 0 .3rem; }
+    .login-error{ color:var(--danger); margin-top:.7rem; display:none; font-size:.88rem; }
+
+    /* SAMPLE MODAL */
+    #sampleModal{
+      position:fixed; inset:0; z-index:500;
+      display:flex; align-items:center; justify-content:center; padding:20px;
+      background:rgba(0,0,0,.75); backdrop-filter:blur(10px);
+    }
+    .pw-modal-card{
+      width:min(440px,94vw);
+      background:linear-gradient(135deg,rgba(30,41,59,.99),rgba(51,65,85,.99));
+      border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:2rem;
+      box-shadow:0 20px 60px rgba(0,0,0,.6);
+    }
+    .pw-modal-card h3{
+      font-family:'Bitter',serif; font-size:1.35rem; margin-bottom:.5rem;
+      background:linear-gradient(135deg,#a5b4fc,#c4b5fd);
+      background-clip:text; -webkit-background-clip:text; color:transparent;
+    }
+    .pw-modal-card p{ color:var(--text-secondary); margin-bottom:1.2rem; font-size:.92rem; }
+    .pw-modal-actions{ display:flex; gap:.75rem; margin-top:1rem; flex-wrap:wrap; }
+    #samplePwError{ color:var(--danger); display:none; margin:.5rem 0; font-size:.88rem; }
+    #downloadLinkWrap{ display:none; margin-top:1rem; }
+    #downloadLinkWrap a{
+      display:inline-flex; align-items:center; gap:.5rem; padding:.875rem 1.5rem;
+      border-radius:12px; background:linear-gradient(135deg,#059669,#10b981);
+      color:white; text-decoration:none; font-weight:600;
+      box-shadow:0 4px 15px rgba(16,185,129,.4); transition:all .3s;
+    }
+    #downloadLinkWrap a:hover{ transform:translateY(-2px); box-shadow:0 8px 25px rgba(16,185,129,.5); }
+                                                                                  
+    
+    /* AI SAMPLE MODAL */
+    #aiSampleModal{
+      position:fixed; inset:0; z-index:650;
+      display:flex; align-items:center; justify-content:center; padding:20px;
+      background:rgba(0,0,0,.78); backdrop-filter:blur(10px);
+    }
+    .ai-modal-card{
+      width:min(980px,96vw); max-height:92vh; overflow:auto;
+      background:linear-gradient(135deg,rgba(30,41,59,.99),rgba(51,65,85,.99));
+      border:1px solid rgba(255,255,255,.12); border-radius:18px; padding:2rem;
+      box-shadow:0 20px 60px rgba(0,0,0,.6);
+    }
+    .ai-modal-card h3{
+      font-family:'Bitter',serif; font-size:1.45rem; margin-bottom:.35rem;
+      background:linear-gradient(135deg,#a5b4fc,#c4b5fd);
+      background-clip:text; -webkit-background-clip:text; color:transparent;
+    }
+    .ai-sample-meta{ color:var(--text-secondary); font-size:.9rem; margin-bottom:1rem; }
+    .ai-sample-box{
+      white-space:pre-wrap; line-height:1.75; font-size:.95rem; color:var(--text-primary);
+      background:rgba(15,23,42,.72); border:1px solid rgba(99,102,241,.18);
+      border-radius:14px; padding:1.25rem; min-height:240px;
+    }
+    .ai-sample-note{
+      margin-top:.9rem; font-size:.8rem; color:var(--text-secondary);
+      background:rgba(255,255,255,.04); border-radius:10px; padding:.75rem .9rem;
+    }
+
+    .hidden{ display:none !important; }
+    .loading{
+      display:inline-block; width:16px; height:16px;
+      border:2.5px solid rgba(255,255,255,.3); border-top-color:white;
+      border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:.45rem;
+    }
+    @keyframes spin{ to{ transform:rotate(360deg); } }
+
+    @media(max-width:768px){
+      .container{ padding:1rem; }
+      header{ padding:1.25rem; }
+      .header-titles h1{ font-size:1.4rem; }
+      .module-header{ flex-direction:column; align-items:flex-start; }
+      .module-actions{ flex-direction:column; }
+      .module-actions .btn,
+      .module-actions a.btn{ width:100%; text-align:center; justify-content:center; }
+    }
+  
+#google_translate_element {
+  font-size: 0.8rem;
+}
+
+.goog-te-combo {
+  background:#1e293b;
+  color:#fff;
+  border:1px solid #334155;
+  padding:4px 6px;
+  border-radius:6px;
+}
+
+.goog-logo-link,
+.goog-te-gadget span {
+  display:none !important;
+}
+
+.goog-te-gadget {
+  color:transparent !important;
+}
+
+.module-section p {
+  margin-bottom: 1rem;
+}
+
+.module-section p:last-child {
+  margin-bottom: 0;
+}
+
+.module-section ul {
+  margin: 0.8rem 0 1rem 1.2rem; /* Abstand + Einzug */
+  padding-left: 1rem;           /* wichtig für Bullet-Einzug */
+}
+
+.module-section li {
+  margin-bottom: 0.4rem;
+  line-height: 1.6;
+  font-weight: 300; /* normal */
+}
+
+.module-section ul {
+  margin: 0.8rem 0 1rem 1.2rem;
+  padding-left: 1rem;
+}
+
+.btn-reset{
+  background:rgba(239,68,68,.15);
+  border:1px solid rgba(239,68,68,.4);
+  color:#fca5a5;
+  padding:.4rem .75rem;
+  font-size:.72rem;
+  font-weight:600;
+  cursor:pointer;
+  border-radius:8px;
+  transition:all .2s;
+}
+
+.btn-reset:hover{
+  background:rgba(239,68,68,.3);
+  color:white;
+}
+</style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginOverlay">
+  <div id="loginCard">
+    <h2>Login</h2>
+    <p>Melde dich an. Die Zugangsdaten erhältst du vom Dozenten.</p>
+    <label class="login-label" for="loginUser">Benutzername</label>
+    <input id="loginUser" class="question-input" placeholder="Benutzername" autocomplete="username" />
+    <label class="login-label" for="loginPass">Passwort</label>
+    <input id="loginPass" class="question-input" type="password" placeholder="••••••••" autocomplete="current-password" />
+    <button id="loginBtn" class="btn btn-primary" style="width:100%;margin-top:.5rem;" onclick="handleLogin()">Anmelden</button>
+    <div id="loginError" class="login-error">Zugriff verweigert – bitte erneut versuchen.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appRoot" class="container" style="display:none;">
+  <header>
+    <div class="header-top" style="align-items:stretch;">
+      <div class="header-titles">
+        <h1>Einführung eines Patientenportals</h1>
+        <p class="subtitle">Strategisches Transformationsprojekt</p>
+      </div>
+     <div style="display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end; gap:6px;">
+  <div id="google_translate_element"></div>
+
+  <div style="display:flex; gap:6px;">
+    <button class="btn-reset" onclick="resetTool()">🔒 Reset</button>
+    <button class="btn-logout" onclick="confirmLogout()">Logout</button>
+  </div>
+</div>
+    </div>
+
+    <div class="progress-strip" id="progressStrip">
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="progressBarInner" style="width:0%"></div>
+      </div>
+      <span class="progress-text" id="progressText">Fallbeispiel</span>
+    </div>
+
+    <div class="current-step-row" id="current-step-row-el">
+      <div class="step-pill" id="currentStepPill">
+        <span class="step-pill-icon" id="currentStepIcon">📋</span>
+        <span id="stepProgressChip" style="display:none; margin-left:.4rem; padding:.1rem .5rem;
+              background:rgba(255,255,255,.15); border-radius:99px; font-size:.72rem;
+              font-weight:700; opacity:.9;"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAV BAR between header and content -->
+  <div class="top-nav-bar">
+    <button class="top-nav-btn" onclick="openDrawer()">🗺️&nbsp; Übersicht</button>
+    <button class="top-nav-btn" id="btnStakeholder" onclick="toggleStakeholderDrawer()">🎤&nbsp; Stakeholder</button>
+  </div>
+  
+  <!-- Phase 0: Fallbeispiel -->
+<div id="phase0" class="phase-content">
+  <div class="card">
+    <h2>Fallbeispiel</h2>
+
+    <p style="line-height:1.8;margin-bottom:1.2rem;color:var(--text-secondary);">
+      Das kommunale Klinikum Nordstadt ist ein Krankenhaus der Regelversorgung mit rund 45.000 stationären und ambulanten Patient:innen pro Jahr. 
+      Die  Krankenhausleitung hat die Entscheidung getroffen, im Rahmen der Digitalisierungsstrategie des Hauses ein digitales Patientenportal einzuführen. 
+      Derzeit liegt weder ein detailliertes Konzept noch eine ausgearbeitete Umsetzungsstrategie vor.  
+    </p>
+    
+    <p style="line-height:1.8;margin-bottom:1.2rem;color:var(--text-secondary);">
+      Der aktuelle Stand im Klinikum ist durch eine fragmentierte und überwiegend analoge Prozesslandschaft geprägt. 
+      Terminvereinbarungen erfolgen über verschiedene Kanäle, insbesondere telefonisch oder über isolierte Einzelsysteme. 
+      Aufnahmeprozesse sind größtenteils papierbasiert organisiert, während Patient:innen Informationen überwiegend vor Ort oder per Post erhalten. 
+      Zwar existieren bereits einzelne digitale Lösungen, diese sind jedoch nicht durchgängig integriert. 
+      In der Folge wird der administrative Aufwand in mehreren Bereichen als hoch beschrieben.
+    </p>
+    
+    
+    <p style="line-height:1.8;margin-bottom:1.2rem;color:var(--text-secondary);">
+      Die Geschäftsführung verbindet mit der Einführung des Patientenportals mehrere strategische Erwartungen. 
+      Dazu zählen insbesondere die Verbesserung der Kommunikation mit Patient:innen, die Entlastung administrativer Prozesse sowie der Ausbau digitaler Services entlang des Behandlungspfades.
+      Das Projekt wird im Rahmen des Krankenhauszukunftsgesetzes (KHZG, Fördertatbestand 2) gefördert, verfügt über ein Förderbudget von 
+      <strong style="color:var(--text-primary);">2,5 Millionen Euro</strong> und ist auf eine Laufzeit von 
+      <strong style="color:var(--text-primary);">18 Monaten</strong> angelegt.
+    </p>
+
+   <div style="margin-bottom:1.6rem;padding:1.2rem 1.4rem;border-radius:12px;
+  background:linear-gradient(135deg, rgba(124,58,237,.15), rgba(59,130,246,.15));
+  border:1px solid rgba(124,58,237,.25);">
+
+  <p style="margin-bottom:0.6rem;font-weight:600;color:var(--text-primary);">
+    💡 Was ist ein Patientenportal?
+  </p>
+
+  <p style="line-height:1.8;color:var(--text-secondary);margin-bottom:0;">
+    Ein Patientenportal stellt eine digitale Plattform dar, über die Patient:innen mit dem Krankenhaus interagieren 
+    und auf ausgewählte Informationen sowie Dienstleistungen zugreifen können. Es fungiert als zentraler Zugangspunkt 
+    für digitale Prozesse entlang des gesamten Behandlungspfades – vor, während und nach dem Krankenhausaufenthalt. 
+    Im Kontext des KHZG umfasst ein solches Portal typischerweise Funktionen wie die digitale Terminverwaltung, 
+    die Unterstützung von Aufnahme- und Anmeldeprozessen, die Bereitstellung von Informationen und Dokumenten 
+    sowie digitale Kommunikationsmöglichkeiten zwischen Patient:innen und dem Krankenhaus.
+   </p>
+    </div>
+
+    <div class="phase-nav">
+      <div></div>
+      <button class="btn btn-primary" onclick="goToPhase(1)">Weiter &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- Phase 1: Auftrag & Arbeitslogik -->
+<div id="phase1" class="phase-content hidden">
+  <div class="card">
+
+    <h2>Auftrag & Arbeitslogik</h2>
+
+    <h3 style="margin-top:1.25rem;">Eure Rolle</h3>
+    <p style="line-height:1.8;margin-bottom:1.2rem;color:var(--text-secondary);">
+      Ihr übernehmt die Rolle der <strong style="color:var(--text-primary);">strategischen Projektleitung</strong>.
+      Eure Aufgabe ist es, das Projekt aus einer übergeordneten Managementperspektive zu strukturieren, zu priorisieren
+      und in eine realistische Umsetzungslogik zu überführen.
+    </p>
+    <p style="line-height:1.8;margin-bottom:1.6rem;color:var(--text-secondary);">
+      Dabei berücksichtigt ihr technische, organisatorische sowie wirtschaftliche Rahmenbedingungen und entwickelt
+      eine tragfähige Umsetzungsstrategie für das Digitalisierungsprojekt.
+    </p>
+
+   <h3>Wie ihr arbeitet</h3>
+<p style="line-height:1.8;margin-bottom:1.2rem;color:var(--text-secondary);">
+  Im Verlauf nutzt ihr verschiedene Methoden, um das Projekt systematisch zu analysieren und zu strukturieren.
+  Diese bauen logisch aufeinander auf und führen euch Schritt für Schritt von der Analyse zur Umsetzung.
+</p>
+
+<div style="padding:1.4rem 1.6rem;background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:12px;margin-bottom:1.8rem;">
+  <h3>Von den Methoden zur Umsetzungsplanung</h3>
+
+<p style="line-height:1.8;margin-bottom:1rem;color:var(--text-secondary);">
+  Die Ergebnisse eurer Analyse bilden die Grundlage für die weitere Projektplanung.
+Auf dieser Basis entwickelt ihr konkrete Maßnahmen und nächste Schritte, die ihr sinnvoll strukturiert, priorisiert und in eine realistische Umsetzungslogik überführt.
+Ziel ist es, aus euren Erkenntnissen nachvollziehbare Entscheidungen abzuleiten und daraus eine tragfähige Planung für die Einführung des Patientenportals zu entwickeln.
+</p>
+
+<p style="line-height:1.8;margin-bottom:1rem;color:var(--text-secondary);">
+  Die Zeit- und Maßnahmenplanung erstellt ihr eigenständig außerhalb des Spiels in Form eines Gantt-Charts in z. B. 
+  <a href="https://www.onlinegantt.com/" target="_blank" style="color:var(--primary);text-decoration:underline;">
+    Online Gantt
+  </a>.
+  Arbeitspakete, Aktivitäten und Meilensteine sollen dabei selbstständig aus euren Analyseergebnissen und der Logik des Falls abgeleitet werden. 
+  Die Methoden liefern euch dafür die inhaltliche Grundlage.
+</p>
+
+
+<p style="line-height:1.8;margin-bottom:0.6rem;color:var(--text-secondary);">
+  <strong style="color:var(--text-primary);">Worauf es dabei ankommt:</strong>
+</p>
+
+<ul style="padding-left:1.2rem;color:var(--text-secondary);line-height:1.8;margin-bottom:1.2rem;">
+  <li>📦 Ableitung von Arbeitspaketen mit Aktivitäten</li>
+  <li>📅 Zeitliche Abfolge der Maßnahmen</li>
+  <li>📍 Meilensteine festlegen</li>
+</ul>
+
+<p style="line-height:1.8;margin-bottom:0.6rem;color:var(--text-secondary);">
+  <strong style="color:var(--text-primary);">Beispiel:</strong>
+</p>
+
+<p style="line-height:1.8;margin-bottom:0.4rem;color:var(--text-secondary);">
+  <strong style="color:var(--text-primary);">Arbeitspaket:</strong> Schulungskonzept entwickeln
+</p>
+
+<p style="line-height:1.8;margin-bottom:0.4rem;color:var(--text-secondary);">
+  <strong style="color:var(--text-primary);">Aktivitäten:</strong> Schulungsbedarf analysieren,
+  Zielgruppen definieren, Inhalte erarbeiten, Schulungen terminieren, Evaluation vorbereiten
+</p>
+
+<p style="line-height:1.8;margin-bottom:1rem;color:var(--text-secondary);">
+  <strong style="color:var(--text-primary);">Meilenstein:</strong> Schulungskonzept abgestimmt und freigegeben
+</p>
+    </div>
+
+        <div class="phase-nav">
+      <button class="btn btn-secondary" onclick="goToPhase(0)">&larr; Zurück</button>
+      <button class="btn btn-primary" onclick="goToPhase(2)">Weiter &rarr;</button>
+    </div>
+    
+  </div>
+</div>
+
+<!-- STAKEHOLDER OVERLAY -->
+<div id="stakeholderBackdrop" onclick="closeStakeholderDrawer()"></div>
+<div id="stakeholderModal">
+  <div id="stakeholderPanel">
+    <div class="sh-header">
+      <div class="sh-title-wrap">
+        <div class="sh-icon-badge">🎤</div>
+        <div>
+          <div class="sh-title">Stakeholder befragen</div>
+          <div class="sh-subtitle">Jederzeit verfügbar &mdash; wähle eine Person aus</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <button class="btn-icon" id="btnFavView" onclick="toggleFavPanel()"
+          style="font-size:.8rem;padding:.45rem .8rem;background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.35);color:#fde68a;">
+          ⭐ Favoriten
+        </button>
+        <button class="btn-close-drawer" onclick="closeStakeholderDrawer()" style="font-size:1.5rem;">✕</button>
+      </div>
+    </div>
+
+    <div id="favPanel">
+      <div class="fav-header">
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <button onclick="toggleFavPanel()" style="background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:.85rem;padding:.2rem .4rem;border-radius:6px;transition:all .2s;font-family:'Work Sans',sans-serif;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,.5)'">&#8592; Zurück</button>
+          <span class="fav-title">⭐ Favoriten</span>
+          <span style="font-size:.75rem;color:var(--text-secondary);" id="favCount"></span>
+        </div>
+      </div>
+      <button class="fav-btn" onclick="setFavFilter('all')">Alle</button>
+      <button class="fav-btn" onclick="setFavFilter('own')">Nur meine</button>
+      <div class="fav-filter-bar" id="favFilterBar" style="display:none;">
+        <input class="fav-search" id="favSearchInput" type="text"
+          placeholder="🔍 Suche in Fragen, Antworten, Kommentaren…"
+          oninput="renderFavList()">
+        <select class="fav-npc-filter" id="favNpcFilter" onchange="renderFavList()">
+          <option value="">Alle Stakeholder</option>
+        </select>
+        <span class="fav-filter-count" id="favFilterCount"></span>
+      </div>
+      <div class="fav-list" id="favList"></div>
+    </div>
+
+    <div class="npc-grid" id="npcGrid"></div>
+
+    <div class="interview-section" id="interviewSection">
+      <h3>💬 Interview mit: <span id="currentNPCName"></span></h3>
+      <p style="color:var(--text-secondary);margin-bottom:1rem;font-size:.85rem;"><em id="currentNPCRole"></em></p>
+      <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-bottom:.75rem;">
+        <button class="btn btn-secondary btn-small" onclick="toggleHistory()">📜 Verlauf</button>
+      </div>
+      <div id="historyPanel" class="hidden"
+           style="margin-bottom:1rem;border:1px solid rgba(99,102,241,.3);
+                  border-radius:12px;background:rgba(15,23,42,.6);
+                  max-height:280px;overflow:auto;font-size:.85rem;"></div>
+      <textarea class="question-input" id="questionInput" rows="3" placeholder="Stellt eure Frage…"></textarea>
+      <button class="btn btn-primary" onclick="askQuestion()" id="askBtn" style="width:100%;">Frage stellen</button>
+      <div class="response-box" id="responseBox"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Dynamische Modul-Seite -->
+<div id="phaseModule" class="phase-content hidden"></div>
+</div>
+
+
+<!-- JOURNEY DRAWER -->
+<div id="drawerBackdrop" onclick="closeDrawer()"></div>
+<div id="journeyDrawer">
+  <div class="drawer-head">
+    <span class="drawer-head-title">🗺️ Lernpfad</span>
+    <button class="btn-close-drawer" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="journey-list" id="journeyList"></div>
+</div>
+
+<!-- MUSTERLÖSUNG MODAL -->
+<div id="sampleModal" class="hidden">
+  <div class="pw-modal-card">
+    <h3>🔒 Musterlösung</h3>
+    <div id="samplePwSection">
+      <p>Bitte gib das Passwort ein, um die Musterlösung herunterladen zu können.</p>
+      <input type="password" id="samplePwInput" class="question-input" placeholder="Passwort eingeben"
+             onkeydown="if(event.key==='Enter') checkSamplePassword()" />
+      <div id="samplePwError">❌ Falsches Passwort – bitte erneut versuchen.</div>
+    </div>
+    <div id="downloadLinkWrap"></div>
+    <div class="pw-modal-actions">
+      <button class="btn btn-primary" id="sampleConfirmBtn" onclick="checkSamplePassword()">Bestätigen</button>
+      <button class="btn btn-secondary" onclick="closeSampleModal()">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- KI-MUSTERLÖSUNG MODAL -->
+<div id="aiSampleModal" class="hidden">
+  <div class="ai-modal-card">
+    <h3 id="aiSampleTitle">✨ Musterlösung</h3>
+    <div class="ai-sample-meta" id="aiSampleMeta"></div>
+    <div class="ai-sample-box" id="aiSampleContent"></div>
+    <div class="pw-modal-actions" style="margin-top:1rem;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="downloadAISampleAsWord()">⬇️ Word</button>
+      <button class="btn btn-primary" id="aiGenerateBtn" onclick="generateAISampleSolution(currentAISampleModuleIndex)">✨ Neu generieren</button>
+      <button class="btn btn-secondary" onclick="closeAISampleModal()">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  
+/* ══════════════════════════════════════════════════════════════
+LERNPFAD – neue Module hier ergänzen
+══════════════════════════════════════════════════════════════ */
+const MODULES = [
+  {
+  key:"stakeholdermap",
+  title:"Stakeholder-Map",
+  icon:"🤝",
+  subtitle:"Stakeholder identifizieren, einordnen und Strategien ableiten",
+
+  // Was ist das?
+  description: `Die Stakeholder-Map ist eine strukturierte Methode zur  Identifikation, Analyse und Priorisierung aller relevanten internen und externen Anspruchsgruppen eines Projekts. 
+  
+  Ziel ist es, Transparenz darüber zu schaffen, welche Akteure Einfluss auf das Projekt haben und in welchem Maße sie von dessen Umsetzung betroffen sind. 
+  
+  Im Rahmen der Anwendung werden Stakeholder zunächst gesammelt, anschließend entlang ihres Einflusses (Macht) und Interesses (Betroffenheit) in einer Matrix visualisiert und zueinander 
+  in Beziehung gesetzt. Dadurch können Schlüsselakteure, potenzielle Unterstützer sowie mögliche Widerstände frühzeitig identifiziert werden. Auf dieser Grundlage lassen sich differenzierte Einbindungs- und 
+  Kommunikationsstrategien ableiten (z. B. eng managen, zufriedenstellen, informieren oder beobachten) und in konkrete Maßnahmen für die Projektumsetzung überführen. Gerade in komplexen Veränderungsvorhaben wie der 
+  digitalen Transformation im Gesundheitswesen stellt die Stakeholder-Map damit ein zentrales Instrument dar, um gezieltes Stakeholdermanagement, wirksames Changemanagement und eine strukturierte Projektplanung, etwa 
+  in einer Umsetzungsplanung, zu ermöglichen.`,
+
+  // Vorgehensweise
+  instructions:[
+  `Identifiziert alle relevanten internen und externen Stakeholder des Projekts und notiert diese jeweils auf einzelnen Sticky Notes. Berücksichtigt bereits bekannte Stakeholder, nutzt Brainstorming und fragt ggf. 
+  die Stakeholder nach weiteren wichtigen Personen, die für das Projekt berücksichtigt werden sollten.`,
+  `Clustert die Stakeholder (z. B. nach Rollen oder Organisationseinheiten), um eine bessere Übersicht zu erhalten.`,
+  `Analysiert die resultierende Verteilung: Identifiziert Schlüsselakteure und Beziehungen der Stakeholder (unterstützende Verbindungen / Widerstände) und zeichnet diese z. B. durch Pfeile ein.`,
+  `Zeichnet auf einem Flipchart die Einfluss-Interesse-Matrix (Power-Interest Grid nach Aubrey L. Mendelow) und ordnet die Stakeholder in die Matrix ein, indem ihr die Sticky Notes entsprechend ihrer Einflussstärke und ihres Interesses positioniert. Diskutiert eure Einschätzungen im Team.`,
+  `Leitet geeignete Einbindungs- und Kommunikationsstrategien ab, abhängig von der Position der Stakeholder.`,
+  `Überführt eure Erkenntnisse in konkrete Maßnahmen, indem ihr erste Umsetzungsschritte definiert (z. B. Workshops, Abstimmungen, Schulungen) und diese unten auf dem Flipchart notiert.`,
+  `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
+  `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
+],
+
+  // Ressourcen & Literatur
+   resources:[
+      {type:"video",   label:"Stakeholder-Map einfach erklärt (YouTube)", url:"https://www.youtube.com/results?search_query=stakeholdermap+erkl%C3%A4rt"},
+      {type:"article", label:"What Is Mendelow’s Matrix And How Is It Useful?", url:"https://blog.oxfordcollegeofmarketing.com/2018/04/23/what-is-mendelows-matrix-and-how-is-it-useful/?utm_source=chatgpt.com"}
+    ],
+
+   exampleImages:[
+  {
+    src:"/images/Stakeholder Map Sammlung.jpg",
+    caption:"Sammlung der Stakeholder"
+  },
+  {
+    src:"/images/Stakeholder Map Cluster.jpg",
+    caption:"Gruppieren der Stakeholder"
+  },
+  {
+    src:"/images/Stakeholder Map Beziehungen.jpg",
+    caption:"Darstellung der Beziehungen der Stakeholder"
+  },
+  {
+    src:"/images/Matrix.jpg",
+    caption:"Einfluss-Interessen-Matrix (Mendelow)"
+  }
+],
+
+    templateFile:"Stakeholder-Map Template.xlsx",
+    sampleFile:"Musterloesung_Stakeholdermap.pdf",
+  },
+
+  {
+    key:"empathymap",
+    title:"Empathy Map",
+    icon:"🧠",
+    subtitle:"Perspektiven zentraler Stakeholder-Personas ganzheitlich verstehen",
+    
+    //Was ist das? 
+    description: `
+<p>Die Empathy Map ist ein Analyseinstrument aus dem Design Thinking, das dazu dient, die Perspektive einer konkreten Person (Persona) systematisch zu verstehen. 
+Im Gegensatz zu Prozess- oder Strukturanalysen, die sichtbare Abläufe abbilden, fokussiert die Empathy Map auf die „unsichtbare Ebene“: Emotionen, Einstellungen, Motivationen und Widerstände.</p>
+
+<p>Gerade im Kontext der digitalen Transformation im Gesundheitswesen scheitern Projekte häufig nicht an der Technik, sondern an kulturellen und emotionalen Faktoren. 
+Die Empathy Map hilft dabei, diese „menschlichen Ursachen“ sichtbar zu machen.</p>
+
+<p>Die Methode ist typischerweise als visuelles Canvas aufgebaut und umfasst sechs zentrale Dimensionen:</p>
+
+<ul>
+  <li><strong>Sagt:</strong> Was äußert die Person offen?</li>
+  <li><strong>Denkt:</strong> Was beschäftigt sie intern (oft unausgesprochen)?</li>
+  <li><strong>Fühlt:</strong> Welche Emotionen prägen ihr Handeln?</li>
+  <li><strong>Tut:</strong> Welches Verhalten ist beobachtbar?</li>
+  <li><strong>Pains:</strong> Welche Probleme, Ängste oder Hindernisse bestehen?</li>
+  <li><strong>Gains:</strong> Welche Bedürfnisse, Erwartungen oder Wünsche hat die Person?</li>
+</ul>
+
+<p>Ziel ist es, nicht nur Verhalten zu beschreiben, sondern die dahinterliegenden Motive zu verstehen – als Grundlage für wirksame Implementierungs- und Change-Strategien.</p>
+`,
+     //Vorgehensweise
+     instructions:[
+  `Wählt zwei Stakeholder die euch als Gesprächspartner zur Verfügung stehen aus dem Fallbeispiel aus. Analysiere immer eine spezifische Person – nicht eine gesamte Berufsgruppe.`,
+  `Erstellt eine Empathy Map als visuelles Raster mit vier zentralen Feldern auf einem Flipchart: Sagt, Denkt, Fühlt und Tut. Ergänze darunter die Bereiche Pains (Probleme) und Gains (Bedürfnisse).`,
+  `Füllt die ersten vier Felder mit Hilfe von Sticky Notes aus: Nutze Aussagen, Beobachtungen und Hinweise aus den Gesprächen mit den Stakeholdern oder aus vorherigen Informationen (z. B. Fallbeispiel, Stakeholder-Map).`,
+  `Achtet besonders auf Spannungsfelder zwischen den Dimensionen (z. B. was die Person sagt vs. was sie tatsächlich denkt oder fühlt). Diese Diskrepanzen sind häufig Hinweise auf verdeckte Widerstände.`,
+  `Leitet aus der Analyse zentrale Pains (Ängste, Unsicherheiten, Belastungen) und Gains (Bedürfnisse, Erwartungen, Motivation) ab und notiert diese ebenfalls auf Sticky Notes, um sie auf das Flipchart zu kleben.`,
+  `Identifiziert die dominante negative Emotion („toxische Emotion“), die das Verhalten maßgeblich beeinflusst (z. B. Angst vor Fehlern, Misstrauen gegenüber Management oder Überforderung).`,
+  `Formuliert daraus die „Human Root Cause“: Beschreibt, welche emotionale oder kulturelle Ursache hinter dem beobachteten Widerstand steht.`,
+  `Leitet konkrete Implikationen für die Umsetzung ab (z. B. Anpassung von Schulungen, Kommunikation, Usability oder organisatorischen Prozessen) und notiert diese auf dem Flipchart. Ziel ist es, Maßnahmen zu entwickeln, die ihr für eure weitere Umsetzungsplanung nutzen könnt.`,
+    `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
+   `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
+],
+
+    exampleImages:[
+    {
+    src:"/images/Empathy_Map_Ausgefüllt.png",
+    caption:"Ausgefüllte Empathy Map"
+  }
+  ],
+    //Ressourcen & Literatur
+    resources:[
+      {type:"video",   label:"Empathy Map erklärt (YouTube)", url:"https://www.youtube.com/watch?v=bc5DSmmSHCs"}
+    ],
+    templateFile:"Empathy Map Template.pptx",
+    sampleFile:"Musterloesung_EmpathyMap.pdf",
+  }
+
+
+  ,{
+    key:"istprozess",
+    title:"IST-Prozess Analyse",
+    icon:"🔍",
+    subtitle:"Den aktuellen Prozess strukturiert aufnehmen und verstehen",
+ 
+// Was ist das?
+description: `
+<p>Die IST-Prozessanalyse dient nach Gadatsch (2013) dazu, bestehende Abläufe in ihrer tatsächlichen Ausprägung systematisch zu erfassen und transparent zu machen. 
+Sie bildet die empirische Grundlage für die Strategieentwicklung, indem sie aufzeigt, wie Prozesse aktuell funktionieren – einschließlich informeller Abläufe, Medienbrüche und Abweichungen vom Soll.</p>
+<p> Im Kontext einer Digitalisierung ist es entscheidend, nicht nur den formalen Prozess zu betrachten, sondern die reale Prozesspraxis zu verstehen:</p>
+<ul>
+  <li> Wer übernimmt welche Aufgaben?</li>
+  <li> Wann und in welcher Reihenfolge?</li>
+  <li> Welche Systeme werden genutzt?</li>
+  <li> Wo entstehen Verzögerungen oder Fehler?</li>
+</ul>
+<p>Die Analyse zielt darauf ab, derzeitige Schwachstellen und strukturelle Probleme sichtbar zu machen, um daraus konkrete Handlungsbedarfe und Anforderungen für die strategische Weiterentwicklung und den späteren SOLL-Prozess 
+abzuleiten. Es wird also der derzeitige Prozess dargestellt.</p>
+`,
+
+// Vorbereitung
+  preparation:[
+`Lest als Vorbereitung das Kapitel 3.2.5 (S. 40–43) in Gadatsch (2013). Macht euch ebenfalls mit der Checkliste zum Swimlane-Diagramm vertraut.`
+],
+
+  // Vorgehensweise
+  instructions: [
+    `Grenzt den Prozess klar ab: Definiert Start- und Endpunkt und legt fest, welche Perspektive im Fokus steht.`,
+    `Rekonstruiert den realen Ablauf auf Basis der Stakeholder-Interviews: Welche Schritte werden tatsächlich durchlaufen (inkl. Abweichungen, Workarounds und informellen Lösungen)?`,
+    `Modelliert den IST-Prozess in einem Swimlane-Diagramm: Stellt die einzelnen Prozessschritte entlang der beteiligten Rollen (z. B. Pflege, Ärzt:innen, Verwaltung, IT) dar und macht Verantwortlichkeiten sowie Schnittstellen sichtbar.`,
+    `Ergänzt relevante Prozessdimensionen: Welche Informationen werden verarbeitet? Welche IT-Systeme werden genutzt? Wo entstehen Medienbrüche oder manuelle Zwischenschritte?`,
+    `Analysiert den Prozess systematisch: Identifiziert Schwachstellen wie Wartezeiten, Doppelarbeit, Fehlerquellen, unklare Zuständigkeiten oder Kommunikationsprobleme und markiert diese (z. B. mit einem Blitz-Symbol).`,
+    `Leitet Ursachen und strukturelle Problemmuster ab: Warum entstehen diese Schwachstellen (z. B. fehlende Systemintegration, unklare Abläufe, organisatorische Defizite)?`,
+    `Überführt die Erkenntnisse in Anforderungen: Formuliert konkrete Anforderungen an das zukünftige System und nutzt diese als Grundlage für die Entwicklung des SOLL-Prozesses und der Gesamtstrategie.`,
+      `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
+   `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
+],
+  // Beispielbilder
+  exampleImages:[
+    {
+      src:"/images/Swimlane.jpg",
+      caption:"Beispiel eines IST-Prozesses im Swimlane-Diagramm"
+    }, 
+    {
+      src:"/images/Symbole.jpg",
+      caption:"Typische Symbole im Swimlane-Diagramm (Gadatsch, 2013)"
+    }
+  ],
+
+  // Ressourcen & Literatur
+  resources: [
+    {
+      type: "book",
+      label: "Gadatsch, A. (2013): IT-gestütztes Prozessmanagement im Gesundheitswesen",
+      url: "/book/gadatsch_prozessmanagement.pdf"
+    },
+    {
+      type: "document",
+      label: "Checkliste zum Swimlane-Diagramm",
+      url: "/documents/checkliste swimlane.docx"
+    }
+  ],
+    
+  templateFile:"Swimlane-Diagramm Template.pptx",
+  sampleFile:"Musterloesung_ISTprozess.pdf",
+
+  tools: [
+  { type: "tool", label: "Miro / Mural für Swimlane-Skizzen", url: "https://miro.com" },
+  { type: "tool", label: "Canva", url: "https://canva.com" },
+  { type: "tool", label: "draw.io / diagrams.net", url: "https://app.diagrams.net" }
+],
+
+}
+
+ 
+,{
+  key:"sollprozess",
+  title:"SOLL-Prozess Analyse",
+  icon:"🚀",
+  subtitle:"Den zukünftigen Prozess gestalten und zielgerichtet weiterentwickeln",
+
+  description: `
+<p>Die SOLL-Prozessanalyse baut auf der IST-Prozessanalyse auf und beschreibt den zukünftigen, angestrebten Ablauf eines Prozesses. Ziel ist es, einen verbesserten, effizienteren und digital unterstützten Prozess zu entwerfen, der identifizierte Schwachstellen gezielt adressiert.</p>
+
+<p>Im Unterschied zur IST-Analyse, die den aktuellen Zustand abbildet, richtet sich der Blick hier nach vorn: Wie soll der Prozess zukünftig aussehen? Welche Schritte können vereinfacht, neu geordnet, digital unterstützt oder ganz ersetzt werden? Welche Rollen verändern sich dabei?</p>
+
+<p>Die SOLL-Prozessanalyse dient dazu, die Ergebnisse der vorangegangenen Analysen in eine konkrete Zielvorstellung zu übersetzen. Sie macht sichtbar, wie Prozesse künftig effizienter, transparenter, nutzerorientierter und organisatorisch sinnvoll gestaltet werden können.</p>
+
+<p>Dabei geht es nicht um ein unrealistisches Idealbild, sondern um eine umsetzbare Zielkonzeption unter Berücksichtigung der tatsächlichen Rahmenbedingungen, etwa vorhandener Ressourcen, technischer Voraussetzungen, organisatorischer Abläufe und wirtschaftlicher Grenzen.</p>
+
+<p>Der SOLL-Prozess bildet damit eine zentrale Grundlage für die weitere Projektplanung, da aus ihm konkrete Anforderungen, notwendige Veränderungsschritte und spätere Umsetzungsmaßnahmen abgeleitet werden können.</p>
+`,
+
+ instructions: [
+  `Leitet zentrale Handlungsbedarfe aus der IST-Prozessanalyse ab: Welche Schwachstellen, Medienbrüche, Doppelarbeiten, Wartezeiten oder unklaren Zuständigkeiten sollen im zukünftigen Prozess gezielt verbessert werden?`,
+  `Definiert den Zielprozess: Überlegt, wie der Prozess künftig ablaufen soll, wenn das Digitalisierungsprojekt umgesetzt ist. Welche Schritte bleiben bestehen, welche verändern sich und welche kommen neu hinzu?`,
+  `Integriert die digitale Lösung gezielt in den Ablauf: Überlegt, an welchen Stellen Prozesse unterstützt, vereinfachtoder ersetzt werden können.`,
+  `Modelliert den SOLL-Prozess in einem Swimlane-Diagramm: Stellt den zukünftigen Ablauf strukturiert dar und orientiert euch dabei am Aufbau der IST-Modellierung, damit beide Prozesse später gut verglichen werden können.
+  Welche konkreten Veränderungen ergeben sich? Welche Prozessschritte entfallen, werden automatisiert, verlagern sich auf andere Rollen oder werden neu eingeführt?`,
+  `Formuliert daraus konkrete Anforderungen: Welche funktionalen, technischen und organisatorischen Voraussetzungen müssen erfüllt sein, damit der SOLL-Prozess umgesetzt werden kann?`,
+  `Leitet erste Implikationen für die Umsetzung ab: Welche Maßnahmen, Arbeitspakete oder Veränderungserfordernisse ergeben sich aus dem SOLL-Prozess für die weitere Projektplanung?`,
+    `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
+   `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
+],
+
+  // Beispielbilder
+  exampleImages:[
+    {
+      src:"/images/Swimlane.jpg",
+      caption:"Beispiel eines IST-Prozesses im Swimlane-Diagramm"
+    }, 
+    {
+      src:"/images/Symbole.jpg",
+      caption:"Typische Symbole im Swimlane-Diagramm (Gadatsch, 2013)"
+    }
+  ],
+
+  // Ressourcen & Literatur
+  resources: [
+    {
+      type: "book",
+      label: "Gadatsch, A. (2013): IT-gestütztes Prozessmanagement im Gesundheitswesen",
+      url: "/book/gadatsch_prozessmanagement.pdf"
+    }
+  ],
+
+  templateFile:"Swimlane-Diagramm Template.pptx",
+  sampleFile:"Musterloesung_SOLLprozess.pdf",
+
+  tools: [
+  { type: "tool", label: "Miro / Mural für Swimlane-Skizzen", url: "https://miro.com" },
+  { type: "tool", label: "Canva", url: "https://canva.com" },
+  { type: "tool", label: "draw.io / diagrams.net", url: "https://app.diagrams.net" } 
+],
+},
+
+{
+  key:"pestel",
+  title:"PESTEL-Analyse",
+  icon:"🌍",
+  subtitle:"Externes Umfeld systematisch analysieren und strategisch einordnen",
+
+description: `
+<p>Die PESTEL-Analyse ist ein zentrales Instrument der strategischen Analyse zur systematischen Untersuchung des externen Umfelds einer Organisation oder eines Projekts.</p>
+
+<p>Sie betrachtet sechs Einflussdimensionen:</p>
+<ul>
+  <li> Politische (Political)</li>
+  <li> Ökonomische (Economic)</li>
+  <li> Soziokulturelle (Social)</li>
+  <li> Technologische (Technological)</li>
+  <li> Ökologische (Environmental)</li>
+  <li> Rechtliche (Legal)</li>
+</ul>
+
+<p>Ziel ist es, externe Entwicklungen, Trends und Rahmenbedingungen frühzeitig zu erkennen und deren Bedeutung für das Projekt systematisch zu bewerten.</p>
+
+<p>Im Kontext von Digitalisierungsprojekten ermöglicht die PESTEL-Analyse, relevante Einflussfaktoren wie gesetzliche Vorgaben, technologische Entwicklungen, gesellschaftliche Erwartungen oder wirtschaftliche Rahmenbedingungen strukturiert zu erfassen.</p>
+
+<p>Entscheidend ist dabei nicht nur die Beschreibung der Faktoren, sondern die Ableitung konkreter Auswirkungen auf das Projekt sowie darauf aufbauend strategischer Implikationen.</p>
+
+<p>Die PESTEL-Analyse bildet damit eine wichtige Grundlage für strategische Entscheidungen und die Ableitung von Maßnahmen im weiteren Projektverlauf.</p>
+`,
+
+  // Vorbereitung
+  preparation:[
+`Lest als Vorbereitung das Dokument "PESTEL Analyse"`
+],
+  
+ instructions: [
+  `Analysiert politische Faktoren: Welche politischen Rahmenbedingungen, Förderprogramme oder Strategien beeinflussen das Projekt? Leitet daraus konkrete Auswirkungen sowie strategische Implikationen ab.`,
+  `Analysiert ökonomische Faktoren: Welche finanziellen, wirtschaftlichen oder ressourcenbezogenen Rahmenbedingungen sind relevant (z. B. Budget, Kostendruck, Effizienzanforderungen)? Leitet daraus konkrete Auswirkungen und strategische Implikationen ab.`,
+  `Analysiert soziokulturelle Faktoren: Welche Erwartungen, Einstellungen und Bedürfnisse von Nutzer:innen, Mitarbeitenden oder anderen relevanten Akteuren beeinflussen das Projekt? Leitet daraus konkrete Auswirkungen und strategische Implikationen ab.`,
+  `Analysiert technologische Faktoren: Welche technologischen Entwicklungen, bestehenden Systeme oder digitalen Trends sind relevant (z. B. Interoperabilität, Usability)? Leitet daraus konkrete Auswirkungen und strategische Implikationen ab.`,
+  `Analysiert ökologische Faktoren: Welche ökologischen Aspekte spielen eine Rolle (z. B. Ressourcenschonung, Nachhaltigkeit)? Leitet daraus konkrete Auswirkungen und strategische Implikationen ab.`,
+  `Analysiert rechtliche Faktoren: Welche gesetzlichen, regulatorischen und datenschutzrechtlichen Anforderungen sind zu berücksichtigen? Leitet daraus konkrete Auswirkungen und strategische Implikationen ab.`,
+  `Verdichtet die Ergebnisse abschließend: Welche übergeordneten strategischen Handlungsfelder ergeben sich aus der Gesamtanalyse für das Projekt?`,
+    `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
+   `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
+],
+  exampleImages:[
+    {
+      src:"/images/pestel.jpg",
+      caption:"PESTEL Beispiel"
+    }
+  ],
+
+  resources:[
+    {
+      type:"document",
+      label:"PESTEL Analyse",
+      url:"/documents/pestel.pdf"
+    }
+  ],
+
+  templateFile:"PESTEL-Analyse Template.pptx",
+  sampleFile:"Musterloesung_PESTEL.pdf"
+},
+
+{
+  key:"swot",
+  title:"SWOT-Analyse",
+  icon:"🧭",
+  subtitle:"Strategien entwickeln",
+
+description: `
+<p>Die SWOT-Analyse ist ein strategisches Instrument, das dabei hilft, die aktuelle Situation eines Projekts strukturiert zu bewerten. 
+Sie verbindet interne Faktoren (Stärken und Schwächen) mit externen Einflüssen (Chancen und Risiken) und schafft so eine Grundlage für fundierte Entscheidungen.</p>
+
+<p>Im Rahmen der Anwendung wird zunächst eine interne Analyse durchgeführt, bei der Stärken und Schwächen des Projekts betrachtet werden. 
+Darauf aufbauend erfolgt eine externe Analyse, in der Chancen und Risiken aus dem Umfeld des Projekts identifiziert werden.</p>
+
+<p><strong>Zur Orientierung können folgende Leitfragen helfen:</strong></p>
+
+<p><strong>Stärken (Strengths):</strong></p>
+<ul class="desc-list">
+  <li>Was sind die Vorteile dieses Digitalisierungsprojekts?</li>
+  <li>Welche Vorteile sehen andere in diesem Projekt?</li>
+  <li>Welche infrastrukturellen Voraussetzungen sind bereits vorhanden?</li>
+</ul>
+
+<p><strong>Schwächen (Weaknesses):</strong></p>
+<ul class="desc-list">
+  <li>Was könnte verbessert werden?</li>
+  <li>Was wird aktuell schlecht umgesetzt?</li>
+  <li>Was sollte auf keinen Fall passieren?</li>
+</ul>
+
+<p><strong>Chancen (Opportunities):</strong></p>
+<ul class="desc-list">
+  <li>Welche Trends beeinflussen das Digitalisierungsprojekt?</li>
+  <li>Welche Chancen ergeben sich aus diesen Entwicklungen?</li>
+</ul>
+
+<p><strong>Risiken (Threats):</strong></p>
+<ul class="desc-list">
+  <li>Welche Hindernisse bestehen?</li>
+  <li>Gibt es Veränderungen im Arbeitsumfeld, bei Produkten oder Dienstleistungen?</li>
+  <li>Bedroht technologischer Wandel die derzeitige Position?</li>
+  <li>Gibt es finanzielle Risiken?</li>
+</ul>
+
+<p>Auf Basis dieser Analyse können anschließend strategische Maßnahmen abgeleitet werden, indem interne und externe Faktoren miteinander kombiniert werden.</p>
+
+<p><strong>Typische strategische Ableitungen sind:</strong></p>
+
+<ul class="desc-list">
+  <li><strong>SO-Strategien:</strong> Nutzung von Stärken, um Chancen gezielt zu nutzen</li>
+  <li><strong>WO-Strategien:</strong> Reduktion von Schwächen durch Nutzung von Chancen</li>
+  <li><strong>ST-Strategien:</strong> Einsatz von Stärken, um Risiken zu begegnen</li>
+  <li><strong>WT-Strategien:</strong> Minimierung von Schwächen und Vermeidung von Risiken</li>
+</ul>
+
+<p>Ziel ist es, ein umfassendes Verständnis der aktuellen Situation zu entwickeln und daraus gezielte Maßnahmen für die weitere Projektplanung abzuleiten.</p>
+`,
+
+  // Vorbereitung
+  preparation:[
+`Lest als Vorbereitung das Dokument "SWOT-Analyse".`
+],
+  
+  instructions:[
+    `Identifiziert Stärken.`,
+    `Identifiziert Schwächen.`,
+    `Analysiert Chancen.`,
+    `Analysiert Risiken.`,
+    `Leitet SO-, WO-, ST-, WT-Strategien ab.`,
+    `Überführt Strategien in Maßnahmen und Arbeitspakete.`
+  ],
+
+  exampleImages:[
+    { src:"/images/swot.png", caption:"SWOT Beispiel" }
+  ],
+
+  resources:[
+    { type:"article", label:"SWOT Analyse", url:"/documents/swot.pdf" }
+  ],
+
+  templateFile:"SWOT-Analyse Template.pptx",
+  sampleFile:"Musterloesung_SWOT.pdf"
+},
+
+{
+  key:"logicmodel",
+  title:"Implementation Research Logic Model (IRLM) & Key Performance Indicators (KPIs)",
+  icon:"📊",
+  subtitle:"Umsetzung und Wirkung strukturieren",
+
+description: `
+<p>Das Implementation Research Logic Model (IRLM) ist ein Instrument, das dabei hilft, Maßnahmen strukturiert zu planen und deren Wirkung nachvollziehbar zu machen. 
+Es stellt einen Zusammenhang zwischen Ausgangssituation, umgesetzten Maßnahmen und den daraus entstehenden Ergebnissen her.</p>
+
+<p>Im Rahmen der Anwendung werden zunächst relevante Einflussfaktoren und Rahmenbedingungen betrachtet. 
+Darauf aufbauend werden konkrete Maßnahmen definiert und deren beabsichtigte Wirkungen beschrieben. 
+Ein zentraler Bestandteil ist dabei die Überlegung, wie und warum diese Maßnahmen zu bestimmten Veränderungen führen sollen.</p>
+
+<p>Zur Bewertung des Erfolgs werden Key Performance Indicators (KPIs) herangezogen. 
+Diese Kennzahlen ermöglichen es, die Zielerreichung systematisch zu überprüfen und Entwicklungen im Projektverlauf sichtbar zu machen.</p>
+
+<p><strong>KPIs sollten nach dem SMART-Prinzip formuliert werden:</strong></p>
+
+<ul class="desc-list">
+  <li><strong>S – Spezifisch:</strong> Ist das Ziel klar und eindeutig formuliert? Was genau soll erreicht werden und warum ist es wichtig?</li>
+  <li><strong>M – Messbar:</strong> Woran erkennt ihr, dass das Ziel erreicht wurde? Welche Kennzahl könnt ihr dafür nutzen?</li>
+  <li><strong>A – Erreichbar:</strong> Ist das Ziel realistisch umsetzbar unter den gegebenen Bedingungen?</li>
+  <li><strong>R – Relevant:</strong> Trägt das Ziel tatsächlich zum Projekterfolg bei? Warum ist es für euer Projekt wichtig?</li>
+  <li><strong>T – Zeitlich definiert:</strong> Bis wann soll das Ziel erreicht werden?</li>
+</ul>
+
+<p>Typische KPIs in Digitalisierungsprojekten sind beispielsweise:</p>
+
+<ul class="desc-list">
+  <li>Nutzungsrate digitaler Anwendungen</li>
+  <li>Durchlaufzeiten von Prozessen</li>
+  <li>Zufriedenheit von Nutzer:innen</li>
+  <li>Fehler- oder Abbruchquoten</li>
+</ul>
+
+<p>Die definierten KPIs dienen nicht nur der Erfolgsmessung, sondern bilden auch die Grundlage für die Planung im Projektverlauf. 
+Auf ihrer Basis können konkrete Meilensteine abgeleitet werden, die im Gantt-Chart verortet werden.</p>
+
+<p>Dadurch wird sichtbar, wann bestimmte Ergebnisse erreicht werden sollen und wie sich der Fortschritt über die Zeit entwickelt.</p>
+
+<p>Ziel ist es, Maßnahmen, deren Wirkmechanismen und die daraus resultierenden Ergebnisse transparent darzustellen und eine fundierte Grundlage für die weitere Projektsteuerung zu schaffen.</p>
+`,
+
+ instructions: [
+  `Identifiziert zentrale Einflussfaktoren (Determinanten), die den Projekterfolg beeinflussen.`,
+  `Leitet auf Basis dieser Faktoren geeignete Maßnahmen und Strategien (Implementierungsstrategien als konkrete Maßnahmen).`,
+  `Beschreibt, wie und warum diese Maßnahmen wirken (Mechanismen).`,
+  `Definiert die angestrebten Ergebnisse (Outcomes).`,
+   `Leitet daraus konkrete Arbeitspakete und nächste Umsetzungsschritte ab.`,
+  `Formuliert geeignete Kennzahlen (KPIs), um den Erfolg messbar zu machen. Diese könnt ihr auch als Meilensteine im Projektplan hinterlegen.`,
+     `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
+   `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
+],
+
+  exampleImages:[
+    { src:"/images/irlm.jpg", caption:"IRLM Template" }
+  ],
+
+  resources:[
+    { type:"article", label:"Smith, JD, Li, DH & Rafferty, MR (2020): The Implementation Research Logic Model: a method for planning, executing, reporting, and synthesizing implementation projects", url:"https://link.springer.com/article/10.1186/s13012-020-01041-8" }
+  ],
+
+  templateFile:"IRLM_Template.pptx",
+  sampleFile:"Musterloesung_IRLM.pdf"
+}
+
+];
+
+const FAV_FILTER_MODE_KEY = "fav_filter_mode";
+let favFilterMode = localStorage.getItem(FAV_FILTER_MODE_KEY) || "all";
+
+function setFavFilter(mode){
+  favFilterMode = mode === "own" ? "own" : "all";
+  localStorage.setItem(FAV_FILTER_MODE_KEY, favFilterMode);
+  renderFavList();
+}
+
+  /* ────────────────────────────────────────────────────────────
+     ➕  NEUES MODUL – kopieren & anpassen:
+  
+  ──────────────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════
+   ALLE PHASEN (statisch + Module)
+══════════════════════════════════════════════════════════════ */
+function allPhases(){
+  return [
+    {icon:"📋", title:"Fallbeispiel"},
+    {icon:"🧭", title:"Auftrag & Arbeitslogik"},
+    ...MODULES.map(m=>({icon:m.icon, title:m.title, hint:m.subtitle}))
+  ];
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DRAWER
+══════════════════════════════════════════════════════════════ */
+function openDrawer(){
+  renderJourneyList();
+  document.getElementById("journeyDrawer").classList.add("open");
+  document.getElementById("drawerBackdrop").classList.add("open");
+}
+function closeDrawer(){
+  document.getElementById("journeyDrawer").classList.remove("open");
+  document.getElementById("drawerBackdrop").classList.remove("open");
+}
+function isModuleFullyDone(modIdx){
+  if(modIdx<0||modIdx>=MODULES.length) return false;
+  const mod=MODULES[modIdx];
+  const prog=loadStepProgress(mod.key);
+  return mod.instructions.every((_,i)=>!!prog[i]);
+}
+
+function canOpenPhase(targetPhase){
+  // Fallbeispiel
+  if(targetPhase === 0) return true;
+
+  // Auftrag & Arbeitslogik
+  if(targetPhase === 1) return true;
+
+  // Erstes Modul darf nach der zweiten statischen Seite geöffnet werden
+  if(targetPhase === 2) return true;
+
+  // Danach: vorheriges Modul muss vollständig erledigt sein
+  const previousModuleIdx = targetPhase - 3;
+  return isModuleFullyDone(previousModuleIdx);
+}
+
+function renderJourneyList(){
+  const list = document.getElementById("journeyList");
+  const phases = allPhases();
+  const cur = gameState.currentPhase;
+  list.innerHTML = "";
+
+  phases.forEach((p, i) => {
+    const active = i === cur;
+
+    const modIdx = i - 2;
+    const allStepsDone = modIdx >= 0 ? isModuleFullyDone(modIdx) : false;
+    const visitedPast = i < cur;
+    const done = modIdx >= 0 ? allStepsDone : visitedPast;
+
+    let subText = p.hint;
+    if (modIdx >= 0 && modIdx < MODULES.length) {
+      const mod = MODULES[modIdx];
+      const prog = loadStepProgress(mod.key);
+      const doneSteps = mod.instructions.filter((_, j) => prog[j]).length;
+      const tot = mod.instructions.length;
+      subText = doneSteps + "/" + tot + " Schritte abgehakt";
+    }
+
+    const cls = done ? "j-done" : active ? "j-active" : "";
+    const bc = done ? "jb-done" : active ? "jb-active" : "jb-todo";
+    const bt = done ? "✓ Erledigt" : active ? "▶ Aktuell" : "Offen";
+    const dotIcon = done ? "✓" : p.icon;
+
+    const item = document.createElement("div");
+    item.className = `journey-item ${cls}`;
+    item.innerHTML = `
+      <div class="j-dot">${dotIcon}</div>
+      <div class="j-body">
+        <div class="j-title">${p.title}</div>
+        <div class="j-sub">${subText || ""}</div>
+      </div>
+      <span class="j-badge ${bc}">${bt}</span>
+    `;
+
+    const isUnlocked = canOpenPhase(i);
+
+    if (!isUnlocked && i > gameState.currentPhase) {
+      item.style.opacity = "0.45";
+      item.style.cursor = "not-allowed";
+    }
+
+    item.addEventListener("click", () => {
+      if (!canOpenPhase(i)) return;
+      goToPhase(i);
+      closeDrawer();
+    });
+
+    list.appendChild(item);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PROGRESS BAR
+══════════════════════════════════════════════════════════════ */
+function updateProgressUI(phase){
+  const totalMethods = MODULES.length;
+  const currentMethodIndex = phase - 2; // Phase 2 = erste Methode
+
+  let progress = 0;
+
+  // Balken wächst erst ab der ersten Methode
+  if (currentMethodIndex >= 0) {
+    progress = ((currentMethodIndex + 1) / totalMethods) * 100;
+  }
+
+  progress = Math.min(progress, 100);
+
+  const progressBar = document.getElementById("progressBarInner");
+  if (progressBar) {
+    progressBar.style.width = progress + "%";
+  }
+
+  const progressText = document.getElementById("progressText");
+  if (progressText) {
+    if (phase === 0) {
+      progressText.textContent = "Fallbeispiel";
+    } else if (phase === 1) {
+      progressText.textContent = "Auftrag & Arbeitslogik";
+    } else {
+      progressText.textContent = `Methode ${currentMethodIndex + 1} / ${totalMethods}`;
+    }
+  }
+
+  const currentStepIcon = document.getElementById("currentStepIcon");
+  if (currentStepIcon) {
+    if (phase === 0) {
+      currentStepIcon.textContent = "📋";
+    } else if (phase === 1) {
+      currentStepIcon.textContent = "🧭";
+    } else if (MODULES[currentMethodIndex]) {
+      currentStepIcon.textContent = MODULES[currentMethodIndex].icon;
+    }
+  }
+
+  const chip = document.getElementById("stepProgressChip");
+  if (chip) {
+    if (phase >= 2 && MODULES[currentMethodIndex]) {
+      const mod = MODULES[currentMethodIndex];
+      const prog = loadStepProgress(mod.key);
+      const done = mod.instructions.filter((_, i) => prog[i]).length;
+      const total = mod.instructions.length;
+
+      chip.textContent = `${done}/${total} Schritte`;
+      chip.style.display = "inline";
+      chip.style.background = done === total
+        ? "rgba(16,185,129,.35)"
+        : "rgba(255,255,255,.15)";
+    } else {
+      chip.style.display = "none";
+    }
+  }
+
+  const pillRow = document.getElementById("current-step-row-el");
+  if (pillRow) {
+    pillRow.style.display = phase >= 2 ? "flex" : "none";
+  }
+}
+  
+/* ══════════════════════════════════════════════════════════════
+   PHASE-STEUERUNG
+══════════════════════════════════════════════════════════════ */
+function goToPhase(phase){
+  if (!canOpenPhase(phase)) return;
+
+  gameState.currentPhase = phase;
+  localStorage.setItem("lastPhase", String(phase));
+  saveGameState();
+
+  document.getElementById("phase0").classList.toggle("hidden", phase !== 0);
+  document.getElementById("phase1").classList.toggle("hidden", phase !== 1);
+  document.getElementById("phaseModule").classList.toggle("hidden", phase < 2);
+
+  updateProgressUI(phase);
+
+  if (phase >= 2) {
+    renderModulePage(phase - 2);
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODUL-SEITE
+══════════════════════════════════════════════════════════════ */
+async function reloadSharedStepsAndRefresh(){
+  await reloadSharedSteps();
+  if (gameState.currentPhase >= 2) {
+    renderModulePage(gameState.currentPhase - 2);
+    updateProgressUI(gameState.currentPhase);
+  }
+}
+
+function buildModuleStepsHTML(mod){
+  const stepsDone = loadStepProgress(mod.key);
+  const doneCount = mod.instructions.filter((_, i) => stepsDone[i]).length;
+  const pct = mod.instructions.length ? Math.round(doneCount / mod.instructions.length * 100) : 0;
+
+  return `
+    <div class="step-counter">
+      <span>✅ ${doneCount} / ${mod.instructions.length} erledigt</span>
+    </div>
+    <div class="step-progress-bar">
+      <div class="step-progress-fill" style="width:${pct}%"></div>
+    </div>
+    <div class="step-list" style="margin-top:.75rem;">
+      ${mod.instructions.map((s, i) => {
+        const isDone = !!stepsDone[i];
+        const isLocked = i > 0 && !stepsDone[i - 1];
+        const cls = (isDone ? " done" : "") + (isLocked ? " locked" : "");
+        return `
+          <div class="step-item${cls}" onclick="toggleStep('${mod.key}',${i},this,${mod.instructions.length})">
+            <div class="step-check">
+              <span class="step-number-txt">${i + 1}</span>
+              <span class="step-check-icon">${isLocked ? "🔒" : "✓"}</span>
+            </div>
+            <div class="step-text">${s}</div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderModulePage(idx){
+  const mod = MODULES[idx];
+  if(!mod) return;
+
+  const isLast = idx === MODULES.length - 1;
+  const nextPhase = idx + 3;
+  const iconMap = { video:"🎥", book:"📚", documents:"📄", link:"🔗" };
+
+  const resourcesHTML = (mod.resources || []).map(r => `
+  <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="resource-item">
+    <span class="resource-icon">${r.type === "link" ? "🔗" : (iconMap[r.type] || "🔗")}</span>
+    <span>${r.label}</span>
+  </a>
+`).join("");
+
+const toolsHTML = (mod.tools || []).map(t => `
+  <a href="${t.url}" target="_blank" rel="noopener noreferrer" class="resource-item">
+    <span class="resource-icon">🛠️</span>
+    <span>${t.label}</span>
+  </a>
+`).join("");
+
+const toolsSectionHTML = mod.tools && mod.tools.length ? `
+  <div class="module-section">
+    <h3>🧰 Tools</h3>
+    <div class="resource-list">${toolsHTML}</div>
+  </div>
+` : "";
+
+  const stepsHTML = buildModuleStepsHTML(mod);
+  const preparationHTML = mod.preparation && mod.preparation.length ? `
+  <div class="module-section">
+    <h3>Vorbereitung</h3>
+    ${mod.preparation.map(p => `<p>${p}</p>`).join("")}
+  </div>
+` : "";
+  
+    const exampleImageHTML = mod.exampleImages && mod.exampleImages.length ? `
+  <div class="module-section">
+    <h3>Beispiele zur Orientierung</h3>
+    <div class="module-example-grid">
+      ${mod.exampleImages.map(img => `
+        <div class="module-example-item">
+          <a href="${img.src}" target="_blank" rel="noopener noreferrer" title="Bild in neuem Tab öffnen">
+            <img src="${img.src}" alt="${img.caption || 'Beispielbild'}" class="module-example-image" loading="lazy" />
+          </a>
+          ${img.caption ? `<p class="module-example-caption">${img.caption}</p>` : ""}
+        </div>
+      `).join("")}
+    </div>
+  </div>
+` : "";
+  
+  const isCurrentModuleDone = isModuleFullyDone(idx);
+
+const nextBtnHTML = isLast
+  ? `<div class="module-complete-badge">🎉 Lernpfad beendet</div>`
+  : `<button class="btn btn-primary" onclick="goToPhase(${nextPhase})" ${!isCurrentModuleDone ? "disabled" : ""}>Weiter &rarr;</button>`;
+  
+  document.getElementById("phaseModule").innerHTML = `
+    <div class="card">
+      <div class="module-header">
+        <span class="module-big-icon">${mod.icon}</span>
+        <div class="module-title-block">
+          <h2>${mod.title}</h2>
+          <p class="module-subtitle">${mod.subtitle}</p>
+        </div>
+      </div>
+
+               
+<div class="module-section">
+  <h3>📖 Was ist das?</h3>
+  <div>${mod.description.includes('<p>')
+    ? mod.description
+    : mod.description
+        .split(/\n\s*\n/)
+        .map(p => `<p>${p.trim()}</p>`)
+        .join('')
+  }</div>
+</div>
+
+${preparationHTML}
+
+<div class="module-section module-steps-section" data-module-key="${mod.key}">
+  <h3>📝 Vorgehensweise</h3>
+  <div class="module-steps-content">${stepsHTML}</div>
+</div>
+        
+${exampleImageHTML}
+${toolsSectionHTML}
+<div class="module-section">
+  <h3>📚 Ressourcen & Literatur</h3>
+  <div class="resource-list">${resourcesHTML}</div>
+</div>
+
+              <button class="btn btn-secondary" onclick="openSampleModal(${idx})">🔒 Musterlösung</button>
+
+            <div class="phase-nav">
+        <button class="btn btn-secondary" onclick="goToPhase(${idx === 0 ? 1 : idx + 1})">&larr; Zurück</button>
+        ${nextBtnHTML}
+      </div>
+    </div>
+  `;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   KI-MUSTERLÖSUNG
+══════════════════════════════════════════════════════════════ */
+
+function getCaseContextFromPage() {
+  const phase0 = document.getElementById("phase0");
+  if (!phase0) return "";
+  return (phase0.innerText || phase0.textContent || "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractCaseField(pattern, sourceText, fallback = "") {
+  const match = sourceText.match(pattern);
+  return match && match[1] ? match[1].trim() : fallback;
+}
+
+const CASE_CONTEXT = getCaseContextFromPage();
+
+const CASE_CONFIG = {
+  caseTitle: document.title || "Fallbeispiel",
+  organisation: extractCaseField(/Das\s+(.+?)\s+ist ein Krankenhaus/i, CASE_CONTEXT, "kommunales Klinikum Nordstadt"),
+  sector: extractCaseField(/ist ein\s+(.+?)\s+mit rund/i, CASE_CONTEXT, "Krankenhaus der Regelversorgung"),
+  patientVolume: extractCaseField(/mit rund\s+(.+?)\s+pro Jahr/i, CASE_CONTEXT, "45.000 stationären und ambulanten Patient:innen pro Jahr"),
+  interventionName: extractCaseField(/ein\s+(digitales Patientenportal)\s+einzuführen/i, CASE_CONTEXT, "digitales Patientenportal"),
+  interventionShort: "Patientenportal",
+  interventionType: "digitale Lösung",
+  projectGoal: "Einführung eines digitalen Patientenportals",
+  fundingContext: extractCaseField(/im Rahmen des\s+(.+?)\s+gefördert/i, CASE_CONTEXT, "KHZG (Fördertatbestand 2)"),
+  budget: extractCaseField(/Förderbudget von\s+([\d.,]+\s*Millionen Euro)/i, CASE_CONTEXT, "2,5 Millionen Euro"),
+  duration: extractCaseField(/Laufzeit von\s+([\d]+\s*Monaten)/i, CASE_CONTEXT, "18 Monaten"),
+  currentSituation: extractCaseField(/Der aktuelle Stand.*?ist durch\s+(.+?)\s+geprägt/i, CASE_CONTEXT, "fragmentierte und überwiegend analoge Prozesslandschaft"),
+  workflowFocus: "digitale Terminverwaltung, Unterstützung von Aufnahme- und Anmeldeprozessen, Bereitstellung von Informationen und Dokumenten sowie digitale Kommunikationsmöglichkeiten zwischen Patient:innen und Krankenhaus",
+  caseContext: CASE_CONTEXT
+};
+
+const METHOD_OUTPUT_GUIDES = {
+  stakeholdermap: `Erstelle die Ausarbeitung orientiert an einer Stakeholder-Map-Vorlage. Die Antwort muss die in der Vorgehensweise genannten Schritte einzeln aufgreifen und konkret auf das Fallbeispiel anwenden.`,
+  empathymap: `Erstelle die Ausarbeitung orientiert an einer Empathy-Map-Vorlage. Benenne zu Beginn eindeutig, welche Persona bzw. welche zwei Personas ausgewählt wurden und warum. Ordne anschließend alle Inhalte den Schritten der Vorgehensweise und den Feldern Sagt, Denkt, Fühlt, Tut, Pains und Gains nachvollziehbar zu.`,
+  istprozess: `Erstelle die Ausarbeitung orientiert an einer IST-Prozess-/Swimlane-Vorlage. Die Antwort muss entlang der in der Vorgehensweise beschriebenen Schritte aufgebaut sein und den aktuellen Prozess konkret und plausibel ausformulieren.`,
+  sollprozess: `Erstelle die Ausarbeitung orientiert an einer SOLL-Prozess-/Swimlane-Vorlage. Die Antwort muss entlang der in der Vorgehensweise beschriebenen Schritte aufgebaut sein und den zukünftigen Prozess konkret entwickeln.`,
+  pestel: `Erstelle die Ausarbeitung orientiert an einer PESTEL-Vorlage. Die Antwort soll entlang der Vorgehensweise aufgebaut sein und politische, ökonomische, soziale, technologische, ökologische und rechtliche Faktoren jeweils konkret auf den Fall beziehen.`,
+  swot: `Erstelle die Ausarbeitung orientiert an einer SWOT-Vorlage. Die Antwort soll entlang der Vorgehensweise aufgebaut sein und interne sowie externe Faktoren systematisch in strategische Optionen und konkrete Maßnahmen überführen.`,
+  logicmodel: `Erstelle die Ausarbeitung orientiert an einer IRLM-/Logic-Model-Vorlage. Die Antwort soll entlang der Vorgehensweise aufgebaut sein und Determinanten, Strategien, Mechanismen, Outcomes und KPIs nachvollziehbar miteinander verknüpfen.`
+};
+
+function collectStakeholderEvidence() {
+  return npcs.map(npc => ({
+    name: npc.name,
+    role: npc.role,
+    history: loadHistoryFromStorage(npc.id) || []
+  })).filter(x => Array.isArray(x.history) && x.history.length > 0);
+}
+
+function formatStakeholderEvidenceForPrompt() {
+  const evidence = collectStakeholderEvidence();
+  if (!evidence.length) return "Keine dokumentierten Stakeholder-Interviews vorhanden.";
+
+  return evidence.map(st => {
+    const conv = st.history.map((item, idx) =>
+      `Frage ${idx + 1}: ${item.q}\nAntwort ${idx + 1}: ${item.a}`
+    ).join("\n");
+    return `${st.name} (${st.role})\n${conv}`;
+  }).join("\n\n---\n\n");
+}
+
+function formatFavoritesForPrompt() {
+  const favs = loadFavs();
+  if (!favs.length) return "Keine gespeicherten Favoriten vorhanden.";
+
+  return favs.map((f, idx) =>
+    `Favorit ${idx + 1} | ${f.npcName} (${f.npcRole})
+Frage: ${f.q}
+Antwort: ${f.a}${f.comment ? `\nKommentar der Studierenden: ${f.comment}` : ""}`
+  ).join("\n\n");
+}
+
+function formatGanttForPrompt() {
+  const gantt = loadGantt();
+  const wps = gantt.workPackages || [];
+  const milestones = gantt.milestones || [];
+
+  if (!wps.length && !milestones.length) return "Keine Umsetzungsplanung vorhanden.";
+
+  const wpText = wps.map((wp, wi) => {
+    const acts = (wp.activities || [])
+      .map((a, ai) => `  - Aktivität ${ai + 1}: ${a.name || "(ohne Namen)"} | Start Monat ${a.start || "?"} | Ende Monat ${a.end || "?"}`)
+      .join("\n") || "  - Keine Aktivitäten erfasst";
+
+    return `Maßnahmenblock ${wi + 1}: ${wp.name}\n${acts}`;
+  }).join("\n\n");
+
+  const msText = milestones.length
+    ? "\n\nWichtige Zeitpunkte:\n" + milestones.map((m, i) =>
+        `  - Zeitpunkt ${i + 1}: ${m.name || "(ohne Namen)"} | Monat ${m.time || "?"} | Notiz: ${m.note || "-"}`
+      ).join("\n")
+    : "";
+
+  return wpText + msText;
+}
+
+function getBaseSampleSolution(key) {
+  const map = {
+    stakeholdermap: `
+Die Musterlösung soll relevante interne und externe Stakeholder des Fallbeispiels benennen, ihre Interessen, ihren Einfluss und ihre wahrscheinliche Haltung zum Projekt darstellen und daraus Kommunikations- und Einbindungsstrategien ableiten.
+`,
+    empathymap: `
+Die Musterlösung soll eine klar benannte Persona oder zwei klar benannte Personas auswählen und deren Aussagen, Gedanken, Gefühle, beobachtbares Verhalten, Pains und Gains strukturiert analysieren. Daraus sollen Implikationen für Kommunikation, Change und Umsetzung abgeleitet werden.
+`,
+    istprozess: `
+Die Musterlösung soll den aktuellen Prozess mit beteiligten Rollen, Prozessschritten, Schnittstellen, Medienbrüchen, Schwachstellen und daraus resultierenden Anforderungen an das zukünftige System darstellen.
+`,
+    sollprozess: `
+Die Musterlösung soll den zukünftigen Prozess mit beteiligten Rollen, Prozessschritten, Schnittstellen, Verbesserungen gegenüber dem IST-Zustand und Voraussetzungen für die Umsetzung konkret beschreiben.
+`,
+    pestel: `
+Die Musterlösung soll politische, ökonomische, soziale, technologische, ökologische und rechtliche Einflussfaktoren auf das Projekt erfassen und daraus Chancen, Risiken und strategische Implikationen ableiten.
+`,
+    swot: `
+Die Musterlösung soll interne Stärken und Schwächen sowie externe Chancen und Risiken des Projekts systematisch darstellen und daraus strategische Optionen und konkrete Maßnahmen ableiten.
+`,
+    logicmodel: `
+Die Musterlösung soll Determinanten, Implementierungsstrategien, Mechanismen, Outcomes und KPIs strukturiert und logisch miteinander verknüpfen.
+`
+  };
+
+  return map[key] || "Erstelle eine strukturierte, plausible Grundmusterlösung passend zur jeweiligen Methode.";
+}
+
+function buildAISampleSolutionPrompt(mod, stakeholderData, favoritesData, ganttData, stakeholderRoles, baseSolution) {
+  const stepsAsSections = mod.instructions
+    .map((step, i) => `${i + 1}. ${step}`)
+    .join("\n");
+
+  const methodGuide = METHOD_OUTPUT_GUIDES[mod.key] || "Erstelle eine Ausarbeitung, die sich strikt an der Vorgehensweise der Methode orientiert.";
+
+  return `Du bist ein didaktischer Assistent für ein strategisches Lernspiel im Krankenhauskontext.
+
+Aufgabe:
+Erstelle eine qualitativ hochwertige, klar strukturierte, deutschsprachige Musterlösung für die Methode "${mod.title}".
+
+Rahmenfall:
+${CASE_CONFIG.caseContext}
+
+Methodenbeschreibung:
+${mod.description}
+
+Methodenspezifische Orientierung:
+${methodGuide}
+
+Vorgehensweise der Methode:
+${stepsAsSections}
+
+Vordefinierte Stakeholder im Planspiel:
+${JSON.stringify(stakeholderRoles, null, 2)}
+
+Dokumentierte Stakeholder-Aussagen:
+${JSON.stringify(stakeholderData, null, 2)}
+
+Gespeicherte Favoriten / wichtige Erkenntnisse:
+${JSON.stringify(favoritesData, null, 2)}
+
+Aktuelle Umsetzungsplanung:
+${JSON.stringify(ganttData, null, 2)}
+
+Grundmusterlösung / fachliches Leitgerüst:
+${baseSolution}
+
+Wichtige Vorgaben:
+- Die Musterlösung MUSS sich strikt an der Vorgehensweise der Methode orientieren.
+- Die Musterlösung MUSS separate einzelne Begründungen für jede Antworten / Einordnungen beinhalten, KEINE endgültige Begründung am Ende des Schritts. 
+- Verwende die Arbeitsschritte der Methode als Hauptgliederung der Antwort.
+- Gib für jeden Arbeitsschritt einen eigenen Abschnitt aus.
+- Jede Abschnittsüberschrift MUSS mit "Schritt 1", "Schritt 2" usw. beginnen.
+- Greife in jeder Überschrift den jeweiligen Arbeitsschritt inhaltlich auf.
+- Bearbeite keinen Schritt nur allgemein, sondern immer konkret bezogen auf das vorliegende Fallbeispiel.
+- Die Antwort MUSS sich auf die Einführung von ${CASE_CONFIG.interventionName} in ${CASE_CONFIG.organisation} beziehen.
+- Nutze vorliegende Gesprächsdaten aktiv zur Konkretisierung.
+- Wenn Informationen fehlen, kennzeichne dies transparent als plausible Annahme.
+- Erfinde keine direkten Zitate.
+- Schreibe keine Markdown-Tabellen.
+- Formuliere fachlich präzise, aber so, dass Studierende die Inhalte direkt in ihre Vorlage übertragen können.
+- Wenn aus der Methode strategische Maßnahmen, Arbeitspakete, Aktivitäten, Meilensteine oder Anforderungen folgen, benenne sie explizit im passenden Schritt.
+- Bei der Empathy Map MUSS zu Beginn eindeutig benannt werden, welche Persona oder welche zwei Personas ausgewählt wurden und warum.
+- Bei der Empathy Map sollen die Inhalte klar den Feldern Sagt, Denkt, Fühlt, Tut, Pains und Gains zugeordnet werden.
+- Nutze die Grundmusterlösung nur als Leitgerüst, nicht als starre Vorlage.
+- Am Ende soll eine kurze Verdichtung der zentralen Ergebnisse stehen.
+- Die Ausgabe soll klar gegliedert, sauber formuliert und direkt verwendbar sein.
+- Die gesamte Antwort darf eine moderate Länge nicht überschreiten und muss innerhalb des Token-Limits vollständig bleiben.
+- Jeder Schritt soll prägnant, aber inhaltlich vollständig bearbeitet werden.
+- Vermeide unnötige Wiederholungen und lange Einleitungen.
+- Konzentriere dich auf konkrete, fallbezogene Inhalte.
+- Jeder Schritt soll in etwa gleich ausführlich sein.
+- Wenn viele Schritte vorhanden sind, formuliere jeden Schritt etwas kompakter, sodass alle Schritte vollständig enthalten sind.
+- Die Antwort darf NICHT vorzeitig abbrechen.
+
+Erstelle jetzt die vollständige Musterlösung für "${mod.title}".`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MUSTERLÖSUNG MODAL
+══════════════════════════════════════════════════════════════ */
+
+let currentSampleModuleIndex = null;
+let currentAISampleModuleIndex = null;
+
+function unlockedSamples() {
+  try {
+    return JSON.parse(localStorage.getItem("unlockedSamples") || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function unlockSample(key) {
+  const arr = unlockedSamples();
+  if (!arr.includes(key)) {
+    arr.push(key);
+    localStorage.setItem("unlockedSamples", JSON.stringify(arr));
+  }
+}
+
+function openSampleModal(idx) {
+  currentSampleModuleIndex = idx;
+  const mod = MODULES[idx];
+
+  document.getElementById("samplePwSection").style.display = "block";
+  document.getElementById("samplePwInput").value = "";
+  document.getElementById("samplePwError").style.display = "none";
+  document.getElementById("downloadLinkWrap").style.display = "none";
+  document.getElementById("downloadLinkWrap").innerHTML = "";
+
+  document.getElementById("sampleModal").classList.remove("hidden");
+  setTimeout(() => document.getElementById("samplePwInput").focus(), 80);
+}
+
+function closeSampleModal() {
+  document.getElementById("sampleModal").classList.add("hidden");
+  currentSampleModuleIndex = null;
+}
+
+function openAISampleModal(mod) {
+  currentAISampleModuleIndex = MODULES.findIndex(m => m.key === mod.key);
+  document.getElementById("aiSampleTitle").textContent = "✨ Musterlösung – " + mod.title;
+  document.getElementById("aiSampleMeta").textContent = "Musterlösung auf Basis des gemeinsamen Gruppenverlaufs.";
+  document.getElementById("aiSampleContent").textContent = "Musterlösung wird generiert...";
+  document.getElementById("aiSampleModal").classList.remove("hidden");
+}
+
+function closeAISampleModal() {
+  document.getElementById("aiSampleModal").classList.add("hidden");
+}
+
+async function downloadAISampleAsWord() {
+  const title = document.getElementById("aiSampleTitle")?.textContent?.trim() || "Musterlösung";
+  const meta = document.getElementById("aiSampleMeta")?.textContent?.trim() || "";
+  const content = document.getElementById("aiSampleContent")?.textContent?.trim() || "";
+
+  if (!content) {
+    alert("Keine Musterlösung zum Herunterladen vorhanden.");
+    return;
+  }
+
+  if (!window.docx) {
+    alert("Die Word-Bibliothek konnte nicht geladen werden.");
+    return;
+  }
+
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
+
+  const lines = content
+    .split(/\n+/)
+    .map(line => line.trim())
+    .filter(Boolean);
+
+  const children = [
+    new Paragraph({
+      text: title,
+      heading: HeadingLevel.TITLE,
+      spacing: { after: 300 }
+    })
+  ];
+
+  if (meta) {
+    children.push(
+      new Paragraph({
+        children: [new TextRun({ text: meta, italics: true })],
+        spacing: { after: 220 }
+      })
+    );
+  }
+
+  lines.forEach(line => {
+    const isHeading =
+      line.length < 90 &&
+      !line.startsWith("-") &&
+      !line.startsWith("•") &&
+      !line.match(/^\d+\./);
+
+    children.push(
+      new Paragraph({
+        children: [new TextRun(line)],
+        heading: isHeading ? HeadingLevel.HEADING_2 : undefined,
+        spacing: { after: 140 }
+      })
+    );
+  });
+
+  try {
+    const doc = new Document({
+      sections: [{ properties: {}, children }]
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const cleanTitle = title.replace(/[<>:"/\\|?*]+/g, "").replace(/\s+/g, "_");
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${cleanTitle}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error("Word-Download fehlgeschlagen:", e);
+    alert("Der Word-Download konnte nicht erstellt werden.");
+  }
+}
+
+async function generateAISampleSolution(idx) {
+  const mod = MODULES[idx];
+  if (!mod) {
+    console.error("Kein Modul für Musterlösung gefunden. idx =", idx);
+    return;
+  }
+
+  openAISampleModal(mod);
+
+  const contentEl = document.getElementById("aiSampleContent");
+  const btn = document.getElementById("aiGenerateBtn");
+  const oldBtnText = btn ? btn.innerHTML : "";
+
+  if (contentEl) {
+    contentEl.textContent = "Musterlösung wird generiert...";
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span>Generiere...';
+  }
+
+  try {
+    let stakeholderData = [];
+    let favoritesData = [];
+    let ganttData = [];
+
+    try {
+      const shared = await loadSharedStateFromServer();
+      stakeholderData = Array.isArray(shared.history) ? shared.history : [];
+      favoritesData = Array.isArray(shared.favorites) ? shared.favorites : [];
+      ganttData = shared.gantt ? normalizeGanttState(shared.gantt) : { workPackages: [], milestones: [] };
+    } catch (e) {
+      console.error("Gemeinsame Daten für Musterlösung konnten nicht geladen werden:", e);
+
+      stakeholderData = npcs.map(npc => ({
+        npcId: npc.id,
+        npcName: npc.name,
+        npcRole: npc.role,
+        history: loadHistoryFromStorage(npc.id)
+      })).filter(x => Array.isArray(x.history) && x.history.length > 0);
+
+      favoritesData = loadFavs();
+      ganttData = loadGantt();
+    }
+
+    const stakeholderRoles = npcs.map(npc => ({
+      name: npc.name,
+      role: npc.role
+    }));
+
+    const baseSolution = getBaseSampleSolution(mod.key);
+
+    const prompt = buildAISampleSolutionPrompt(
+      mod,
+      stakeholderData,
+      favoritesData,
+      ganttData,
+      stakeholderRoles,
+      baseSolution
+    );
+
+    console.log("Musterlösung Prompt wird gesendet für:", mod.key);
+
+    const text = await callLLM(prompt, 3500);
+    contentEl.textContent = text || "Keine Ausgabe erhalten.";
+  } catch (e) {
+    console.error("Musterlösung Fehler:", e);
+    contentEl.textContent = "Fehler bei der Generierung der Musterlösung: " + e.message;
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = oldBtnText;
+    }
+  }
+}
+
+async function checkSamplePassword() {
+  if (currentSampleModuleIndex === null) return;
+
+  const mod = MODULES[currentSampleModuleIndex];
+  const inputEl = document.getElementById("samplePwInput");
+  const err = document.getElementById("samplePwError");
+  const input = inputEl.value.trim();
+
+  if (!input) {
+    err.textContent = "❌ Bitte Passwort eingeben.";
+    err.style.display = "block";
+    inputEl.focus();
+    return;
+  }
+
+  const btn = document.getElementById("sampleConfirmBtn");
+  const oldLabel = btn ? btn.innerHTML : "Bestätigen";
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span>Prüfe...';
+  }
+
+  try {
+    const r = await fetch("/api/musterloesung/check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: mod.key, password: input })
+    });
+
+    const data = await r.json().catch(() => ({}));
+
+    if (!r.ok || !data.ok) {
+      err.textContent = data.error || "❌ Falsches Passwort – bitte erneut versuchen.";
+      err.style.display = "block";
+      inputEl.value = "";
+      inputEl.focus();
+      return;
+    }
+
+    unlockSample(mod.key);
+    err.style.display = "none";
+
+    const idx = currentSampleModuleIndex;
+    closeSampleModal();
+    await generateAISampleSolution(idx);
+  } catch (e) {
+    console.error("Musterlösung-Check fehlgeschlagen:", e);
+    err.textContent = "❌ Prüfung momentan nicht möglich. Bitte später erneut versuchen.";
+    err.style.display = "block";
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = oldLabel;
+    }
+  }
+}
+
+document.getElementById("sampleModal").addEventListener("click", function (e) {
+  if (e.target === this) closeSampleModal();
+});
+
+document.getElementById("aiSampleModal").addEventListener("click", function (e) {
+  if (e.target === this) closeAISampleModal();
+});
+  
+/* ══════════════════════════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════════════════════════ */
+function showApp(){ document.getElementById("loginOverlay").style.display="none"; document.getElementById("appRoot").style.display="block"; startSharedLiveSync(); }
+function showLogin(){ stopSharedLiveSync(); document.getElementById("loginOverlay").style.display="flex"; document.getElementById("appRoot").style.display="none"; }
+function setLoginError(s){ const e=document.getElementById("loginError"); if(e) e.style.display=s?"block":"none"; }
+async function handleLogin(){
+  setLoginError(false);
+  const user=document.getElementById("loginUser").value.trim();
+  const pass=document.getElementById("loginPass").value.trim();
+  if(!user||!pass){setLoginError(true);return;}
+
+  const btn=document.getElementById("loginBtn");
+  const oldLabel=btn.innerHTML;
+  btn.disabled=true;
+  btn.innerHTML='<span class="loading"></span>Anmeldung...';
+
+  try{
+    const r=await fetch("/api/login",{
+      method:"POST",
+      credentials:"same-origin",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({user,pass})
+    });
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok||!data.ok){ setLoginError(true); return; }
+
+    sessionStorage.setItem("loggedIn","true");
+
+    try {
+      const shared = await loadSharedStateFromServer();
+      mergeSharedHistoryIntoLocal(shared.history);
+      mergeSharedFavoritesIntoLocal(shared.favorites);
+      mergeSharedGanttIntoLocal(shared.gantt);
+      if (shared.steps && typeof shared.steps === "object") {
+        const initialSteps = JSON.stringify(shared.steps);
+        localStorage.setItem(SHARED_STEPS_KEY, initialSteps);
+        gameState.sharedSteps = shared.steps;
+        lastSharedStepsSignature = initialSteps;
+        saveGameState();
+      }
+    } catch (syncErr) {
+      console.error("Gemeinsamer Stand konnte nach dem Login nicht geladen werden:", syncErr);
+    }
+
+    showApp();
+    await syncSharedStateSmoothly();
+    const lastPhase=parseInt(localStorage.getItem("lastPhase")||"0",10);
+    goToPhase(isNaN(lastPhase)?0:lastPhase);
+  }catch(e){
+    console.error("Login error:",e);
+    setLoginError(true);
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML=oldLabel;
+  }
+}
+async function logoutStudent(){
+  localStorage.setItem("lastPhase", String(gameState.currentPhase));
+  try {
+    await fetch("/api/logout", {
+      method:"POST",
+      credentials:"same-origin"
+    });
+  } catch (e) {
+    console.error("Logout error:", e);
+  }
+  sessionStorage.removeItem("loggedIn");
+  stopSharedLiveSync();
+  showLogin();
+}
+function confirmLogout(){
+  if(confirm("Wirklich abmelden? Dein Fortschritt bleibt gespeichert.")) logoutStudent();
+}
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape"){
+    const panel=document.getElementById("stakeholderPanel");
+    if(panel&&panel.classList.contains("open")) closeStakeholderDrawer();
+    closeDrawer();
+    return;
+  }
+  const ov=document.getElementById("loginOverlay");
+  if(!ov||ov.style.display==="none") return;
+  if(e.key==="Enter") handleLogin();
+});
+
+/* ══════════════════════════════════════════════════════════════
+   GAME STATE + NPCS
+══════════════════════════════════════════════════════════════ */
+const npcs = [
+  {id:1,name:"Herr Dr. Julius Nagelsmann",role:"Geschäftsführung",     icon:"👨🏻‍💼"},
+  {id:2,name:"Prof. Dr. Klaus Ütter",     role:"Ärztliche Leitung",    icon:"👨🏻‍⚕️"},
+  {id:3,name:"Sabine Banse",              role:"Pflegerische Leitung", icon:"👩🏻‍⚕️"},
+  {id:4,name:"Peter Reincke",             role:"IT-Leiter",            icon:"👨‍💻"},
+  {id:5,name:"Verena Hecht",              role:"Datenschutzbeauftragte",  icon:"👩‍💼"},
+];
+
+const GAME_STATE_KEY = "patientenportal_game_state";
+const GAME_STATE_VERSION = "1.0";
+
+function createDefaultGameState() {
+  return {
+    version: GAME_STATE_VERSION,
+    currentPhase: 0,
+    currentNPC: null,
+    npcConversationHistory: {},
+    favorites: [],
+    sharedSteps: {},
+    gantt: {
+      workPackages: [],
+      milestones: []
+    }
+  };
+}
+
+function migrateGameState(parsed) {
+  const migrated = {
+    ...createDefaultGameState(),
+    ...parsed
+  };
+
+  // Neue Felder absichern (wichtig für Updates)
+  if (!migrated.gantt || typeof migrated.gantt !== "object") {
+    migrated.gantt = { workPackages: [], milestones: [] };
+  }
+
+  if (!migrated.npcConversationHistory || typeof migrated.npcConversationHistory !== "object") {
+    migrated.npcConversationHistory = {};
+  }
+
+  if (!migrated.sharedSteps || typeof migrated.sharedSteps !== "object") {
+    migrated.sharedSteps = {};
+  }
+
+  migrated.version = GAME_STATE_VERSION;
+
+  return migrated;
+}
+
+function loadGameState() {
+  try {
+    const raw = localStorage.getItem(GAME_STATE_KEY);
+    if (!raw) return createDefaultGameState();
+
+    const parsed = JSON.parse(raw);
+    return migrateGameState(parsed);
+  } catch (e) {
+    console.error("Spielstand konnte nicht geladen werden:", e);
+    return createDefaultGameState();
+  }
+}
+
+function saveGameState() {
+  try {
+    const stateToSave = {
+      ...gameState,
+      version: GAME_STATE_VERSION,
+      currentPhase: typeof gameState.currentPhase === "number"
+        ? gameState.currentPhase
+        : 0,
+      currentNPC: gameState.currentNPC
+        ? {
+            id: gameState.currentNPC.id,
+            name: gameState.currentNPC.name,
+            role: gameState.currentNPC.role,
+            icon: gameState.currentNPC.icon
+          }
+        : null,
+      npcConversationHistory: gameState.npcConversationHistory || {},
+      favorites: loadFavs ? loadFavs() : [],
+      sharedSteps: loadAllStepProgress ? loadAllStepProgress() : {},
+      gantt: loadGantt ? loadGantt() : { workPackages: [], milestones: [] }
+    };
+
+    localStorage.setItem(GAME_STATE_KEY, JSON.stringify(stateToSave));
+  } catch (e) {
+    console.error("Spielstand konnte nicht gespeichert werden:", e);
+  }
+}
+
+let gameState = loadGameState();
+if (typeof gameState.currentPhase === "number") {
+  localStorage.setItem("lastPhase", String(gameState.currentPhase));
+}
+
+function generateNPCs(){
+  const grid = document.getElementById("npcGrid");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+
+  npcs.forEach(npc => {
+    const card = document.createElement("div");
+    card.className = "npc-card";
+    card.dataset.npcId = String(npc.id);
+
+    if (gameState.currentNPC && gameState.currentNPC.id === npc.id) {
+      card.classList.add("selected");
+    }
+
+    card.innerHTML = `
+      <div class="npc-avatar">${npc.icon}</div>
+      <div class="npc-name">${npc.name}</div>
+      <div class="npc-role">${npc.role}</div>
+    `;
+
+    card.addEventListener("click", () => selectNPC(npc));
+    grid.appendChild(card);
+  });
+}
+
+function selectNPC(npc){
+  gameState.currentNPC = npc;
+  const npcId = npc.id;
+
+  gameState.npcConversationHistory[npcId] = loadHistoryFromStorage(npcId);
+  saveGameState();
+
+  document.querySelectorAll("#npcGrid .npc-card").forEach(card => {
+    card.classList.remove("selected");
+  });
+
+  const selectedCard = document.querySelector(`#npcGrid .npc-card[data-npc-id="${npc.id}"]`);
+  if (selectedCard) {
+    selectedCard.classList.add("selected");
+  }
+
+  document.getElementById("currentNPCName").textContent = npc.name;
+  document.getElementById("currentNPCRole").textContent = npc.role;
+
+  const interview = document.getElementById("interviewSection");
+  if (interview) {
+    interview.classList.add("active");
+    interview.style.display = "block";
+  }
+
+  const p = document.getElementById("historyPanel");
+  if (p && !p.classList.contains("hidden")) {
+    renderHistoryPanel();
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   KI / CHAT
+══════════════════════════════════════════════════════════════ */
+async function callLLM(prompt, max_tokens = 1000) {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      prompt,
+      max_tokens
+    })
+  });
+
+  const data = await res.json();
+
+  if (!data.ok) {
+    throw new Error(data.error || 'LLM Fehler');
+  }
+
+  return data.text;
+}
+
+async function loadSharedStateFromServer() {
+  try {
+    const res = await fetch("/api/shared/state", {
+      credentials: "same-origin"
+    });
+
+    const serverState = await res.json();
+
+    const localBackup = JSON.parse(localStorage.getItem("backup_state") || "null");
+
+    const isServerEmpty =
+      !serverState ||
+      (!serverState.history?.length &&
+       !serverState.favorites?.length &&
+       !serverState.gantt?.workPackages?.length &&
+       !Object.keys(serverState.steps || {}).length);
+
+    const finalState = isServerEmpty && localBackup ? localBackup : serverState;
+
+    console.log("State geladen:", finalState);
+
+    return finalState;
+  } catch (err) {
+    console.error("Fehler beim Laden:", err);
+
+    const localBackup = JSON.parse(localStorage.getItem("backup_state") || "null");
+    return localBackup || {
+      history: [],
+      favorites: [],
+      gantt: { workPackages: [], milestones: [] },
+      steps: {}
+    };
+  }
+}
+
+async function pushHistoryToServer(entry){
+  await fetch("/api/shared/history/add",{
+    method:"POST",
+    credentials:"same-origin",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(entry)
+  });
+}
+async function pushFavoritesToServer(){
+  const favorites=loadFavs();
+  await fetch("/api/shared/favorites/save",{
+    method:"POST",
+    credentials:"same-origin",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({favorites})
+  });
+}
+async function pushGanttToServer(ganttState) {
+  const gantt = ganttState || loadGantt();
+
+  const res = await fetch("/api/shared/gantt/save", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ gantt })
+  });
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    if (res.status === 423) {
+      ganttLockOwner = false;
+      disableGanttEditing(data.error || `Das Gantt wird gerade von ${data.lockedBy || "einer anderen Person"} bearbeitet.`);
+    }
+    throw new Error(data.error || "Gantt konnte nicht gespeichert werden.");
+  }
+
+  return data;
+}
+  
+function mergeSharedHistoryIntoLocal(sharedHistory){
+  if(!Array.isArray(sharedHistory)) return;
+  const byNpc={};
+  sharedHistory.forEach(item=>{
+    if(!item||!item.npcId) return;
+    if(!byNpc[item.npcId]) byNpc[item.npcId]=[];
+    byNpc[item.npcId].push({q:item.question,a:item.answer});
+  });
+  npcs.forEach(npc=>{
+    const next = byNpc[npc.id] || [];
+    saveHistoryToStorage(npc.id, next);
+    gameState.npcConversationHistory[npc.id] = next;
+  });
+}
+function mergeSharedFavoritesIntoLocal(sharedFavorites){
+  if(!Array.isArray(sharedFavorites)) return;
+
+  const localFavs = loadFavs();
+  const merged = [...localFavs];
+
+  sharedFavorites.forEach(fav => {
+    const exists = merged.some(f =>
+      f.npcName === fav.npcName &&
+      f.q === fav.q &&
+      f.a === fav.a
+    );
+
+    if (!exists) {
+      merged.push(fav);
+    }
+  });
+
+  localStorage.setItem(FAV_KEY, JSON.stringify(merged));
+  gameState.favorites = merged;
+  saveGameState();
+}
+function mergeSharedGanttIntoLocal(sharedGantt){
+  const normalized = normalizeGanttState(sharedGantt);
+  localStorage.setItem(GANTT_KEY, JSON.stringify(normalized));
+  gameState.gantt = normalized;
+  saveGameState();
+}
+
+let sharedSyncInterval = null;
+let favoritesLiveInterval = null;
+let lastHistoryRenderSignature = "";
+let lastSharedStepsSignature = "";
+let sharedSyncBusy = false;
+
+function arrayEqualsByJson(a,b){
+  return JSON.stringify(a||[]) === JSON.stringify(b||[]);
+}
+function objectEqualsByJson(a,b){
+  return JSON.stringify(a||{}) === JSON.stringify(b||{});
+}
+function getHistorySignatureForCurrentNPC(){
+  if(!gameState.currentNPC) return "";
+  return JSON.stringify(loadHistoryFromStorage(gameState.currentNPC.id) || []) + "||" + historyFilterMode;
+}
+function applyModuleStepProgressToVisibleView(){
+  if(gameState.currentPhase < 2) return;
+
+  const mod = MODULES[gameState.currentPhase - 2];
+  if(!mod) return;
+
+  const section = document.querySelector(`.module-steps-section[data-module-key="${mod.key}"]`)
+    || document.querySelector(".module-steps-section");
+  if(!section) return;
+
+  const content = section.querySelector(".module-steps-content");
+  if(!content) return;
+
+  const prevScrollY = window.scrollY;
+  content.innerHTML = buildModuleStepsHTML(mod);
+  window.scrollTo(0, prevScrollY);
+  updateProgressUI(gameState.currentPhase);
+}
+function refreshOpenPanelsSmoothly(opts = {}){
+  const {
+    historyChanged = false,
+    favoritesChanged = false,
+    stepsChanged = false,
+    ganttChanged = false
+  } = opts;
+
+  if (favoritesChanged) updateFavBadge();
+  if (favPanelOpen && favoritesChanged) renderFavList();
+
+  const hp=document.getElementById("historyPanel");
+  if(hp && !hp.classList.contains("hidden") && historyChanged){
+    renderHistoryPanel();
+  }
+
+  if (stepsChanged) {
+    applyModuleStepProgressToVisibleView();
+  }
+
+  if (ganttChanged && document.getElementById("ganttPanel")?.classList.contains("open") && !ganttLockOwner) {
+    renderGantt();
+  }
+}
+async function syncSharedStateSmoothly(){
+  if(sharedSyncBusy) return;
+  sharedSyncBusy = true;
+  try{
+    const shared = await loadSharedStateFromServer();
+
+    let favoritesChanged = false;
+    let ganttChanged = false;
+    let stepsChanged = false;
+    let historyChanged = false;
+
+    const currentFavs = loadFavs();
+    if(!arrayEqualsByJson(currentFavs, shared.favorites || [])){
+      mergeSharedFavoritesIntoLocal(shared.favorites || []);
+      favoritesChanged = true;
+    }
+
+    const currentGantt = loadGantt();
+    const nextGantt = normalizeGanttState(shared.gantt || { workPackages: [], milestones: [] });
+    if(!objectEqualsByJson(currentGantt, nextGantt)){
+      mergeSharedGanttIntoLocal(nextGantt);
+      ganttChanged = true;
+    }
+
+    const currentSteps = loadAllStepProgress();
+    const nextSteps = shared.steps || {};
+    const nextStepsSignature = JSON.stringify(nextSteps);
+    if(!objectEqualsByJson(currentSteps, nextSteps)){
+      localStorage.setItem(SHARED_STEPS_KEY, nextStepsSignature);
+      gameState.sharedSteps = nextSteps;
+      saveGameState();
+      stepsChanged = true;
+    }
+    lastSharedStepsSignature = nextStepsSignature;
+
+    const flatLocalHistory = npcs.flatMap(npc=>{
+      const arr = loadHistoryFromStorage(npc.id) || [];
+      return arr.map(item=>({npcId:npc.id, question:item.q, answer:item.a}));
+    });
+    const flatServerHistory = Array.isArray(shared.history)
+      ? shared.history.map(item=>({npcId:Number(item.npcId), question:item.question, answer:item.answer}))
+      : [];
+    if(!arrayEqualsByJson(flatLocalHistory, flatServerHistory)){
+      mergeSharedHistoryIntoLocal(shared.history || []);
+      historyChanged = true;
+    }
+
+    refreshOpenPanelsSmoothly({ historyChanged, favoritesChanged, stepsChanged, ganttChanged });
+  } catch(e){
+    console.error("Gemeinsamer Stand konnte nicht live synchronisiert werden:", e);
+  } finally {
+    sharedSyncBusy = false;
+  }
+}
+function startSharedLiveSync(){
+  stopSharedLiveSync();
+  sharedSyncInterval = setInterval(syncSharedStateSmoothly, 2000);
+}
+function stopSharedLiveSync(){
+  if(sharedSyncInterval){
+    clearInterval(sharedSyncInterval);
+    sharedSyncInterval = null;
+  }
+}
+function buildPersonaPrompt(persona, question, history) {
+  const ht = (history || []).slice(-8).map(t => `Q: ${t.q}\nA: ${t.a}`).join("\n\n");
+
+  return `Du bist ${persona.name} (${persona.role}).
+
+Wichtige Regeln:
+1) Widersprich dem Fallbeispiel nicht.
+2) Die Rahmenbedingungen des Falls sind fix: Budget ${CASE_CONFIG.budget}, Laufzeit ${CASE_CONFIG.duration}.
+3) Antworte realistisch, knapp und auf Deutsch in 2–5 Sätzen.
+4) Keine Tabellen, keine Aufzählungen, keine Bulletpoints.
+5) Bleibe konsistent in den Inhalten deiner Rolle.
+6) Beziehe dich immer auf das aktuelle Fallbeispiel und die dort beschriebene Ausgangssituation.
+7) Sprich nur über Aspekte, die aus deiner Rolle plausibel beurteilbar sind.
+8) Wenn du auf andere Perspektiven verweist, nenne passende andere Stakeholder aus dem Planspiel mit Namen. 
+
+Verfügbare Stakeholder:
+- Herr Dr. Julius Nagelsmann (Geschäftsführung)
+- Prof. Dr. Klaus Ütter (Ärztliche Leitung)
+- Sabine Banse (Pflegerische Leitung)
+- Peter Reincke (IT-Leiter)
+- Verena Hecht (Datenschutzbeauftragte)
+
+9) Gib keine direkte Hilfe zur Musterlösung, zu konkreten Methoden oder zur Umsetzungsplanung.
+10) Wenn nach aktuellen Problemen gefragt wird, beziehe dich auf die im Fall beschriebene Ausgangssituation.
+11) Sprich nur dann über den zukünftigen Prozess oder die zukünftige Lösung, wenn du explizit danach gefragt wirst.
+12) Nenne keine konkreten Methoden oder Aufgaben, sondern höchstens allgemein, dass es hilfreich sein kann, verschiedene Perspektiven und Rahmenbedingungen systematisch zu berücksichtigen.
+13) Triff keine festen Entscheidungen für die Projektleitung und gib keine verbindlichen Vorgaben vor.
+14) Antworte nur auf die explizit gestellte Frage.
+15) Gib keine Hinweise dazu, was im Umsetzungsplan oder Gantt-Chart berücksichtigt werden sollte.
+16) Wenn über Lösungen gesprochen wird, beziehe dich auf die Einführung von ${CASE_CONFIG.interventionName}.
+
+Fallkontext:
+${CASE_CONFIG.caseContext}
+
+Bisheriger Gesprächsverlauf:
+${ht || "(noch keiner)"}
+
+Frage:
+${question}`;
+}
+async function askQuestion(){
+  if(!gameState.currentNPC){alert("Bitte zuerst eine Persona auswählen.");return;}
+  const input=document.getElementById("questionInput");
+  const question=input.value.trim();
+  if(!question){alert("Bitte eine Frage eingeben.");return;}
+  const btn=document.getElementById("askBtn"); const box=document.getElementById("responseBox");
+  btn.disabled=true; btn.innerHTML='<span class="loading"></span>Antwort…';
+  box.classList.add("active");
+  box.innerHTML=`<strong>${gameState.currentNPC.name}:</strong>\nAntwort wird generiert…`;
+  const npcId=gameState.currentNPC.id;
+  if(!gameState.npcConversationHistory[npcId]) gameState.npcConversationHistory[npcId]=[];
+  const history=gameState.npcConversationHistory[npcId];
+  const prompt=buildPersonaPrompt(gameState.currentNPC,question,history);
+  try{
+    const answer=await callLLM(prompt,500);
+    history.push({q:question,a:answer});
+    saveHistoryToStorage(npcId,history);
+    gameState.npcConversationHistory[npcId] = history;
+    saveGameState();
+    markHistoryEntryAsOwn(npcId, question, answer);
+    try{
+      await pushHistoryToServer({
+        npcId: gameState.currentNPC.id,
+        npcName: gameState.currentNPC.name,
+        npcRole: gameState.currentNPC.role,
+        question,
+        answer
+      });
+    }catch(e){
+      console.error("Gespräch konnte nicht auf dem Server gespeichert werden:",e);
+    }
+    currentFavQ=question;
+    currentFavA=answer;
+    box.innerHTML=`<strong>${gameState.currentNPC.name}:</strong>\n${answer}`;
+    const starBtn=document.createElement("button");
+    starBtn.className="fav-star-btn"; starBtn.id="currentStarBtn";
+    starBtn.title="Als Favorit speichern"; starBtn.textContent="⭐";
+    starBtn.onclick=()=>saveFavorite();
+    box.appendChild(starBtn);
+    input.value="";
+  }catch(e){
+    console.error(e);
+    box.innerHTML=`<strong>${gameState.currentNPC.name}:</strong>\nFehler: ${e.message}`;
+  }finally{btn.disabled=false;btn.textContent="Frage stellen";}
+}
+
+/* ══════════════════════════════════════════════════════════════
+   GESPRÄCHSVERLAUF
+══════════════════════════════════════════════════════════════ */
+function storageKeyForNPC(id){return"triage_history_npc_"+id;}
+function saveHistoryToStorage(id,arr){
+  localStorage.setItem(storageKeyForNPC(id),JSON.stringify(arr||[]));
+  gameState.npcConversationHistory[id] = arr || [];
+  saveGameState();
+}
+function loadHistoryFromStorage(id){try{return JSON.parse(localStorage.getItem(storageKeyForNPC(id))||"[]");}catch(e){return[];}}
+const HISTORY_FILTER_KEY="history_filter_mode";
+const OWN_HISTORY_KEYS_STORAGE="own_history_keys_v1";
+let historyFilterMode = localStorage.getItem(HISTORY_FILTER_KEY) || "all";
+function getHistoryEntryKey(npcId,q,a){return `${Number(npcId)||0}||${String(q||"").trim()}||${String(a||"").trim()}`;}
+function loadOwnHistoryKeys(){
+  try{
+    const arr = JSON.parse(localStorage.getItem(OWN_HISTORY_KEYS_STORAGE)||"[]");
+    return new Set(Array.isArray(arr) ? arr : []);
+  }catch(e){
+    return new Set();
+  }
+}
+function saveOwnHistoryKeys(setObj){
+  localStorage.setItem(OWN_HISTORY_KEYS_STORAGE, JSON.stringify(Array.from(setObj || [])));
+}
+function markHistoryEntryAsOwn(npcId,q,a){
+  const own = loadOwnHistoryKeys();
+  own.add(getHistoryEntryKey(npcId,q,a));
+  saveOwnHistoryKeys(own);
+}
+function isOwnHistoryEntry(npcId,q,a){
+  return loadOwnHistoryKeys().has(getHistoryEntryKey(npcId,q,a));
+}
+function setHistoryFilter(mode){
+  historyFilterMode = mode === "own" ? "own" : "all";
+  localStorage.setItem(HISTORY_FILTER_KEY, historyFilterMode);
+  renderHistoryPanel(true);
+}
+function toggleHistory(){
+  if(!gameState.currentNPC) return;
+  const p=document.getElementById("historyPanel"); p.classList.toggle("hidden");
+  if(!p.classList.contains("hidden")) renderHistoryPanel(true);
+}
+
+const OWN_FAVORITE_KEYS_STORAGE = "own_favorite_keys_v1";
+
+function getFavoriteKey(fav){
+  return `${fav.npcId || 0}||${(fav.q || "").trim()}||${(fav.a || "").trim()}`;
+}
+
+function loadOwnFavoriteKeys(){
+  try{
+    const arr = JSON.parse(localStorage.getItem(OWN_FAVORITE_KEYS_STORAGE) || "[]");
+    return new Set(Array.isArray(arr) ? arr : []);
+  }catch(e){
+    return new Set();
+  }
+}
+
+function saveOwnFavoriteKeys(setObj){
+  localStorage.setItem(OWN_FAVORITE_KEYS_STORAGE, JSON.stringify([...setObj]));
+}
+
+function markFavoriteAsOwn(fav){
+  const own = loadOwnFavoriteKeys();
+  own.add(getFavoriteKey(fav));
+  saveOwnFavoriteKeys(own);
+}
+
+function isOwnFavorite(fav){
+  return loadOwnFavoriteKeys().has(getFavoriteKey(fav));
+}
+
+function isAlreadyFav(q,a){
+  return loadFavs().some(f=>f.q===q&&f.a===a);
+}
+function renderHistoryPanel(force=false){
+  if(!gameState.currentNPC) return;
+  const p=document.getElementById("historyPanel");
+  const npc=gameState.currentNPC;
+  const fullHistory=loadHistoryFromStorage(npc.id);
+  const visibleHistory=(historyFilterMode === "own")
+    ? fullHistory.filter(x=>isOwnHistoryEntry(npc.id, x.q, x.a))
+    : fullHistory;
+  const ownCount = fullHistory.filter(x=>isOwnHistoryEntry(npc.id, x.q, x.a)).length;
+
+  const header = `<div class="hist-header" style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;">
+    <span>${npc.name} &mdash; ${npc.role} (${visibleHistory.length}${historyFilterMode === "own" ? ` / ${fullHistory.length}` : ""} Fragen)</span>
+    <div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-small${historyFilterMode === "all" ? " nav-active" : ""}" onclick="setHistoryFilter('all')">Alle</button>
+      <button class="btn btn-secondary btn-small${historyFilterMode === "own" ? " nav-active" : ""}" onclick="setHistoryFilter('own')">Nur eigene${ownCount ? ` (${ownCount})` : ""}</button>
+    </div>
+  </div>`;
+
+  let html = "";
+  if(!fullHistory.length){
+    html = header + `<div style="padding:.75rem 1rem;color:var(--text-secondary);font-size:.78rem;">Noch kein Verlauf vorhanden.</div>`;
+  } else if(!visibleHistory.length && historyFilterMode === "own"){
+    html = header + `<div style="padding:.75rem 1rem;color:var(--text-secondary);font-size:.78rem;">Noch keine eigenen Fragen in diesem Verlauf vorhanden.</div>`;
+  } else {
+    html = header + visibleHistory.map((x,i)=>{
+        const saved=isAlreadyFav(x.q,x.a);
+        const isOwn=isOwnHistoryEntry(npc.id,x.q,x.a);
+        const originBadge = isOwn
+          ? `<span style="display:inline-flex;align-items:center;gap:.25rem;padding:.12rem .45rem;border-radius:999px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#bbf7d0;font-size:.68rem;font-weight:700;margin-bottom:.45rem;">Eigene Frage</span>`
+          : `<span style="display:inline-flex;align-items:center;gap:.25rem;padding:.12rem .45rem;border-radius:999px;background:rgba(148,163,184,.12);border:1px solid rgba(148,163,184,.25);color:#cbd5e1;font-size:.68rem;font-weight:700;margin-bottom:.45rem;">Geteilt</span>`;
+        return `<div class="hist-card">
+          <button class="hist-star${saved?' starred':''}" id="hstar-${i}"
+            onclick="saveHistFavByContent(${npc.id}, ${JSON.stringify(x.q)}, ${JSON.stringify(x.a)})" title="${saved?'Bereits gespeichert':'Als Favorit speichern'}">
+            ${saved?'★':'⭐'}
+          </button>
+          ${originBadge}
+          <div class="hist-q">❓ ${x.q}</div>
+          <div class="hist-a">${x.a}</div>
+        </div>`;
+      }).join("");
+  }
+
+  if(!force && p.dataset.renderedHtml === html) return;
+  const prevScroll = p.scrollTop;
+  p.innerHTML = html;
+  p.dataset.renderedHtml = html;
+  p.scrollTop = prevScroll;
+  lastHistoryRenderSignature = getHistorySignatureForCurrentNPC() + "||" + historyFilterMode;
+}
+function saveHistFavByContent(npcId,q,a){
+  if(!gameState.currentNPC) return;
+  const x={q,a};
+  if(!x) return;
+  if(isAlreadyFav(x.q,x.a)){
+    return;
+  }
+  currentFavQ=x.q; currentFavA=x.a;
+  pendingFav={
+    id:Date.now(),
+    npcId:gameState.currentNPC.id,
+    npcName:gameState.currentNPC.name,
+    npcRole:gameState.currentNPC.role,
+    q:x.q, a:x.a,
+    comment:"",
+    ts:new Date().toLocaleDateString("de-DE")
+  };
+  document.getElementById("favModalQ").textContent="Frage: "+x.q;
+  document.getElementById("favModalA").textContent=x.a;
+  document.getElementById("favModalComment").value="";
+  document.getElementById("favCommentModal").classList.remove("hidden");
+  setTimeout(()=>document.getElementById("favModalComment").focus(),80);
+}
+function saveHistFav(idx){
+  if(!gameState.currentNPC) return;
+  const fullHistory=loadHistoryFromStorage(gameState.currentNPC.id);
+  const visibleHistory=(historyFilterMode === "own")
+    ? fullHistory.filter(x=>isOwnHistoryEntry(gameState.currentNPC.id, x.q, x.a))
+    : fullHistory;
+  const x=visibleHistory[idx];
+  if(!x) return;
+  saveHistFavByContent(gameState.currentNPC.id, x.q, x.a);
+}
+function clearHistoryForCurrentNPC(){
+  return;
+}
+
+/* STAKEHOLDER OVERLAY */
+function openStakeholderDrawer(){
+  generateNPCs();
+  document.getElementById("stakeholderBackdrop").classList.add("open");
+  document.body.style.overflow="hidden";
+  // slight delay so display:flex is applied before transition fires
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      document.getElementById("stakeholderPanel").classList.add("open");
+    });
+  });
+  updateFavBadge();
+  const btn=document.getElementById("btnStakeholder"); btn.classList.add("nav-active");
+}
+function closeStakeholderDrawer(){
+  const panel=document.getElementById("stakeholderPanel");
+  panel.classList.remove("open");
+  setTimeout(()=>{
+    document.getElementById("stakeholderBackdrop").classList.remove("open");
+    document.body.style.overflow="";
+  },380);
+  const btn=document.getElementById("btnStakeholder"); btn.classList.remove("nav-active");
+}
+function toggleStakeholderDrawer(){
+  const isOpen=document.getElementById("stakeholderPanel").classList.contains("open");
+  if(isOpen) closeStakeholderDrawer(); else openStakeholderDrawer();
+}
+
+/* TYPEWRITER */
+function typewriterEffect(box, name, text){
+  box.classList.add("active","typewriter");
+  box.innerHTML = `<strong>${name}:</strong>\n`;
+  let i=0; const speed=18;
+  const cursor = document.createElement("span");
+  cursor.className="cursor"; box.appendChild(cursor);
+  const timer=setInterval(()=>{
+    if(i<text.length){
+      cursor.insertAdjacentText("beforebegin", text[i++]);
+    } else {
+      clearInterval(timer);
+      setTimeout(()=>cursor.remove(),800);
+    }
+  },speed);
+}
+
+const SHARED_STEPS_KEY = "shared_step_progress";
+
+/* STEP PROGRESS */
+function loadAllStepProgress(){
+  try{
+    return JSON.parse(localStorage.getItem(SHARED_STEPS_KEY) || "{}");
+  } catch(e){
+    return {};
+  }
+}
+
+function saveAllStepProgress(allSteps){
+  localStorage.setItem(SHARED_STEPS_KEY, JSON.stringify(allSteps));
+  gameState.sharedSteps = allSteps;
+  saveGameState();
+}
+
+function loadStepProgress(moduleKey){
+  const allSteps = loadAllStepProgress();
+  return allSteps[moduleKey] || {};
+}
+
+function saveStepProgress(moduleKey, obj){
+  const allSteps = loadAllStepProgress();
+  allSteps[moduleKey] = obj;
+  saveAllStepProgress(allSteps);
+  gameState.sharedSteps = allSteps;
+  saveGameState();
+  lastSharedStepsSignature = JSON.stringify(allSteps);
+  pushStepProgressToServer().catch(e => {
+    console.error("Schrittfortschritt konnte nicht auf dem Server gespeichert werden:", e);
+  });
+}
+
+async function pushStepProgressToServer(){
+  const steps = loadAllStepProgress();
+
+  const res = await fetch("/api/shared/steps/save", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ steps })
+  });
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(data.error || "Schrittfortschritt konnte nicht gespeichert werden.");
+  }
+
+  return data;
+}
+
+async function reloadSharedSteps(){
+  try{
+    const shared = await loadSharedStateFromServer();
+
+    if (shared.steps && typeof shared.steps === "object") {
+      const stepsJson = JSON.stringify(shared.steps);
+      localStorage.setItem(SHARED_STEPS_KEY, stepsJson);
+      gameState.sharedSteps = shared.steps;
+      lastSharedStepsSignature = stepsJson;
+      saveGameState();
+    }
+  } catch(e){
+    console.error("Gemeinsamer Schrittfortschritt konnte nicht geladen werden:", e);
+  }
+}
+
+function toggleStep(moduleKey, stepIdx, el, total){
+  if(el && el.dataset.busy === "1") return;
+
+  const prog = loadStepProgress(moduleKey);
+  if(stepIdx > 0 && !prog[stepIdx - 1]) return;
+
+  if(el) el.dataset.busy = "1";
+
+  const wasChecked = !!prog[stepIdx];
+  if (wasChecked) {
+    for (let j = stepIdx; j < total; j++) prog[j] = false;
+  } else {
+    prog[stepIdx] = true;
+  }
+
+  saveStepProgress(moduleKey, prog);
+
+if (gameState.currentPhase >= 2) {
+  renderModulePage(gameState.currentPhase - 2);
+  updateProgressUI(gameState.currentPhase);
+}
+
+  setTimeout(() => {
+    if(el) delete el.dataset.busy;
+  }, 220);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   GANTT CHART
+══════════════════════════════════════════════════════════════ */
+const GANTT_KEY = "gantt_wps";
+const GANTT_MONTHS = 18;
+const WP_PALETTE = ["#6366f1", "#ec4899", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ef4444", "#14b8a6"];
+
+function normalizeHexColor(color) {
+  const fallback = "#6366f1";
+  if (!color || typeof color !== "string") return fallback;
+  let c = color.trim();
+  if (!c.startsWith("#")) c = "#" + c;
+  if (/^#[0-9a-fA-F]{3}$/.test(c)) {
+    c = "#" + c.slice(1).split("").map(ch => ch + ch).join("");
+  }
+  return /^#[0-9a-fA-F]{6}$/.test(c) ? c : fallback;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function lightenColor(color, amount = 0.32) {
+  const hex = normalizeHexColor(color).slice(1);
+  const num = parseInt(hex, 16);
+  let r = (num >> 16) & 255;
+  let g = (num >> 8) & 255;
+  let b = num & 255;
+  r = Math.round(r + (255 - r) * amount);
+  g = Math.round(g + (255 - g) * amount);
+  b = Math.round(b + (255 - b) * amount);
+  return "#" + [r, g, b].map(v => v.toString(16).padStart(2, "0")).join("");
+}
+
+function normalizeGanttState(raw) {
+  const normalizeWp = (wp, idx = 0) => ({
+    id: wp?.id || Date.now() + idx,
+    name: typeof wp?.name === "string" && wp.name.trim() ? wp.name : `Arbeitspaket ${idx + 1}`,
+    color: normalizeHexColor(wp?.color || WP_PALETTE[idx % WP_PALETTE.length]),
+    activities: Array.isArray(wp?.activities)
+      ? wp.activities.map((act, aIdx) => {
+          const start = Math.max(1, Math.min(GANTT_MONTHS, Number(act?.start || 1)));
+          const endRaw = Math.max(1, Math.min(GANTT_MONTHS, Number(act?.end || act?.start || 1)));
+          return {
+            id: act?.id || Date.now() + idx * 100 + aIdx,
+            name: typeof act?.name === "string" ? act.name : "",
+            start,
+            end: Math.max(start, endRaw)
+          };
+        })
+      : []
+  });
+
+  const normalizeMs = (ms, idx = 0) => ({
+    id: ms?.id || Date.now() + idx,
+    name: typeof ms?.name === "string" && ms.name.trim() ? ms.name : `Meilenstein ${idx + 1}`,
+    time: Math.max(1, Math.min(GANTT_MONTHS, Number(ms?.time || 1))),
+    note: typeof ms?.note === "string" ? ms.note : ""
+  });
+
+  if (Array.isArray(raw)) {
+    return { workPackages: raw.map(normalizeWp), milestones: [] };
+  }
+
+  if (!raw || typeof raw !== "object") {
+    return { workPackages: [], milestones: [] };
+  }
+
+  return {
+    workPackages: Array.isArray(raw.workPackages) ? raw.workPackages.map(normalizeWp) : [],
+    milestones: Array.isArray(raw.milestones) ? raw.milestones.map(normalizeMs) : []
+  };
+}
+
+function loadGantt() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(GANTT_KEY) || '{"workPackages":[],"milestones":[]}');
+    return normalizeGanttState(raw);
+  } catch (e) {
+    return { workPackages: [], milestones: [] };
+  }
+}
+
+function saveGantt(state) {
+  const normalized = normalizeGanttState(state);
+  localStorage.setItem(GANTT_KEY, JSON.stringify(normalized));
+  gameState.gantt = normalized;
+  saveGameState();
+
+  pushGanttToServer(normalized).catch(e => {
+    console.warn("Gantt nur lokal gespeichert:", e);
+  });
+
+  return normalized;
+}
+let ganttCollapsed = {};
+let ganttConfirmed = false;
+let ganttLockOwner = false;
+let ganttLockedBy = null;
+let ganttLiveInterval = null;
+let ganttHeartbeat = null;
+
+function disableGanttEditing(message) {
+  const editArea = document.getElementById("ganttEditArea");
+  const btnConfirm = document.getElementById("btnConfirmGantt");
+
+  if (btnConfirm) btnConfirm.disabled = true;
+  if (editArea) {
+    editArea.style.pointerEvents = "none";
+    editArea.style.opacity = "0.6";
+  }
+
+  let hint = document.getElementById("ganttLockHint");
+  if (!hint) {
+    hint = document.createElement("div");
+    hint.id = "ganttLockHint";
+    hint.style.marginBottom = "1rem";
+    hint.style.padding = ".8rem 1rem";
+    hint.style.borderRadius = "10px";
+    hint.style.background = "rgba(245,158,11,.12)";
+    hint.style.border = "1px solid rgba(245,158,11,.35)";
+    hint.style.color = "#fde68a";
+    const wrap = document.getElementById("ganttEditArea");
+    if (wrap && wrap.parentNode) {
+      wrap.parentNode.insertBefore(hint, wrap);
+    }
+  }
+  hint.textContent = message;
+}
+
+function enableGanttEditing() {
+  const editArea = document.getElementById("ganttEditArea");
+  const btnConfirm = document.getElementById("btnConfirmGantt");
+  if (btnConfirm) btnConfirm.disabled = false;
+  if (editArea) {
+    editArea.style.pointerEvents = "";
+    editArea.style.opacity = "";
+  }
+  const hint = document.getElementById("ganttLockHint");
+  if (hint) hint.remove();
+}
+
+async function acquireGanttLock() {
+  try {
+    const res = await fetch("/api/gantt/lock", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" }
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.ok) {
+      if (res.status === 423) {
+        ganttLockOwner = false;
+        ganttLockedBy = data.lockedBy || "einer anderen Person";
+        disableGanttEditing(`Das Gantt wird gerade von ${ganttLockedBy} bearbeitet.`);
+        return false;
+      }
+
+      console.warn("Gantt-Lock nicht verfügbar – lokale Bearbeitung wird trotzdem erlaubt.", data);
+      ganttLockOwner = true;
+      ganttLockedBy = null;
+      enableGanttEditing();
+      return true;
+    }
+
+    ganttLockOwner = true;
+    ganttLockedBy = null;
+    enableGanttEditing();
+    startGanttHeartbeat();
+    return true;
+  } catch (e) {
+    console.error("Gantt-Sperre konnte nicht gesetzt werden:", e);
+    ganttLockOwner = true;
+    ganttLockedBy = null;
+    enableGanttEditing();
+    return true;
+  }
+}
+
+async function releaseGanttLock() {
+  stopGanttHeartbeat();
+  if (!ganttLockOwner) return;
+
+  try {
+    await fetch("/api/gantt/unlock", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (e) {
+    console.error("Gantt-Sperre konnte nicht freigegeben werden:", e);
+  } finally {
+    ganttLockOwner = false;
+    ganttLockedBy = null;
+  }
+}
+
+async function refreshGanttLockStatus() {
+  try {
+    const res = await fetch("/api/gantt/lock/status", {
+      credentials: "same-origin"
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      console.warn("Lock-Status konnte nicht geprüft werden – lokales Bearbeiten bleibt aktiv.");
+      return;
+    }
+
+    // Niemand hat gesperrt → Bearbeitung lokal erlauben
+    if (!data.locked) {
+      ganttLockedBy = null;
+      ganttLockOwner = true;
+      enableGanttEditing();
+      return;
+    }
+
+    // Ich selbst bin Owner
+    if (data.isOwner) {
+      ganttLockOwner = true;
+      ganttLockedBy = null;
+      enableGanttEditing();
+      return;
+    }
+
+    // Jemand anderes bearbeitet gerade
+    ganttLockOwner = false;
+    ganttLockedBy = data.lockedBy || "einer anderen Person";
+    disableGanttEditing(`Das Gantt wird gerade von ${ganttLockedBy} bearbeitet.`);
+  } catch (e) {
+    console.error("Gantt-Lock-Status konnte nicht geladen werden:", e);
+
+    // Falls der Status nicht geprüft werden kann:
+    // lokale Bearbeitung trotzdem erlauben
+    ganttLockOwner = true;
+    ganttLockedBy = null;
+    enableGanttEditing();
+  }
+}
+function startGanttHeartbeat() {
+  stopGanttHeartbeat();
+  if (!ganttLockOwner) return;
+
+  ganttHeartbeat = setInterval(async () => {
+    try {
+      await fetch("/api/gantt/lock", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (e) {
+      console.error("Gantt-Heartbeat fehlgeschlagen:", e);
+    }
+  }, 60000);
+}
+
+function stopGanttHeartbeat() {
+  if (ganttHeartbeat) {
+    clearInterval(ganttHeartbeat);
+    ganttHeartbeat = null;
+  }
+}
+
+async function reloadSharedGantt() {
+  try {
+    const shared = await loadSharedStateFromServer();
+
+    if (
+      shared &&
+      shared.gantt &&
+      (
+        Array.isArray(shared.gantt.workPackages) ||
+        Array.isArray(shared.gantt.milestones) ||
+        Array.isArray(shared.gantt)
+      )
+    ) {
+      localStorage.setItem(
+        GANTT_KEY,
+        JSON.stringify(normalizeGanttState(shared.gantt))
+      );
+    }
+
+    renderGantt();
+  } catch (e) {
+    console.error("Gemeinsamer Gantt-Stand konnte nicht geladen werden:", e);
+
+    if (String(e.message || "").includes("Session abgelaufen")) {
+      alert("Deine Sitzung ist abgelaufen. Bitte logge dich erneut ein.");
+      return;
+    }
+
+    renderGantt();
+  }
+}
+
+function startGanttLiveUpdates() {
+  stopGanttLiveUpdates();
+  ganttLiveInterval = setInterval(async () => {
+    await reloadSharedGantt();
+  }, 15000);
+}
+
+function stopGanttLiveUpdates() {
+  if (ganttLiveInterval) {
+    clearInterval(ganttLiveInterval);
+    ganttLiveInterval = null;
+  }
+}
+
+async function openGanttPanel() {
+  ganttConfirmed = false;
+
+  document.getElementById("ganttBackdrop").classList.add("open");
+  document.body.style.overflow = "hidden";
+
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      document.getElementById("ganttPanel").classList.add("open");
+    })
+  );
+
+  const btn = document.getElementById("btnGantt");
+  if (btn) btn.classList.add("nav-active");
+
+  await acquireGanttLock();
+  await reloadSharedGantt();
+  renderGantt();
+  startGanttLiveUpdates();
+}
+
+async function closeGanttPanel() {
+  ganttConfirmed = false;
+
+  stopGanttLiveUpdates();
+  await releaseGanttLock();
+  await reloadSharedGantt();
+
+  document.getElementById("ganttPanel").classList.remove("open");
+  hideCtxMenu();
+
+  setTimeout(() => {
+    document.getElementById("ganttBackdrop").classList.remove("open");
+    document.body.style.overflow = "";
+  }, 380);
+
+  const btn = document.getElementById("btnGantt");
+  if (btn) btn.classList.remove("nav-active");
+}
+
+function toggleGanttPanel() {
+  const open = document.getElementById("ganttPanel").classList.contains("open");
+  if (open) {
+    closeGanttPanel();
+  } else {
+    openGanttPanel();
+  }
+}
+
+function addWorkPackage() {
+  if (!ganttLockOwner) return;
+
+  const gantt = loadGantt();
+  const wps = gantt.workPackages || [];
+  const color = WP_PALETTE[wps.length % WP_PALETTE.length];
+
+  wps.push({
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    name: "Arbeitspaket " + (wps.length + 1),
+    color,
+    activities: []
+  });
+
+  gantt.workPackages = wps;
+
+  saveGantt(gantt);
+  ganttConfirmed = false;
+  renderGanttEdit();
+}
+
+function addMilestone() {
+  if (!ganttLockOwner) return;
+  const gantt = loadGantt();
+  gantt.milestones.push({
+    id: Date.now(),
+    name: "Meilenstein " + (gantt.milestones.length + 1),
+    time: 1,
+    note: ""
+  });
+  saveGantt(gantt);
+  ganttConfirmed = false;
+  renderGantt();
+}
+  
+function deleteWP(wpIdx) {
+  if (!ganttLockOwner) return;
+  const gantt = loadGantt();
+  gantt.workPackages.splice(wpIdx, 1);
+  saveGantt(gantt);
+
+  if (ganttConfirmed) renderGanttChart();
+  else renderGanttEdit();
+}
+
+function updateWPName(wpIdx, val) {
+  if (!ganttLockOwner) return;
+  const gantt = loadGantt();
+  if (!gantt.workPackages[wpIdx]) return;
+
+  gantt.workPackages[wpIdx].name = val;
+  saveGantt(gantt);
+
+  if (ganttConfirmed) renderGanttChart();
+}
+
+function updateWPColor(wpIdx, value) {
+  if (!ganttLockOwner) return;
+  const gantt = loadGantt();
+  if (!gantt.workPackages[wpIdx]) return;
+
+  gantt.workPackages[wpIdx].color = normalizeHexColor(value);
+  saveGantt(gantt);
+  renderGantt();
+}
+
+function addActivity(wpIdx) {
+  if (!ganttLockOwner) return;
+
+  const gantt = loadGantt();
+  const wps = gantt.workPackages || [];
+
+  if (!wps[wpIdx]) return;
+
+  if (!Array.isArray(wps[wpIdx].activities)) {
+    wps[wpIdx].activities = [];
+  }
+
+  wps[wpIdx].activities.push({
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    name: "",
+    start: 1,
+    end: 3
+  });
+
+  ganttCollapsed[wpIdx] = false;
+  saveGantt(gantt);
+  ganttConfirmed = false;
+  renderGanttEdit();
+
+  setTimeout(() => {
+    const inputs = document.querySelectorAll(`#wp-acts-${wpIdx} .act-name`);
+    const lastInput = inputs[inputs.length - 1];
+    if (lastInput) lastInput.focus();
+  }, 50);
+}
+
+function deleteActivity(wpIdx, actIdx) {
+  if (!ganttLockOwner) return;
+  const gantt = loadGantt();
+  if (!gantt.workPackages[wpIdx]) return;
+
+  gantt.workPackages[wpIdx].activities.splice(actIdx, 1);
+  saveGantt(gantt);
+
+  if (ganttConfirmed) renderGanttChart();
+  else renderGanttEdit();
+}
+
+function updateActivity(wpIdx, actIdx, field, value) {
+  if (!ganttLockOwner) return;
+  const gantt = loadGantt();
+  if (!gantt.workPackages[wpIdx] || !gantt.workPackages[wpIdx].activities[actIdx]) return;
+
+  if (field === "start" || field === "end") {
+    const v = parseInt(value, 10);
+    gantt.workPackages[wpIdx].activities[actIdx][field] = isNaN(v)
+      ? 1
+      : Math.max(1, Math.min(GANTT_MONTHS, v));
+
+    if (field === "start") {
+      gantt.workPackages[wpIdx].activities[actIdx].end = Math.max(
+        gantt.workPackages[wpIdx].activities[actIdx].start,
+        gantt.workPackages[wpIdx].activities[actIdx].end
+      );
+    }
+    if (field === "end") {
+      gantt.workPackages[wpIdx].activities[actIdx].end = Math.max(
+        gantt.workPackages[wpIdx].activities[actIdx].start,
+        gantt.workPackages[wpIdx].activities[actIdx].end
+      );
+    }
+  } else {
+    gantt.workPackages[wpIdx].activities[actIdx][field] = value;
+  }
+
+  saveGantt(gantt);
+
+  if (ganttConfirmed) renderGanttChart();
+}
+
+function deleteMilestone(msIdx) {
+  if (!ganttLockOwner) return;
+  const gantt = loadGantt();
+  gantt.milestones.splice(msIdx, 1);
+  saveGantt(gantt);
+
+  if (ganttConfirmed) renderGanttChart();
+  else renderGanttEdit();
+}
+
+function updateMilestone(msIdx, field, value) {
+  if (!ganttLockOwner) return;
+  const gantt = loadGantt();
+  if (!gantt.milestones[msIdx]) return;
+
+  if (field === "time") {
+    const v = parseInt(value, 10);
+    gantt.milestones[msIdx][field] = isNaN(v)
+      ? 1
+      : Math.max(1, Math.min(GANTT_MONTHS, v));
+  } else {
+    gantt.milestones[msIdx][field] = value;
+  }
+
+  saveGantt(gantt);
+  if (ganttConfirmed) renderGanttChart();
+}
+
+function toggleWP(wpIdx) {
+  ganttCollapsed[wpIdx] = !ganttCollapsed[wpIdx];
+
+  const acts = document.getElementById("wp-acts-" + wpIdx);
+  const tog = document.getElementById("wp-tog-" + wpIdx);
+
+  if (acts) acts.classList.toggle("open", !ganttCollapsed[wpIdx]);
+  if (tog) tog.classList.toggle("open", !ganttCollapsed[wpIdx]);
+}
+
+function renderGantt() {
+  if (ganttConfirmed) renderGanttChart();
+  else renderGanttEdit();
+}
+
+function renderGanttEdit() {
+  const editArea = document.getElementById("ganttEditArea");
+  const chartWrap = document.getElementById("ganttChartWrap");
+  const btnConfirm = document.getElementById("btnConfirmGantt");
+  const btnEdit = document.getElementById("btnEditGantt");
+  if (!editArea) return;
+
+  const gantt = loadGantt();
+  const wps = gantt.workPackages || [];
+  const milestones = gantt.milestones || [];
+
+  chartWrap.style.display = "none";
+  if (btnConfirm) {
+    btnConfirm.textContent = "✅ In Gantt übernehmen";
+    btnConfirm.style.display = "inline-flex";
+  }
+  if (btnEdit) btnEdit.style.display = "none";
+
+  const emptyWorkPackageHint = !wps.length
+    ? `<div style="padding:1rem;border:1px dashed rgba(255,255,255,.15);border-radius:12px;background:rgba(15,23,42,.35);color:var(--text-secondary);margin-bottom:.75rem;">
+        Noch keine Arbeitspakete vorhanden. Klicke auf <strong>+ Arbeitspaket</strong>, um zu starten.
+      </div>`
+    : "";
+
+  const wpHtml = wps.map((wp, wpIdx) => {
+    const actsOpen = ganttCollapsed[wpIdx] ? "" : "open";
+    const activities = Array.isArray(wp.activities) ? wp.activities : [];
+
+    const actRows = activities.length
+      ? activities.map((act, actIdx) => `
+        <div class="act-row">
+          <input class="gantt-input act-name" type="text" placeholder="Aktivität"
+            value="${escapeHtml(act.name || "")}"
+            oninput="updateActivity(${wpIdx}, ${actIdx}, 'name', this.value)">
+          <input class="gantt-input act-num" type="number" min="1" max="${GANTT_MONTHS}"
+            value="${Number(act.start || 1)}"
+            oninput="updateActivity(${wpIdx}, ${actIdx}, 'start', this.value)">
+          <input class="gantt-input act-num" type="number" min="1" max="${GANTT_MONTHS}"
+            value="${Number(act.end || 1)}"
+            oninput="updateActivity(${wpIdx}, ${actIdx}, 'end', this.value)">
+          <button class="gantt-del" type="button" onclick="deleteActivity(${wpIdx}, ${actIdx})" title="Aktivität löschen">🗑️</button>
+        </div>
+      `).join("")
+      : `<div style="padding:.35rem 0;color:rgba(255,255,255,.45);font-size:.8rem;">Noch keine Aktivitäten erfasst.</div>`;
+
+    return `
+      <div class="wp-block" style="background:rgba(15,23,42,.45);">
+        <div class="wp-header" style="background:${escapeHtml(wp.color || '#6366f1')}22;" onclick="toggleWP(${wpIdx})">
+          <div class="wp-toggle ${actsOpen}" id="wp-tog-${wpIdx}">▶</div>
+          <div class="wp-color-dot" style="background:${escapeHtml(wp.color || '#6366f1')};"></div>
+          <input class="wp-color-input" type="color" value="${escapeHtml(normalizeHexColor(wp.color || '#6366f1'))}"
+            onclick="event.stopPropagation()"
+            oninput="updateWPColor(${wpIdx}, this.value)" title="Farbe wählen">
+          <input class="wp-name-input" type="text" value="${escapeHtml(wp.name || `Arbeitspaket ${wpIdx + 1}`)}"
+            onclick="event.stopPropagation()"
+            oninput="updateWPName(${wpIdx}, this.value)">
+          <div class="wp-actions" onclick="event.stopPropagation()">
+            <button class="wp-act-btn" type="button" onclick="addActivity(${wpIdx})">+ Aktivität</button>
+            <button class="wp-del" type="button" onclick="deleteWP(${wpIdx})" title="Arbeitspaket löschen">🗑️</button>
+          </div>
+        </div>
+        <div class="wp-activities ${actsOpen}" id="wp-acts-${wpIdx}">
+          <div class="act-col-labels">
+            <div class="act-name">Aktivität</div>
+            <div class="act-num">Start</div>
+            <div class="act-num">Ende</div>
+            <div style="width:36px;"></div>
+          </div>
+          ${actRows}
+        </div>
+      </div>`;
+  }).join("");
+
+  const milestoneRows = milestones.length
+    ? milestones.map((ms, msIdx) => `
+      <div class="act-row">
+        <input class="gantt-input act-name" type="text" placeholder="Meilenstein"
+          value="${escapeHtml(ms.name || "")}"
+          oninput="updateMilestone(${msIdx}, 'name', this.value)">
+        <input class="gantt-input act-num" type="number" min="1" max="${GANTT_MONTHS}"
+          value="${Number(ms.time || 1)}"
+          oninput="updateMilestone(${msIdx}, 'time', this.value)">
+        <input class="gantt-input milestone-note" type="text" placeholder="Notiz"
+          value="${escapeHtml(ms.note || "")}"
+          oninput="updateMilestone(${msIdx}, 'note', this.value)">
+        <button class="gantt-del" type="button" onclick="deleteMilestone(${msIdx})" title="Meilenstein löschen">🗑️</button>
+      </div>
+    `).join("")
+    : `<div style="padding:.1rem 0;color:rgba(255,255,255,.45);font-size:.8rem;">Noch keine Meilensteine erfasst.</div>`;
+
+  const milestoneHtml = `
+    <div class="milestone-section">
+      <div class="milestone-section-title">⭐ Meilensteine mit Notiz</div>
+      <div class="act-col-labels" style="padding-left:0;">
+        <div class="act-name">Meilenstein</div>
+        <div class="act-num">Monat</div>
+        <div class="milestone-note">Notiz</div>
+        <div style="width:36px;"></div>
+      </div>
+      ${milestoneRows}
+    </div>`;
+
+  editArea.innerHTML = `${emptyWorkPackageHint}${wpHtml}${milestoneHtml}`;
+}
+
+function renderGanttChart() {
+  const editArea = document.getElementById("ganttEditArea");
+  const chartWrap = document.getElementById("ganttChartWrap");
+  const axisRow = document.getElementById("ganttAxisRow");
+  const rowsWrap = document.getElementById("ganttChartRows");
+  const btnConfirm = document.getElementById("btnConfirmGantt");
+  const btnEdit = document.getElementById("btnEditGantt");
+  if (!editArea || !chartWrap || !axisRow || !rowsWrap) return;
+
+  const gantt = loadGantt();
+  const wps = gantt.workPackages || [];
+  const milestones = gantt.milestones || [];
+
+  editArea.innerHTML = "";
+  chartWrap.style.display = "block";
+  if (btnConfirm) btnConfirm.style.display = "none";
+  if (btnEdit) btnEdit.style.display = "inline-flex";
+
+  axisRow.innerHTML = Array.from({ length: GANTT_MONTHS }, (_, i) =>
+    `<div class="gantt-axis-tick">M${i + 1}</div>`
+  ).join("");
+
+  if (!wps.length && !milestones.length) {
+    rowsWrap.innerHTML = `<div style="color:var(--text-secondary);font-size:.85rem;">Noch keine Arbeitspakete oder Meilensteine vorhanden.</div>`;
+    return;
+  }
+
+  const rowHtml = [];
+  wps.forEach((wp, wpIdx) => {
+    const acts = Array.isArray(wp.activities) ? wp.activities : [];
+    let wpStart = GANTT_MONTHS;
+    let wpEnd = 1;
+
+    if (acts.length) {
+      acts.forEach(act => {
+        const s = Math.max(1, Math.min(GANTT_MONTHS, Number(act.start || 1)));
+        const e = Math.max(s, Math.min(GANTT_MONTHS, Number(act.end || s)));
+        wpStart = Math.min(wpStart, s);
+        wpEnd = Math.max(wpEnd, e);
+      });
+    } else {
+      wpStart = 1;
+      wpEnd = 1;
+    }
+
+    const wpLeft = ((wpStart - 1) / GANTT_MONTHS) * 100;
+    const wpWidth = ((wpEnd - wpStart + 1) / GANTT_MONTHS) * 100;
+
+    rowHtml.push(`
+      <div class="gantt-chart-row clickable" oncontextmenu="showCtxMenu(event, 'wp', ${wpIdx}, -1)">
+        <div class="gantt-chart-label is-wp">${escapeHtml(wp.name || `Arbeitspaket ${wpIdx + 1}`)}</div>
+        <div class="gantt-track is-wp">
+          <div class="gantt-bar" style="left:${wpLeft}%;width:${wpWidth}%;background:${escapeHtml(wp.color || '#6366f1')}cc;"></div>
+        </div>
+      </div>`);
+
+    acts.forEach((act, actIdx) => {
+      const s = Math.max(1, Math.min(GANTT_MONTHS, Number(act.start || 1)));
+      const e = Math.max(s, Math.min(GANTT_MONTHS, Number(act.end || s)));
+      const left = ((s - 1) / GANTT_MONTHS) * 100;
+      const width = ((e - s + 1) / GANTT_MONTHS) * 100;
+      const activityColor = lightenColor(wp.color || '#6366f1', 0.32);
+
+      rowHtml.push(`
+        <div class="gantt-chart-row clickable" oncontextmenu="showCtxMenu(event, 'act', ${wpIdx}, ${actIdx})">
+          <div class="gantt-chart-label is-act">${escapeHtml(act.name || '(ohne Namen)')}</div>
+          <div class="gantt-track">
+            <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${escapeHtml(activityColor)};"></div>
+          </div>
+        </div>`);
+    });
+  });
+
+  milestones.forEach((ms, msIdx) => {
+    const month = Math.max(1, Math.min(GANTT_MONTHS, Number(ms.time || 1)));
+    const left = ((month - 0.5) / GANTT_MONTHS) * 100;
+    const title = escapeHtml(ms.note || "Keine Notiz hinterlegt");
+
+    rowHtml.push(`
+      <div class="gantt-chart-row clickable" oncontextmenu="showCtxMenu(event, 'ms', ${msIdx}, -1)">
+        <div class="gantt-chart-label">⭐ ${escapeHtml(ms.name || '(ohne Namen)')}</div>
+        <div class="gantt-track">
+          <div class="gantt-milestone-line" style="left:${left}%;"></div>
+          <div class="gantt-milestone" style="left:${left}%;" title="${title}"></div>
+        </div>
+      </div>`);
+  });
+
+  rowsWrap.innerHTML = rowHtml.join("");
+}
+
+function confirmGantt() {
+  ganttConfirmed = true;
+  renderGanttChart();
+}
+
+function editGantt() {
+  ganttConfirmed = false;
+  renderGanttEdit();
+}
+
+function showCtxMenu(event, type, wpIdx, actIdx) {
+  event.preventDefault();
+  const menu = document.getElementById("ganttCtxMenu");
+  if (!menu) return;
+
+  menu.innerHTML = `
+    <div class="ctx-item" onclick="ctxEdit()">✏️ Bearbeiten</div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item ctx-del" onclick="ctxDelete()">🗑️ Löschen</div>
+  `;
+
+  menu.dataset.type = type;
+  menu.dataset.wpIdx = String(wpIdx);
+  menu.dataset.actIdx = String(actIdx);
+  menu.style.left = `${event.clientX}px`;
+  menu.style.top = `${event.clientY}px`;
+  menu.classList.add("open");
+}
+
+function hideCtxMenu() {
+  const menu = document.getElementById("ganttCtxMenu");
+  if (!menu) return;
+  menu.classList.remove("open");
+}
+
+function ctxEdit() {
+  const menu = document.getElementById("ganttCtxMenu");
+  if (!menu) return;
+
+  const type = menu.dataset.type;
+  const wpIdx = Number(menu.dataset.wpIdx);
+  const actIdx = Number(menu.dataset.actIdx);
+
+  hideCtxMenu();
+  ganttConfirmed = false;
+  renderGanttEdit();
+
+  setTimeout(() => {
+    if (type === "wp") {
+      const input = document.querySelectorAll(".wp-name-input")[wpIdx];
+      if (input) input.focus();
+    } else if (type === "act") {
+      const selector = `#wp-acts-${wpIdx} .act-row:nth-of-type(${actIdx + 1}) .act-name`;
+      const input = document.querySelector(selector);
+      if (input) input.focus();
+    } else if (type === "ms") {
+      const input = document.querySelectorAll(".milestone-section .act-row .act-name")[wpIdx];
+      if (input) input.focus();
+    }
+  }, 40);
+}
+
+function ctxDelete() {
+  const menu = document.getElementById("ganttCtxMenu");
+  if (!menu) return;
+
+  const type = menu.dataset.type;
+  const wpIdx = Number(menu.dataset.wpIdx);
+  const actIdx = Number(menu.dataset.actIdx);
+
+  hideCtxMenu();
+
+  if (type === "wp") deleteWP(wpIdx);
+  else if (type === "act") deleteActivity(wpIdx, actIdx);
+  else if (type === "ms") deleteMilestone(wpIdx);
+}
+
+document.addEventListener("click", (e) => {
+  const menu = document.getElementById("ganttCtxMenu");
+  if (menu && !menu.contains(e.target)) hideCtxMenu();
+});
+
+function exportGanttXLSX() {
+  const gantt = loadGantt();
+  const wps = gantt.workPackages || [];
+  const milestones = gantt.milestones || [];
+
+  if (!wps.length && !milestones.length) {
+    alert("Es sind noch keine Arbeitspakete oder Meilensteine vorhanden.");
+    return;
+  }
+
+  const rows = [];
+
+  wps.forEach((wp, wpIdx) => {
+    if (!Array.isArray(wp.activities) || !wp.activities.length) {
+      rows.push({
+        Typ: "Arbeitspaket",
+        Arbeitspaket: wp.name || `Arbeitspaket ${wpIdx + 1}`,
+        Aktivitaet: "",
+        StartMonat: "",
+        EndMonat: "",
+        Meilenstein: "",
+        MeilensteinMonat: "",
+        Notiz: ""
+      });
+      return;
+    }
+
+    wp.activities.forEach(act => rows.push({
+      Typ: "Aktivität",
+      Arbeitspaket: wp.name || `Arbeitspaket ${wpIdx + 1}`,
+      Aktivitaet: act.name || "",
+      StartMonat: act.start || "",
+      EndMonat: act.end || "",
+      Meilenstein: "",
+      MeilensteinMonat: "",
+      Notiz: ""
+    }));
+  });
+
+  milestones.forEach(ms => rows.push({
+    Typ: "Meilenstein",
+    Arbeitspaket: "",
+    Aktivitaet: "",
+    StartMonat: "",
+    EndMonat: "",
+    Meilenstein: ms.name || "",
+    MeilensteinMonat: ms.time || "",
+    Notiz: ms.note || ""
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Gantt");
+  XLSX.writeFile(wb, "Gantt-Chart.xlsx");
+}
+  
+/* ══════════════════════════════════════════════════════════════
+   FAVORITES
+══════════════════════════════════════════════════════════════ */
+const FAV_KEY="stakeholder_favorites";
+let pendingFav=null;
+let favPanelOpen=false;
+
+function loadFavs(){ try{ return JSON.parse(localStorage.getItem(FAV_KEY)||"[]"); }catch(e){ return []; } }
+async function saveFavs(arr){
+  localStorage.setItem(FAV_KEY, JSON.stringify(arr));
+  gameState.favorites = arr;
+  saveGameState();
+
+  try {
+    await pushFavoritesToServer();
+  } catch (e) {
+    console.error("Favoriten konnten nicht auf dem Server gespeichert werden:", e);
+    throw e;
+  }
+}
+
+let currentFavQ="", currentFavA="";
+function saveFavorite(){
+  if(!gameState.currentNPC||!currentFavQ) return;
+  pendingFav={
+    id:Date.now(),
+    npcId:gameState.currentNPC.id,
+    npcName:gameState.currentNPC.name,
+    npcRole:gameState.currentNPC.role,
+    q:currentFavQ, a:currentFavA,
+    comment:"",
+    ts:new Date().toLocaleDateString("de-DE")
+  };
+  document.getElementById("favModalQ").textContent="Frage: "+currentFavQ;
+  document.getElementById("favModalA").textContent=currentFavA;
+  document.getElementById("favModalComment").value="";
+  document.getElementById("favCommentModal").classList.remove("hidden");
+  setTimeout(()=>document.getElementById("favModalComment").focus(),80);
+}
+
+function closeFavModal(){
+  document.getElementById("favCommentModal").classList.add("hidden");
+  pendingFav=null;
+}
+
+async function confirmFavSave(){
+  if(!pendingFav) return;
+
+  pendingFav.comment = document.getElementById("favModalComment").value.trim();
+  markFavoriteAsOwn(pendingFav);
+
+  const favs = loadFavs();
+  favs.unshift(pendingFav);
+
+  await saveFavs(favs);
+
+  closeFavModal();
+
+  const btn = document.getElementById("currentStarBtn");
+  if(btn){
+    btn.textContent = "★";
+    btn.classList.add("starred");
+    btn.onclick = null;
+    btn.title = "Bereits gespeichert";
+  }
+
+  updateFavBadge();
+
+  if(favPanelOpen) renderFavList();
+
+  const hp = document.getElementById("historyPanel");
+  if(hp && !hp.classList.contains("hidden")) renderHistoryPanel(true);
+
+  await syncSharedStateSmoothly();
+}
+
+function updateFavBadge(){
+  const cnt=loadFavs().length;
+  const el=document.getElementById("favCount");
+  if(el) el.textContent=cnt>0?"("+cnt+")":"";
+  const btn=document.getElementById("btnFavView");
+  if(btn) btn.textContent="⭐ Favoriten"+(cnt>0?" ("+cnt+")":"");
+}
+
+function toggleFavPanel(){
+  favPanelOpen=!favPanelOpen;
+  const panel=document.getElementById("favPanel");
+  const npcGrid=document.getElementById("npcGrid");
+  const interview=document.getElementById("interviewSection");
+  if(favPanelOpen){
+    panel.classList.add("open");
+    npcGrid.style.display="none";
+    if(interview) interview.style.display="none";
+    // reset filters on open
+    const si=document.getElementById("favSearchInput");
+    if(si) si.value="";
+    const ni=document.getElementById("favNpcFilter");
+    if(ni) ni.value="";
+    renderFavList();
+    document.getElementById("btnFavView").style.background="rgba(245,158,11,.3)";
+  } else {
+    panel.classList.remove("open");
+    npcGrid.style.display="";
+    if(interview&&gameState.currentNPC) interview.style.display="";
+    document.getElementById("btnFavView").style.background="rgba(245,158,11,.15)";
+  }
+}
+
+function highlight(text, term){
+  if(!term) return text;
+  const escaped=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return text.replace(new RegExp('('+escaped+')','gi'),
+    '<span class="fav-highlight">$1</span>');
+}
+
+function updateFavNpcDropdown(favs){
+  const sel=document.getElementById("favNpcFilter");
+  if(!sel) return;
+  const current=sel.value;
+  const names=[...new Set(favs.map(f=>f.npcName).filter(Boolean))].sort();
+  sel.innerHTML='<option value="">Alle Stakeholder</option>'
+    +names.map(n=>`<option value="${n}"${n===current?' selected':''}>${n}</option>`).join('');
+}
+
+function renderFavList(){
+  const storedFavs = loadFavs();
+  const allFavs = favFilterMode === "own"
+  ? storedFavs.filter(f => isOwnFavorite(f))
+  : storedFavs;
+  const list=document.getElementById("favList");
+  const bar=document.getElementById("favFilterBar");
+  if(!list) return;
+  const prevScroll = list.scrollTop;
+
+  if(allFavs.length===0){
+    if(bar) bar.style.display="none";
+    list.innerHTML=`<div class="fav-empty">Noch keine Favoriten gespeichert.<br><span style="font-size:.75rem;opacity:.6;">Markiere Antworten mit ⭐ um sie hier zu sehen.</span></div>`;
+    list.scrollTop = 0;
+    return;
+  }
+
+  if(bar) bar.style.display="flex";
+  updateFavNpcDropdown(allFavs);
+
+  const searchRaw=(document.getElementById("favSearchInput")?.value||"").trim();
+  const searchLow=searchRaw.toLowerCase();
+  const npcFilter=document.getElementById("favNpcFilter")?.value||"";
+
+  const filtered=allFavs.filter((f,_i)=>{
+    if(npcFilter && f.npcName!==npcFilter) return false;
+    if(!searchLow) return true;
+    return (f.q||"").toLowerCase().includes(searchLow)
+        || (f.a||"").toLowerCase().includes(searchLow)
+        || (f.comment||"").toLowerCase().includes(searchLow)
+        || (f.npcName||"").toLowerCase().includes(searchLow);
+  });
+
+  const cntEl=document.getElementById("favFilterCount");
+  if(cntEl){
+    if(searchLow||npcFilter){
+      cntEl.textContent=filtered.length+" von "+allFavs.length;
+      cntEl.style.display="inline";
+    } else {
+      cntEl.style.display="none";
+    }
+  }
+
+  if(filtered.length===0){
+    list.innerHTML=`<div class="fav-empty">Keine Treffer für die aktuelle Filterauswahl.</div>`;
+    list.scrollTop = 0;
+    return;
+  }
+
+  // Map filtered entries back to their real indices in allFavs
+  const realIndices=allFavs.map((f,i)=>({f,i})).filter(({f})=>{
+    if(npcFilter && f.npcName!==npcFilter) return false;
+    if(!searchLow) return true;
+    return (f.q||"").toLowerCase().includes(searchLow)
+        || (f.a||"").toLowerCase().includes(searchLow)
+        || (f.comment||"").toLowerCase().includes(searchLow)
+        || (f.npcName||"").toLowerCase().includes(searchLow);
+  });
+
+  list.innerHTML=realIndices.map(({f,i})=>`
+    <div class="fav-card" id="fav-card-${i}">
+      <div class="fav-meta">
+        <span class="fav-meta-dot"></span>
+        <span>${highlight(f.npcName,searchRaw)}</span>
+        <span style="opacity:.5;">&middot;</span>
+        <span style="opacity:.65;">${f.npcRole}</span>
+        <span style="opacity:.5;">&middot;</span>
+        <span style="opacity:.5;">${f.ts||""}</span>
+      </div>
+      <div class="fav-q">❓ ${highlight(f.q,searchRaw)}</div>
+      <div class="fav-a">${highlight(f.a,searchRaw)}</div>
+      ${f.comment?`<div class="fav-comment">💬 ${highlight(f.comment,searchRaw)}</div>`:""}
+      <div id="fav-edit-${i}" style="display:none;">
+        <textarea class="fav-comment-input" id="fav-comment-input-${i}" rows="2"
+          placeholder="Kommentar bearbeiten…">${f.comment||""}</textarea>
+        <div class="fav-actions">
+          <button class="fav-btn fav-btn-save" onclick="saveFavComment(${i})">💾 Speichern</button>
+          <button class="fav-btn" onclick="cancelFavEdit(${i})">Abbrechen</button>
+        </div>
+      </div>
+      <div class="fav-actions" id="fav-btns-${i}">
+        <button class="fav-btn fav-btn-save" onclick="editFavComment(${i})">✏️ Kommentar ${f.comment?"bearbeiten":"hinzufügen"}</button>
+        <button class="fav-btn fav-btn-del" onclick="deleteFav(${i})">🗑️ Löschen</button>
+      </div>
+    </div>`).join("");
+}
+
+function editFavComment(i){
+  document.getElementById("fav-edit-"+i).style.display="block";
+  document.getElementById("fav-btns-"+i).style.display="none";
+  document.getElementById("fav-comment-input-"+i).focus();
+}
+function cancelFavEdit(i){
+  document.getElementById("fav-edit-"+i).style.display="none";
+  document.getElementById("fav-btns-"+i).style.display="flex";
+}
+async function saveFavComment(i){
+  const val = document.getElementById("fav-comment-input-"+i).value.trim();
+  const favs = loadFavs();
+  if(!favs[i]) return;
+
+  favs[i].comment = val;
+  await saveFavs(favs);
+
+  renderFavList();
+  await syncSharedStateSmoothly();
+}
+async function deleteFav(i){
+  const favs = loadFavs();
+  favs.splice(i, 1);
+
+  await saveFavs(favs);
+
+  updateFavBadge();
+  renderFavList();
+
+  const hp = document.getElementById("historyPanel");
+  if(hp && !hp.classList.contains("hidden")) renderHistoryPanel(true);
+
+  await syncSharedStateSmoothly();
+}
+
+async function resetTool() {
+  const password = prompt("Passwort zum Zurücksetzen eingeben:");
+  if (!password) return;
+
+  if (password !== "admin123") {
+    alert("Falsches Passwort.");
+    return;
+  }
+
+  const ok = confirm("Wirklich die gesamte Anwendung zurücksetzen?");
+  if (!ok) return;
+
+  try {
+    stopSharedLiveSync();
+
+    // 1) Server-Zustand leeren
+    await fetch("/api/shared/reset", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    // 2) Lokalen Zustand löschen
+    sessionStorage.clear();
+
+    const keysToRemove = [
+      "lastPhase",
+      "loggedIn",
+      "stakeholder_favorites",
+      "shared_step_progress",
+      "gantt_wps",
+      "history_filter_mode",
+      "own_history_keys_v1",
+      "unlockedSamples"
+    ];
+
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+
+    // alle NPC-Verläufe löschen
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith("triage_history_npc_")) {
+        localStorage.removeItem(key);
+      }
+    });
+
+    // falls GAME_STATE_KEY global existiert
+    if (typeof GAME_STATE_KEY !== "undefined") {
+      localStorage.removeItem(GAME_STATE_KEY);
+    }
+
+    alert("Die Anwendung wurde vollständig zurückgesetzt.");
+    location.reload();
+  } catch (e) {
+    console.error("Reset fehlgeschlagen:", e);
+    alert("Reset fehlgeschlagen: " + e.message);
+    startSharedLiveSync();
+  }
+}
+
+function updateBackupState() {
+  try {
+    const state = {
+      history: window.__sharedHistory || [],
+      favorites: JSON.parse(localStorage.getItem("stakeholder_favorites") || "[]"),
+      gantt: JSON.parse(localStorage.getItem("gantt_wps") || "{}"),
+      steps: JSON.parse(localStorage.getItem("shared_step_progress") || "{}")
+    };
+
+    localStorage.setItem("backup_state", JSON.stringify(state));
+  } catch (e) {
+    console.warn("Backup konnte nicht gespeichert werden", e);
+  }
+}
+
+setInterval(updateBackupState, 2000); // alle 2 Sekunden speichern
+/* ══════════════════════════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════════════════════════ */
+window.addEventListener("load", async ()=>{
+  try {
+    localStorage.removeItem("gantt_rows");
+    const raw=localStorage.getItem("gantt_wps");
+    if(raw){
+      const data=JSON.parse(raw);
+      const hasOldFormat=Array.isArray(data)&&data.some(wp=>
+        Array.isArray(wp.activities)&&wp.activities.some(a=>"status" in a)
+      );
+      if(hasOldFormat) localStorage.removeItem("gantt_wps");
+    }
+  } catch(e){}
+
+  const ok=sessionStorage.getItem("loggedIn")==="true";
+
+  if(ok){
+    try{
+      const shared = await loadSharedStateFromServer();
+      mergeSharedHistoryIntoLocal(shared.history);
+      mergeSharedFavoritesIntoLocal(shared.favorites);
+      mergeSharedGanttIntoLocal(shared.gantt);
+
+      if (shared.steps && typeof shared.steps === "object") {
+        const initialSteps = JSON.stringify(shared.steps);
+        localStorage.setItem(SHARED_STEPS_KEY, initialSteps);
+        gameState.sharedSteps = shared.steps;
+        lastSharedStepsSignature = initialSteps;
+        saveGameState();
+      }
+
+      showApp();
+      await syncSharedStateSmoothly();
+      const lastPhase=parseInt(localStorage.getItem("lastPhase")||"0",10);
+      goToPhase(isNaN(lastPhase)?0:lastPhase);
+      return;
+    } catch(e){
+      console.error("Gemeinsamer Stand konnte nicht geladen werden:", e);
+      showLogin();
+      return;
+    }
+  }
+
+  stopSharedLiveSync();
+  showLogin();
+});
+window.handleLogin=handleLogin; 
+window.logoutStudent=logoutStudent; 
+window.confirmLogout=confirmLogout;
+window.goToPhase=goToPhase; 
+window.askQuestion=askQuestion;
+window.toggleHistory=toggleHistory; 
+window.clearHistoryForCurrentNPC=clearHistoryForCurrentNPC;
+window.openSampleModal=openSampleModal; 
+window.closeSampleModal=closeSampleModal;
+window.checkSamplePassword=checkSamplePassword;
+window.generateAISampleSolution=generateAISampleSolution;
+window.openAISampleModal=openAISampleModal;
+window.closeAISampleModal=closeAISampleModal;
+window.downloadAISampleAsWord=downloadAISampleAsWord;
+window.toggleStep=toggleStep;
+window.toggleGanttPanel=toggleGanttPanel;
+window.openGanttPanel=openGanttPanel;
+window.closeGanttPanel=closeGanttPanel;
+window.addWorkPackage=addWorkPackage;
+window.addMilestone=addMilestone;
+window.deleteWP=deleteWP;
+window.updateWPName=updateWPName;
+window.updateWPColor=updateWPColor;
+window.addActivity=addActivity;
+window.deleteActivity=deleteActivity;
+window.updateActivity=updateActivity;
+window.deleteMilestone=deleteMilestone;
+window.updateMilestone=updateMilestone;
+window.toggleWP=toggleWP;
+window.exportGanttXLSX=exportGanttXLSX;
+window.confirmGantt=confirmGantt;
+window.editGantt=editGantt;
+window.showCtxMenu=showCtxMenu;
+window.hideCtxMenu=hideCtxMenu;
+window.ctxEdit=ctxEdit;
+window.ctxDelete=ctxDelete;
+window.openDrawer=openDrawer;
+window.closeDrawer=closeDrawer;
+window.toggleStakeholderDrawer=toggleStakeholderDrawer;
+window.openStakeholderDrawer=openStakeholderDrawer;
+window.closeStakeholderDrawer=closeStakeholderDrawer;
+window.saveFavorite=saveFavorite;
+window.setHistoryFilter=setHistoryFilter;
+window.saveHistFavByContent=saveHistFavByContent;
+window.saveHistFav=saveHistFav;
+window.closeFavModal=closeFavModal;
+window.confirmFavSave=confirmFavSave;
+window.toggleFavPanel=toggleFavPanel;
+window.editFavComment=editFavComment;
+window.cancelFavEdit=cancelFavEdit;
+window.saveFavComment=saveFavComment;
+window.deleteFav=deleteFav;
+window.reloadSharedGantt = reloadSharedGantt;
+window.addMilestone = addMilestone;
+window.deleteMilestone = deleteMilestone;
+window.updateMilestone = updateMilestone;
+</script>
+
+<!-- FAV COMMENT MODAL -->
+<div id="favCommentModal" class="hidden">
+  <div class="fav-modal-card">
+    <h3>⭐ Als Favorit speichern</h3>
+    <p>Optionaler Kommentar zu dieser Antwort:</p>
+    <div class="fav-modal-preview">
+      <div class="fav-q" id="favModalQ"></div>
+      <div class="fav-a" id="favModalA"></div>
+    </div>
+    <textarea class="fav-comment-input" id="favModalComment" rows="3"
+      placeholder="Eigene Notiz, Gedanke oder Einordnung…" style="display:block;"></textarea>
+    <div style="display:flex;gap:.75rem;margin-top:.875rem;justify-content:flex-end;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-small" onclick="closeFavModal()">Abbrechen</button>
+      <button class="btn btn-primary btn-small" onclick="confirmFavSave()" style="background:linear-gradient(135deg,#b45309,#f59e0b);">⭐ Speichern</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'de',
+    includedLanguages: 'en',
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+    autoDisplay: false
+  }, 'google_translate_element');
+
+  const savedLang = localStorage.getItem("selectedLang");
+  if (savedLang) {
+    setTimeout(() => {
+      const select = document.querySelector(".goog-te-combo");
+      if (select) {
+        select.value = savedLang;
+        select.dispatchEvent(new Event("change"));
+      }
+    }, 800);
+  }
+}
+
+document.addEventListener("change", function(e) {
+  if (e.target.classList.contains("goog-te-combo")) {
+    localStorage.setItem("selectedLang", e.target.value);
+  }
+});
+</script>
+
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+</body>
+</html>
