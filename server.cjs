@@ -69,6 +69,7 @@ function safeWriteJson(filePath, value) {
 
 function getInitialSharedState() {
   return {
+    caseId: null,
     history: [],
     favorites: [],
     gantt: [],
@@ -83,6 +84,7 @@ function migrateSharedState(state) {
   return {
     ...initial,
     ...(state || {}),
+    caseId: normalizeString(state?.caseId) || initial.caseId,
     gantt: {
       ...initial.gantt,
       ...((state && state.gantt) || {})
@@ -95,6 +97,7 @@ function readSharedState() {
   const state = safeReadJson(SHARED_STATE_FILE, getInitialSharedState());
 
   return {
+    caseId: normalizeString(state.caseId) || null,
     history: Array.isArray(state.history) ? state.history : [],
     favorites: Array.isArray(state.favorites) ? state.favorites : [],
     gantt: Array.isArray(state.gantt) ? state.gantt : [],
@@ -108,6 +111,7 @@ function readSharedState() {
 
 function writeSharedState(nextState) {
   const normalized = {
+    caseId: normalizeString(nextState.caseId) || null,
     history: Array.isArray(nextState.history) ? nextState.history : [],
     favorites: Array.isArray(nextState.favorites) ? nextState.favorites : [],
     gantt: Array.isArray(nextState.gantt) ? nextState.gantt : [],
@@ -129,6 +133,29 @@ function requireLogin(req, res, next) {
 
 function normalizeString(value) {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function ensureCaseScopedState(state, requestedCaseId) {
+  const caseId = normalizeString(requestedCaseId) || null;
+  const normalizedState = migrateSharedState(state);
+
+  if (!caseId) return normalizedState;
+
+  if (!normalizedState.caseId) {
+    return {
+      ...normalizedState,
+      caseId,
+    };
+  }
+
+  if (normalizedState.caseId !== caseId) {
+    return {
+      ...getInitialSharedState(),
+      caseId,
+    };
+  }
+
+  return normalizedState;
 }
 
 function getConfiguredLogin() {
@@ -357,6 +384,7 @@ app.post("/api/shared/reset", requireLogin, (req, res) => {
 });
 
 app.post('/api/shared/history/add', requireLogin, (req, res) => {
+  const caseId = normalizeString(req.body?.caseId);
   const entry = {
     npcId: Number(req.body?.npcId),
     npcName: normalizeString(req.body?.npcName),
@@ -370,7 +398,7 @@ app.post('/api/shared/history/add', requireLogin, (req, res) => {
     return res.status(400).json({ ok: false, error: 'Unvollständiger History-Eintrag.' });
   }
 
-  const state = migrateSharedState(readSharedState());
+  const state = ensureCaseScopedState(readSharedState(), caseId);
   const exists = state.history.some(
     (item) =>
       Number(item.npcId) === entry.npcId &&
@@ -385,6 +413,7 @@ app.post('/api/shared/history/add', requireLogin, (req, res) => {
 });
 
 app.post('/api/shared/favorites/save', requireLogin, (req, res) => {
+  const caseId = normalizeString(req.body?.caseId);
   const favorites = Array.isArray(req.body?.favorites) ? req.body.favorites : null;
 
   if (!favorites) {
@@ -402,7 +431,7 @@ app.post('/api/shared/favorites/save', requireLogin, (req, res) => {
     }))
     .filter((item) => item.npcName && item.q && item.a);
 
-  const state = migrateSharedState(readSharedState());
+  const state = ensureCaseScopedState(readSharedState(), caseId);
   // 🔥 bestehende Favoriten holen
 const existing = Array.isArray(state.favorites) ? state.favorites : [];
 
@@ -429,6 +458,7 @@ state.favorites = merged;
 });
 
 app.post('/api/shared/gantt/save', requireLogin, (req, res) => {
+  const caseId = normalizeString(req.body?.caseId);
   const gantt = Array.isArray(req.body?.gantt) ? req.body.gantt : null;
 
   if (!gantt) {
@@ -447,7 +477,7 @@ app.post('/api/shared/gantt/save', requireLogin, (req, res) => {
     });
   }
 
-  const state = migrateSharedState(readSharedState());
+  const state = ensureCaseScopedState(readSharedState(), caseId);
   state.gantt = gantt;
 
   setGanttLockForSession(req);
@@ -461,13 +491,14 @@ app.post('/api/shared/gantt/save', requireLogin, (req, res) => {
 });
 
 app.post('/api/shared/steps/save', requireLogin, (req, res) => {
+  const caseId = normalizeString(req.body?.caseId);
   const steps = req.body?.steps;
 
   if (!steps || typeof steps !== 'object' || Array.isArray(steps)) {
     return res.status(400).json({ ok: false, error: 'steps muss ein Objekt sein.' });
   }
 
-  const state = migrateSharedState(readSharedState());
+  const state = ensureCaseScopedState(readSharedState(), caseId);
   state.steps = steps;
 
   const written = writeSharedState(state);

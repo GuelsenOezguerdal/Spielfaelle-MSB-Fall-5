@@ -1,12 +1,34 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Einführung eines Patientenportals</title>
+  <title>Einführung von KI zur OP-Planung im Krankenhaus</title>
+  <script>
+    (function() {
+      const defaultLang = "en";
+      try {
+        const savedLang = localStorage.getItem("selectedLang") || defaultLang;
+        if (!localStorage.getItem("selectedLang")) {
+          localStorage.setItem("selectedLang", defaultLang);
+        }
+
+        const googtransValue = savedLang === "en" ? "/de/en" : "/de/" + savedLang;
+        document.cookie = "googtrans=" + googtransValue + "; path=/";
+        document.cookie = "googtrans=" + googtransValue + "; domain=" + location.hostname + "; path=/";
+
+        if (savedLang === "en") {
+          document.documentElement.classList.add("translate-pending");
+        }
+      } catch (error) {
+        document.documentElement.classList.remove("translate-pending");
+      }
+    })();
+  </script>
   <style>
    @import url('https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap');
     * { margin:0; padding:0; box-sizing:border-box; }
+    html.translate-pending body { opacity:0; }
     :root{
       --primary:#6366f1; --secondary:#8b5cf6; --accent:#ec4899;
       --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
@@ -867,7 +889,9 @@ overflow: hidden;}
     }
   
 #google_translate_element {
+  display:block;
   font-size: 0.8rem;
+  min-height: 32px;
 }
 
 .goog-te-combo {
@@ -952,7 +976,7 @@ overflow: hidden;}
   <header>
     <div class="header-top" style="align-items:stretch;">
       <div class="header-titles">
-        <h1>Einführung eines Patientenportals</h1>
+        <h1>Einführung von KI zur OP-Planung im Krankenhaus</h1>
         <p class="subtitle">Strategisches Transformationsprojekt</p>
       </div>
      <div style="display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end; gap:6px;">
@@ -994,25 +1018,29 @@ overflow: hidden;}
     <h2>Fallbeispiel</h2>
 
     <p style="line-height:1.8;margin-bottom:1.2rem;color:var(--text-secondary);">
-      Das kommunale Klinikum Nordstadt ist ein Krankenhaus der Regelversorgung mit rund 45.000 stationären und ambulanten Patient:innen pro Jahr. 
-      Die  Krankenhausleitung hat die Entscheidung getroffen, im Rahmen der Digitalisierungsstrategie des Hauses ein digitales Patientenportal einzuführen. 
-      Derzeit liegt weder ein detailliertes Konzept noch eine ausgearbeitete Umsetzungsstrategie vor.  
+      Das kommunale Klinikum Nordstadt ist ein Krankenhaus der Regelversorgung mit rund 45.000 stationären und ambulanten Patient:innen pro Jahr
+      sowie einem zentralen OP-Bereich mit 12 Sälen und mehreren chirurgischen Fachabteilungen.
+      Die Krankenhausleitung hat die Entscheidung getroffen, im Rahmen der Digitalisierungsstrategie des Hauses
+      eine KI-gestützte Lösung zur OP-Planung einzuführen.
+      Derzeit liegt weder ein detailliertes Zielbild noch eine ausgearbeitete Umsetzungsstrategie vor.
     </p>
     
     <p style="line-height:1.8;margin-bottom:1.2rem;color:var(--text-secondary);">
-      Der aktuelle Stand im Klinikum ist durch eine fragmentierte und überwiegend analoge Prozesslandschaft geprägt. 
-      Terminvereinbarungen erfolgen über verschiedene Kanäle, insbesondere telefonisch oder über isolierte Einzelsysteme. 
-      Aufnahmeprozesse sind größtenteils papierbasiert organisiert, während Patient:innen Informationen überwiegend vor Ort oder per Post erhalten. 
-      Zwar existieren bereits einzelne digitale Lösungen, diese sind jedoch nicht durchgängig integriert. 
-      In der Folge wird der administrative Aufwand in mehreren Bereichen als hoch beschrieben.
+      Der aktuelle Stand im Klinikum ist durch eine fragmentierte, überwiegend manuelle OP-Planung geprägt.
+      OP-Slots werden derzeit auf Basis historischer Erfahrungswerte, Telefonabsprachen, Excel-Listen und isolierter Subsysteme vergeben.
+      Kurzfristige Änderungen durch Notfälle, Ausfälle oder verlängerte Eingriffe führen regelmäßig zu Umplanungen, Verzögerungen und Konflikten
+      zwischen OP-Koordination, Chirurgie, Anästhesie, Pflege und Bettenmanagement.
+      Zwar liegen einzelne Daten in digitalen Systemen vor, diese werden aber bislang nicht so zusammengeführt, dass eine vorausschauende,
+      datenbasierte Planung des OP-Programms möglich ist.
     </p>
     
     
     <p style="line-height:1.8;margin-bottom:1.2rem;color:var(--text-secondary);">
-      Die Geschäftsführung verbindet mit der Einführung des Patientenportals mehrere strategische Erwartungen. 
-      Dazu zählen insbesondere die Verbesserung der Kommunikation mit Patient:innen, die Entlastung administrativer Prozesse sowie der Ausbau digitaler Services entlang des Behandlungspfades.
-      Das Projekt wird im Rahmen des Krankenhauszukunftsgesetzes (KHZG, Fördertatbestand 2) gefördert, verfügt über ein Förderbudget von 
-      <strong style="color:var(--text-primary);">2,5 Millionen Euro</strong> und ist auf eine Laufzeit von 
+      Die Geschäftsführung verbindet mit der Einführung der KI-gestützten OP-Planung mehrere strategische Erwartungen.
+      Dazu zählen insbesondere eine bessere OP-Auslastung, weniger kurzfristige Verschiebungen und Überziehungen,
+      eine höhere Planungsqualität für Personal und Ressourcen sowie mehr Transparenz in der Steuerung des OP-Bereichs.
+      Das Projekt verfügt über ein freigegebenes Digitalisierungs- und Innovationsbudget von
+      <strong style="color:var(--text-primary);">1,8 Millionen Euro</strong> und ist auf eine Laufzeit von
       <strong style="color:var(--text-primary);">18 Monaten</strong> angelegt.
     </p>
 
@@ -1021,16 +1049,16 @@ overflow: hidden;}
   border:1px solid rgba(124,58,237,.25);">
 
   <p style="margin-bottom:0.6rem;font-weight:600;color:var(--text-primary);">
-    💡 Was ist ein Patientenportal?
+    💡 Was ist eine KI-gestützte OP-Planung?
   </p>
 
   <p style="line-height:1.8;color:var(--text-secondary);margin-bottom:0;">
-    Ein Patientenportal stellt eine digitale Plattform dar, über die Patient:innen mit dem Krankenhaus interagieren 
-    und auf ausgewählte Informationen sowie Dienstleistungen zugreifen können. Es fungiert als zentraler Zugangspunkt 
-    für digitale Prozesse entlang des gesamten Behandlungspfades – vor, während und nach dem Krankenhausaufenthalt. 
-    Im Kontext des KHZG umfasst ein solches Portal typischerweise Funktionen wie die digitale Terminverwaltung, 
-    die Unterstützung von Aufnahme- und Anmeldeprozessen, die Bereitstellung von Informationen und Dokumenten 
-    sowie digitale Kommunikationsmöglichkeiten zwischen Patient:innen und dem Krankenhaus.
+    Eine KI-gestützte OP-Planung nutzt vorhandene klinische und organisatorische Daten, um OP-Programme,
+    Ressourcenzuordnungen und Zeitfenster vorausschauend zu unterstützen. Das System kann beispielsweise
+    historische OP-Dauern, Eingriffsarten, Verfügbarkeiten von Personal, Betten und Technik sowie Störfaktoren
+    berücksichtigen, um realistischere Planungen und schnellere Reaktionsmöglichkeiten bei Abweichungen zu ermöglichen.
+    Im Krankenhauskontext geht es dabei nicht um eine vollautomatische Entscheidung, sondern um eine datenbasierte
+    Entscheidungsunterstützung für die verantwortlichen Mitarbeitenden in OP-Koordination, Medizin, Pflege und Management.
    </p>
     </div>
 
@@ -1070,7 +1098,7 @@ overflow: hidden;}
 <p style="line-height:1.8;margin-bottom:1rem;color:var(--text-secondary);">
   Die Ergebnisse eurer Analyse bilden die Grundlage für die weitere Projektplanung.
 Auf dieser Basis entwickelt ihr konkrete Maßnahmen und nächste Schritte, die ihr sinnvoll strukturiert, priorisiert und in eine realistische Umsetzungslogik überführt.
-Ziel ist es, aus euren Erkenntnissen nachvollziehbare Entscheidungen abzuleiten und daraus eine tragfähige Planung für die Einführung des Patientenportals zu entwickeln.
+Ziel ist es, aus euren Erkenntnissen nachvollziehbare Entscheidungen abzuleiten und daraus eine tragfähige Planung für die Einführung einer KI-gestützten OP-Planung zu entwickeln.
 </p>
 
 <p style="line-height:1.8;margin-bottom:1rem;color:var(--text-secondary);">
@@ -1235,12 +1263,31 @@ Ziel ist es, aus euren Erkenntnissen nachvollziehbare Entscheidungen abzuleiten 
 /* ══════════════════════════════════════════════════════════════
 LERNPFAD – neue Module hier ergänzen
 ══════════════════════════════════════════════════════════════ */
+const COMMON_PRESENTATION_AND_UPLOAD_STEPS = [
+  `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
+  `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
+];
+
+const COMMON_POST_UPLOAD_STEPS = [
+  `Fragt nach der Musterlösung, dieses wird von eurem Dozenten bereitgestellt, vergleicht eure eigenen Ergebnisse mit den dort gezeigten Ansätzen. Wichtiger Hinweis: Die Musterlösung ist kein absolut perfektes oder einzig richtiges Ergebnis! Sie dient vielmehr als Orientierungshilfe und kann euch zusätzliche Hinweise und Perspektiven geben.`,
+  `Führt die Methodenevaluation durch und beantwortet alle Fragen im Fragebogen.`
+];
+
+function withCommonClosingSteps(steps, includePresentationAndUpload = true) {
+  return [
+    ...steps,
+    ...(includePresentationAndUpload ? COMMON_PRESENTATION_AND_UPLOAD_STEPS : []),
+    ...COMMON_POST_UPLOAD_STEPS
+  ];
+}
+
 const MODULES = [
   {
   key:"stakeholdermap",
   title:"Stakeholder-Map",
   icon:"🤝",
   subtitle:"Stakeholder identifizieren, einordnen und Strategien ableiten",
+  goal:"Ziel der Methode ist es, die relevanten Stakeholder, ihre Interessen und ihren Einfluss so zu strukturieren, dass daraus konkrete Kommunikations- und Einbindungsmaßnahmen für das Gantt-Chart abgeleitet werden können.",
 
   // Was ist das?
   description: `Die Stakeholder-Map ist eine strukturierte Methode zur  Identifikation, Analyse und Priorisierung aller relevanten internen und externen Anspruchsgruppen eines Projekts. 
@@ -1254,21 +1301,19 @@ const MODULES = [
   in einer Umsetzungsplanung, zu ermöglichen.`,
 
   // Vorgehensweise
-  instructions:[
+  instructions:withCommonClosingSteps([
   `Identifiziert alle relevanten internen und externen Stakeholder des Projekts und notiert diese jeweils auf einzelnen Sticky Notes. Berücksichtigt bereits bekannte Stakeholder, nutzt Brainstorming und fragt ggf. 
   die Stakeholder nach weiteren wichtigen Personen, die für das Projekt berücksichtigt werden sollten.`,
   `Clustert die Stakeholder (z. B. nach Rollen oder Organisationseinheiten), um eine bessere Übersicht zu erhalten.`,
   `Analysiert die resultierende Verteilung: Identifiziert Schlüsselakteure und Beziehungen der Stakeholder (unterstützende Verbindungen / Widerstände) und zeichnet diese z. B. durch Pfeile ein.`,
   `Zeichnet auf einem Flipchart die Einfluss-Interesse-Matrix (Power-Interest Grid nach Aubrey L. Mendelow) und ordnet die Stakeholder in die Matrix ein, indem ihr die Sticky Notes entsprechend ihrer Einflussstärke und ihres Interesses positioniert. Diskutiert eure Einschätzungen im Team.`,
-  `Leitet geeignete Einbindungs- und Kommunikationsstrategien ab, abhängig von der Position der Stakeholder.`,
-  `Überführt eure Erkenntnisse in konkrete Maßnahmen, indem ihr erste Umsetzungsschritte definiert (z. B. Workshops, Abstimmungen, Schulungen) und diese unten auf dem Flipchart notiert.`,
-  `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
-  `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
-],
+  `Überlegt für jeden wichtigen Stakeholder, wie ihr mit ihm umgehen wollt: Wer muss eng eingebunden werden, wer sollte regelmäßig informiert werden, wo ist Überzeugungsarbeit nötig und wen beobachtet ihr nur? Notiert dazu konkrete Maßnahmen für das Gantt-Chart.`,
+  `Überführt eure Erkenntnisse in konkrete Maßnahmen, indem ihr erste Umsetzungsschritte definiert (z. B. Workshops, Abstimmungen, Schulungen) und diese unten auf dem Flipchart notiert.`
+]),
 
   // Ressourcen & Literatur
    resources:[
-      {type:"video",   label:"Stakeholder-Map einfach erklärt (YouTube)", url:"https://www.youtube.com/results?search_query=stakeholdermap+erkl%C3%A4rt"},
+      {type:"video",   label:"Stakeholder-Map einfach erklärt (YouTube)", url:"https://www.youtube.com/results?search_query=stakeholdermap+explained"},
       {type:"article", label:"What Is Mendelow’s Matrix And How Is It Useful?", url:"https://blog.oxfordcollegeofmarketing.com/2018/04/23/what-is-mendelows-matrix-and-how-is-it-useful/?utm_source=chatgpt.com"}
     ],
 
@@ -1286,7 +1331,7 @@ const MODULES = [
     caption:"Darstellung der Beziehungen der Stakeholder"
   },
   {
-    src:"/images/Matrix.jpg",
+    src:"/images/Matrix_English.png",
     caption:"Einfluss-Interessen-Matrix (Mendelow)"
   }
 ],
@@ -1300,6 +1345,7 @@ const MODULES = [
     title:"Empathy Map",
     icon:"🧠",
     subtitle:"Perspektiven zentraler Stakeholder-Personas ganzheitlich verstehen",
+    goal:"Ziel der Methode ist es, Bedürfnisse, Sorgen und Widerstände zentraler Personen sichtbar zu machen, damit passende Kommunikations-, Schulungs- und Unterstützungsmaßnahmen gezielt im Gantt-Chart eingeplant werden können.",
     
     //Was ist das? 
     description: `
@@ -1323,28 +1369,26 @@ Die Empathy Map hilft dabei, diese „menschlichen Ursachen“ sichtbar zu mache
 <p>Ziel ist es, nicht nur Verhalten zu beschreiben, sondern die dahinterliegenden Motive zu verstehen – als Grundlage für wirksame Implementierungs- und Change-Strategien.</p>
 `,
      //Vorgehensweise
-     instructions:[
+     instructions:withCommonClosingSteps([
   `Wählt zwei Stakeholder die euch als Gesprächspartner zur Verfügung stehen aus dem Fallbeispiel aus. Analysiere immer eine spezifische Person – nicht eine gesamte Berufsgruppe.`,
   `Erstellt eine Empathy Map als visuelles Raster mit vier zentralen Feldern auf einem Flipchart: Sagt, Denkt, Fühlt und Tut. Ergänze darunter die Bereiche Pains (Probleme) und Gains (Bedürfnisse).`,
   `Füllt die ersten vier Felder mit Hilfe von Sticky Notes aus: Nutze Aussagen, Beobachtungen und Hinweise aus den Gesprächen mit den Stakeholdern oder aus vorherigen Informationen (z. B. Fallbeispiel, Stakeholder-Map).`,
   `Achtet besonders auf Spannungsfelder zwischen den Dimensionen (z. B. was die Person sagt vs. was sie tatsächlich denkt oder fühlt). Diese Diskrepanzen sind häufig Hinweise auf verdeckte Widerstände.`,
   `Leitet aus der Analyse zentrale Pains (Ängste, Unsicherheiten, Belastungen) und Gains (Bedürfnisse, Erwartungen, Motivation) ab und notiert diese ebenfalls auf Sticky Notes, um sie auf das Flipchart zu kleben.`,
   `Identifiziert die dominante negative Emotion („toxische Emotion“), die das Verhalten maßgeblich beeinflusst (z. B. Angst vor Fehlern, Misstrauen gegenüber Management oder Überforderung).`,
-  `Formuliert daraus die „Human Root Cause“: Beschreibt, welche emotionale oder kulturelle Ursache hinter dem beobachteten Widerstand steht.`,
-  `Leitet konkrete Implikationen für die Umsetzung ab (z. B. Anpassung von Schulungen, Kommunikation, Usability oder organisatorischen Prozessen) und notiert diese auf dem Flipchart. Ziel ist es, Maßnahmen zu entwickeln, die ihr für eure weitere Umsetzungsplanung nutzen könnt.`,
-    `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
-   `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
-],
+  `Beschreibt die eigentliche menschliche Ursache hinter dem beobachteten Widerstand: Welche emotionale oder kulturelle Ursache steckt dahinter, zum Beispiel Angst, Unsicherheit, Misstrauen oder Überforderung?`,
+  `Leitet konkrete Implikationen für die Umsetzung ab (z. B. Anpassung von Schulungen, Kommunikation, Usability oder organisatorischen Prozessen) und notiert diese auf dem Flipchart. Ziel ist es, Maßnahmen zu entwickeln, die ihr für eure weitere Umsetzungsplanung nutzen könnt.`
+]),
 
     exampleImages:[
     {
-    src:"/images/Empathy_Map_Ausgefüllt.png",
+    src:"/images/Empathy_Map_English.png",
     caption:"Ausgefüllte Empathy Map"
   }
   ],
     //Ressourcen & Literatur
     resources:[
-      {type:"video",   label:"Empathy Map erklärt (YouTube)", url:"https://www.youtube.com/watch?v=bc5DSmmSHCs"}
+      {type:"video",   label:"Empathy Map erklärt (YouTube)", url:"https://www.youtube.com/watch?v=Qz7EwkprvFE"}
     ],
     templateFile:"Empathy Map Template.pptx",
     sampleFile:"Musterloesung_EmpathyMap.pdf",
@@ -1356,10 +1400,11 @@ Die Empathy Map hilft dabei, diese „menschlichen Ursachen“ sichtbar zu mache
     title:"IST-Prozess Analyse",
     icon:"🔍",
     subtitle:"Den aktuellen Prozess strukturiert aufnehmen und verstehen",
+    goal:"Ziel der Methode ist es, den aktuellen Prozess mit seinen Schwachstellen transparent zu machen, damit notwendige Veränderungsbedarfe und erste Arbeitspakete nachvollziehbar in das Gantt-Chart überführt werden können.",
  
 // Was ist das?
 description: `
-<p>Die IST-Prozessanalyse dient nach Gadatsch (2013) dazu, bestehende Abläufe in ihrer tatsächlichen Ausprägung systematisch zu erfassen und transparent zu machen. 
+<p>Die IST-Prozessanalyse dient nach Gadatsch (2023) dazu, bestehende Abläufe in ihrer tatsächlichen Ausprägung systematisch zu erfassen und transparent zu machen. 
 Sie bildet die empirische Grundlage für die Strategieentwicklung, indem sie aufzeigt, wie Prozesse aktuell funktionieren – einschließlich informeller Abläufe, Medienbrüche und Abweichungen vom Soll.</p>
 <p> Im Kontext einer Digitalisierung ist es entscheidend, nicht nur den formalen Prozess zu betrachten, sondern die reale Prozesspraxis zu verstehen:</p>
 <ul>
@@ -1374,30 +1419,28 @@ abzuleiten. Es wird also der derzeitige Prozess dargestellt.</p>
 
 // Vorbereitung
   preparation:[
-`Lest als Vorbereitung das Kapitel 3.2.5 (S. 40–43) in Gadatsch (2013). Macht euch ebenfalls mit der Checkliste zum Swimlane-Diagramm vertraut.`
+`Lest als Vorbereitung das Kapitel 5.6 (S. 119–123) in Gadatsch (2023). Macht euch ebenfalls mit der Checkliste zum Swimlane-Diagramm vertraut.`
 ],
 
   // Vorgehensweise
-  instructions: [
+  instructions: withCommonClosingSteps([
     `Grenzt den Prozess klar ab: Definiert Start- und Endpunkt und legt fest, welche Perspektive im Fokus steht.`,
     `Rekonstruiert den realen Ablauf auf Basis der Stakeholder-Interviews: Welche Schritte werden tatsächlich durchlaufen (inkl. Abweichungen, Workarounds und informellen Lösungen)?`,
     `Modelliert den IST-Prozess in einem Swimlane-Diagramm: Stellt die einzelnen Prozessschritte entlang der beteiligten Rollen (z. B. Pflege, Ärzt:innen, Verwaltung, IT) dar und macht Verantwortlichkeiten sowie Schnittstellen sichtbar.`,
     `Ergänzt relevante Prozessdimensionen: Welche Informationen werden verarbeitet? Welche IT-Systeme werden genutzt? Wo entstehen Medienbrüche oder manuelle Zwischenschritte?`,
     `Analysiert den Prozess systematisch: Identifiziert Schwachstellen wie Wartezeiten, Doppelarbeit, Fehlerquellen, unklare Zuständigkeiten oder Kommunikationsprobleme und markiert diese (z. B. mit einem Blitz-Symbol).`,
     `Leitet Ursachen und strukturelle Problemmuster ab: Warum entstehen diese Schwachstellen (z. B. fehlende Systemintegration, unklare Abläufe, organisatorische Defizite)?`,
-    `Überführt die Erkenntnisse in Anforderungen: Formuliert konkrete Anforderungen an das zukünftige System und nutzt diese als Grundlage für die Entwicklung des SOLL-Prozesses und der Gesamtstrategie.`,
-      `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
-   `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
-],
+    `Überführt die Erkenntnisse in Anforderungen: Formuliert konkrete Anforderungen an das zukünftige System und nutzt diese als Grundlage für die Entwicklung des SOLL-Prozesses und der Gesamtstrategie.`
+  ]),
   // Beispielbilder
   exampleImages:[
     {
-      src:"/images/Swimlane.jpg",
+      src:"/images/swimlaneenglish.png",
       caption:"Beispiel eines IST-Prozesses im Swimlane-Diagramm"
     }, 
     {
-      src:"/images/Symbole.jpg",
-      caption:"Typische Symbole im Swimlane-Diagramm (Gadatsch, 2013)"
+      src:"/images/symbolenglish.png",
+      caption:" Basic notation elements of Business Process and Model Notation (Gadatsch, 2023)"
     }
   ],
 
@@ -1405,13 +1448,13 @@ abzuleiten. Es wird also der derzeitige Prozess dargestellt.</p>
   resources: [
     {
       type: "book",
-      label: "Gadatsch, A. (2013): IT-gestütztes Prozessmanagement im Gesundheitswesen",
-      url: "/book/gadatsch_prozessmanagement.pdf"
+      label: "Gadatsch, A. (2023): Business Process Management",
+      url: "/book/BusinessProcessManagement.pdf"
     },
     {
       type: "document",
       label: "Checkliste zum Swimlane-Diagramm",
-      url: "/documents/checkliste swimlane.docx"
+      url: "/documents/checkliste swimlane englisch.docx"
     }
   ],
     
@@ -1432,6 +1475,7 @@ abzuleiten. Es wird also der derzeitige Prozess dargestellt.</p>
   title:"SOLL-Prozess Analyse",
   icon:"🚀",
   subtitle:"Den zukünftigen Prozess gestalten und zielgerichtet weiterentwickeln",
+  goal:"Ziel der Methode ist es, einen umsetzbaren Zielprozess zu entwerfen, aus dem konkrete Maßnahmen, Abhängigkeiten und Umsetzungsschritte für das Gantt-Chart abgeleitet werden können.",
 
   description: `
 <p>Die SOLL-Prozessanalyse baut auf der IST-Prozessanalyse auf und beschreibt den zukünftigen, angestrebten Ablauf eines Prozesses. Ziel ist es, einen verbesserten, effizienteren und digital unterstützten Prozess zu entwerfen, der identifizierte Schwachstellen gezielt adressiert.</p>
@@ -1445,27 +1489,25 @@ abzuleiten. Es wird also der derzeitige Prozess dargestellt.</p>
 <p>Der SOLL-Prozess bildet damit eine zentrale Grundlage für die weitere Projektplanung, da aus ihm konkrete Anforderungen, notwendige Veränderungsschritte und spätere Umsetzungsmaßnahmen abgeleitet werden können.</p>
 `,
 
- instructions: [
+ instructions: withCommonClosingSteps([
   `Leitet zentrale Handlungsbedarfe aus der IST-Prozessanalyse ab: Welche Schwachstellen, Medienbrüche, Doppelarbeiten, Wartezeiten oder unklaren Zuständigkeiten sollen im zukünftigen Prozess gezielt verbessert werden?`,
   `Definiert den Zielprozess: Überlegt, wie der Prozess künftig ablaufen soll, wenn das Digitalisierungsprojekt umgesetzt ist. Welche Schritte bleiben bestehen, welche verändern sich und welche kommen neu hinzu?`,
   `Integriert die digitale Lösung gezielt in den Ablauf: Überlegt, an welchen Stellen Prozesse unterstützt, vereinfachtoder ersetzt werden können.`,
   `Modelliert den SOLL-Prozess in einem Swimlane-Diagramm: Stellt den zukünftigen Ablauf strukturiert dar und orientiert euch dabei am Aufbau der IST-Modellierung, damit beide Prozesse später gut verglichen werden können.
   Welche konkreten Veränderungen ergeben sich? Welche Prozessschritte entfallen, werden automatisiert, verlagern sich auf andere Rollen oder werden neu eingeführt?`,
   `Formuliert daraus konkrete Anforderungen: Welche funktionalen, technischen und organisatorischen Voraussetzungen müssen erfüllt sein, damit der SOLL-Prozess umgesetzt werden kann?`,
-  `Leitet erste Implikationen für die Umsetzung ab: Welche Maßnahmen, Arbeitspakete oder Veränderungserfordernisse ergeben sich aus dem SOLL-Prozess für die weitere Projektplanung?`,
-    `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
-   `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
-],
+  `Leitet erste Implikationen für die Umsetzung ab: Welche Maßnahmen, Arbeitspakete oder Veränderungserfordernisse ergeben sich aus dem SOLL-Prozess für die weitere Projektplanung?`
+]),
 
   // Beispielbilder
   exampleImages:[
     {
-      src:"/images/Swimlane.jpg",
+      src:"/images/swimlaneenglish.png",
       caption:"Beispiel eines IST-Prozesses im Swimlane-Diagramm"
     }, 
     {
-      src:"/images/Symbole.jpg",
-      caption:"Typische Symbole im Swimlane-Diagramm (Gadatsch, 2013)"
+      src:"/images/symbolenglish.png",
+      caption:"Basic notation elements of Business Process and Model Notation (Gadatsch, 2023)"
     }
   ],
 
@@ -1473,8 +1515,8 @@ abzuleiten. Es wird also der derzeitige Prozess dargestellt.</p>
   resources: [
     {
       type: "book",
-      label: "Gadatsch, A. (2013): IT-gestütztes Prozessmanagement im Gesundheitswesen",
-      url: "/book/gadatsch_prozessmanagement.pdf"
+      label: "Gadatsch, A. (2023): Business Process Management",
+      url: "/book/BusinessProcessManagement.pdf"
     }
   ],
 
@@ -1493,6 +1535,7 @@ abzuleiten. Es wird also der derzeitige Prozess dargestellt.</p>
   title:"PESTEL-Analyse",
   icon:"🌍",
   subtitle:"Externes Umfeld systematisch analysieren und strategisch einordnen",
+  goal:"Ziel der Methode ist es, externe Rahmenbedingungen und Einflussfaktoren frühzeitig zu erkennen, damit daraus strategische Handlungsfelder und zu terminierende Maßnahmen für das Gantt-Chart abgeleitet werden können.",
 
 description: `
 <p>Die PESTEL-Analyse ist ein zentrales Instrument der strategischen Analyse zur systematischen Untersuchung des externen Umfelds einer Organisation oder eines Projekts.</p>
@@ -1521,20 +1564,18 @@ description: `
 `Lest als Vorbereitung das Dokument "PESTEL Analyse"`
 ],
   
- instructions: [
+ instructions: withCommonClosingSteps([
   `Analysiert politische Faktoren: Welche politischen Rahmenbedingungen, Förderprogramme oder Strategien beeinflussen das Projekt? Leitet daraus konkrete Auswirkungen sowie strategische Implikationen ab.`,
   `Analysiert ökonomische Faktoren: Welche finanziellen, wirtschaftlichen oder ressourcenbezogenen Rahmenbedingungen sind relevant (z. B. Budget, Kostendruck, Effizienzanforderungen)? Leitet daraus konkrete Auswirkungen und strategische Implikationen ab.`,
   `Analysiert soziokulturelle Faktoren: Welche Erwartungen, Einstellungen und Bedürfnisse von Nutzer:innen, Mitarbeitenden oder anderen relevanten Akteuren beeinflussen das Projekt? Leitet daraus konkrete Auswirkungen und strategische Implikationen ab.`,
   `Analysiert technologische Faktoren: Welche technologischen Entwicklungen, bestehenden Systeme oder digitalen Trends sind relevant (z. B. Interoperabilität, Usability)? Leitet daraus konkrete Auswirkungen und strategische Implikationen ab.`,
   `Analysiert ökologische Faktoren: Welche ökologischen Aspekte spielen eine Rolle (z. B. Ressourcenschonung, Nachhaltigkeit)? Leitet daraus konkrete Auswirkungen und strategische Implikationen ab.`,
   `Analysiert rechtliche Faktoren: Welche gesetzlichen, regulatorischen und datenschutzrechtlichen Anforderungen sind zu berücksichtigen? Leitet daraus konkrete Auswirkungen und strategische Implikationen ab.`,
-  `Verdichtet die Ergebnisse abschließend: Welche übergeordneten strategischen Handlungsfelder ergeben sich aus der Gesamtanalyse für das Projekt?`,
-    `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
-   `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
-],
+  `Verdichtet die Ergebnisse abschließend: Welche übergeordneten strategischen Handlungsfelder ergeben sich aus der Gesamtanalyse für das Projekt?`
+]),
   exampleImages:[
     {
-      src:"/images/pestel.jpg",
+      src:"/images/PestelEnglish.png",
       caption:"PESTEL Beispiel"
     }
   ],
@@ -1556,6 +1597,7 @@ description: `
   title:"SWOT-Analyse",
   icon:"🧭",
   subtitle:"Strategien entwickeln",
+  goal:"Ziel der Methode ist es, aus Stärken, Schwächen, Chancen und Risiken konkrete Strategien und Arbeitspakete abzuleiten, die anschließend strukturiert im Gantt-Chart verankert werden können.",
 
 description: `
 <p>Die SWOT-Analyse ist ein strategisches Instrument, das dabei hilft, die aktuelle Situation eines Projekts strukturiert zu bewerten. 
@@ -1613,17 +1655,17 @@ Darauf aufbauend erfolgt eine externe Analyse, in der Chancen und Risiken aus de
 `Lest als Vorbereitung das Dokument "SWOT-Analyse".`
 ],
   
-  instructions:[
+  instructions:withCommonClosingSteps([
     `Identifiziert Stärken.`,
     `Identifiziert Schwächen.`,
     `Analysiert Chancen.`,
     `Analysiert Risiken.`,
     `Leitet SO-, WO-, ST-, WT-Strategien ab.`,
     `Überführt Strategien in Maßnahmen und Arbeitspakete.`
-  ],
+  ]),
 
   exampleImages:[
-    { src:"/images/swot.png", caption:"SWOT Beispiel" }
+    { src:"/images/swotenglish.png", caption:"SWOT Beispiel" }
   ],
 
   resources:[
@@ -1639,6 +1681,7 @@ Darauf aufbauend erfolgt eine externe Analyse, in der Chancen und Risiken aus de
   title:"Implementation Research Logic Model (IRLM) & Key Performance Indicators (KPIs)",
   icon:"📊",
   subtitle:"Umsetzung und Wirkung strukturieren",
+  goal:"Ziel der Methode ist es, Maßnahmen, Wirkmechanismen, Ergebnisse und Kennzahlen logisch zu verknüpfen, sodass daraus Meilensteine und überprüfbare Fortschritte für das Gantt-Chart abgeleitet werden können.",
 
 description: `
 <p>Das Implementation Research Logic Model (IRLM) ist ein Instrument, das dabei hilft, Maßnahmen strukturiert zu planen und deren Wirkung nachvollziehbar zu machen. 
@@ -1678,16 +1721,14 @@ Auf ihrer Basis können konkrete Meilensteine abgeleitet werden, die im Gantt-Ch
 <p>Ziel ist es, Maßnahmen, deren Wirkmechanismen und die daraus resultierenden Ergebnisse transparent darzustellen und eine fundierte Grundlage für die weitere Projektsteuerung zu schaffen.</p>
 `,
 
- instructions: [
+ instructions: withCommonClosingSteps([
   `Identifiziert zentrale Einflussfaktoren (Determinanten), die den Projekterfolg beeinflussen.`,
   `Leitet auf Basis dieser Faktoren geeignete Maßnahmen und Strategien (Implementierungsstrategien als konkrete Maßnahmen).`,
   `Beschreibt, wie und warum diese Maßnahmen wirken (Mechanismen).`,
   `Definiert die angestrebten Ergebnisse (Outcomes).`,
    `Leitet daraus konkrete Arbeitspakete und nächste Umsetzungsschritte ab.`,
-  `Formuliert geeignete Kennzahlen (KPIs), um den Erfolg messbar zu machen. Diese könnt ihr auch als Meilensteine im Projektplan hinterlegen.`,
-     `Wählt ein oder zwei Personen aus der Gruppe aus, die die Ergebnisse der Peer-Group präsentiert. Die anderen führen Protokoll (für Rückmeldungen) und ergänzen bei Bedarf.`,
-   `Ladet eure Ergebnisse in eurem Teams-Ordner hoch (z. B. als Foto des Flipcharts). Nutzt diese als Grundlage für die weitere Umsetzungsplanung und integriert, sofern noch nicht erfolgt, Rückmeldungen der Peer-Group.`
-],
+  `Formuliert geeignete Kennzahlen (KPIs), um den Erfolg messbar zu machen. Diese könnt ihr auch als Meilensteine im Projektplan hinterlegen.`
+]),
 
   exampleImages:[
     { src:"/images/irlm.jpg", caption:"IRLM Template" }
@@ -1892,7 +1933,7 @@ function goToPhase(phase){
   if (!canOpenPhase(phase)) return;
 
   gameState.currentPhase = phase;
-  localStorage.setItem("lastPhase", String(phase));
+  localStorage.setItem(LAST_PHASE_KEY, String(phase));
   saveGameState();
 
   document.getElementById("phase0").classList.toggle("hidden", phase !== 0);
@@ -1986,6 +2027,12 @@ const toolsSectionHTML = mod.tools && mod.tools.length ? `
     ${mod.preparation.map(p => `<p>${p}</p>`).join("")}
   </div>
 ` : "";
+  const goalHTML = mod.goal ? `
+  <div class="module-section">
+    <h3>🎯 Ziel der Methode</h3>
+    <p>${mod.goal}</p>
+  </div>
+` : "";
   
     const exampleImageHTML = mod.exampleImages && mod.exampleImages.length ? `
   <div class="module-section">
@@ -2031,6 +2078,8 @@ const nextBtnHTML = isLast
   }</div>
 </div>
 
+${goalHTML}
+
 ${preparationHTML}
 
 <div class="module-section module-steps-section" data-module-key="${mod.key}">
@@ -2072,22 +2121,27 @@ function extractCaseField(pattern, sourceText, fallback = "") {
   return match && match[1] ? match[1].trim() : fallback;
 }
 
+const CASE_ID = "ki-op-planung-kh-v1";
+const LAST_PHASE_KEY = `${CASE_ID}_lastPhase`;
+const BACKUP_STATE_KEY = `${CASE_ID}_backup_state`;
+const UNLOCKED_SAMPLES_KEY = `${CASE_ID}_unlockedSamples`;
+
 const CASE_CONTEXT = getCaseContextFromPage();
 
 const CASE_CONFIG = {
   caseTitle: document.title || "Fallbeispiel",
-  organisation: extractCaseField(/Das\s+(.+?)\s+ist ein Krankenhaus/i, CASE_CONTEXT, "kommunales Klinikum Nordstadt"),
-  sector: extractCaseField(/ist ein\s+(.+?)\s+mit rund/i, CASE_CONTEXT, "Krankenhaus der Regelversorgung"),
-  patientVolume: extractCaseField(/mit rund\s+(.+?)\s+pro Jahr/i, CASE_CONTEXT, "45.000 stationären und ambulanten Patient:innen pro Jahr"),
-  interventionName: extractCaseField(/ein\s+(digitales Patientenportal)\s+einzuführen/i, CASE_CONTEXT, "digitales Patientenportal"),
-  interventionShort: "Patientenportal",
-  interventionType: "digitale Lösung",
-  projectGoal: "Einführung eines digitalen Patientenportals",
-  fundingContext: extractCaseField(/im Rahmen des\s+(.+?)\s+gefördert/i, CASE_CONTEXT, "KHZG (Fördertatbestand 2)"),
-  budget: extractCaseField(/Förderbudget von\s+([\d.,]+\s*Millionen Euro)/i, CASE_CONTEXT, "2,5 Millionen Euro"),
-  duration: extractCaseField(/Laufzeit von\s+([\d]+\s*Monaten)/i, CASE_CONTEXT, "18 Monaten"),
-  currentSituation: extractCaseField(/Der aktuelle Stand.*?ist durch\s+(.+?)\s+geprägt/i, CASE_CONTEXT, "fragmentierte und überwiegend analoge Prozesslandschaft"),
-  workflowFocus: "digitale Terminverwaltung, Unterstützung von Aufnahme- und Anmeldeprozessen, Bereitstellung von Informationen und Dokumenten sowie digitale Kommunikationsmöglichkeiten zwischen Patient:innen und Krankenhaus",
+  organisation: "kommunales Klinikum Nordstadt",
+  sector: "Krankenhaus der Regelversorgung",
+  patientVolume: "45.000 stationären und ambulanten Patient:innen pro Jahr",
+  interventionName: "eine KI-gestützte Lösung zur OP-Planung",
+  interventionShort: "KI-OP-Planung",
+  interventionType: "KI-gestützte Planungs- und Entscheidungsunterstützung",
+  projectGoal: "Einführung einer KI-gestützten OP-Planung",
+  fundingContext: "freigegebenes Digitalisierungs- und Innovationsbudget",
+  budget: "1,8 Millionen Euro",
+  duration: "18 Monaten",
+  currentSituation: "eine fragmentierte, überwiegend manuelle OP-Planung",
+  workflowFocus: "vorausschauende OP-Programmplanung, bessere Ressourcenzuordnung, weniger kurzfristige Verschiebungen, transparenter Umgang mit Notfällen und realistischere Zeitprognosen",
   caseContext: CASE_CONTEXT
 };
 
@@ -2263,7 +2317,7 @@ let currentAISampleModuleIndex = null;
 
 function unlockedSamples() {
   try {
-    return JSON.parse(localStorage.getItem("unlockedSamples") || "[]");
+    return JSON.parse(localStorage.getItem(UNLOCKED_SAMPLES_KEY) || "[]");
   } catch (e) {
     return [];
   }
@@ -2273,7 +2327,7 @@ function unlockSample(key) {
   const arr = unlockedSamples();
   if (!arr.includes(key)) {
     arr.push(key);
-    localStorage.setItem("unlockedSamples", JSON.stringify(arr));
+    localStorage.setItem(UNLOCKED_SAMPLES_KEY, JSON.stringify(arr));
   }
 }
 
@@ -2575,7 +2629,7 @@ async function handleLogin(){
 
     showApp();
     await syncSharedStateSmoothly();
-    const lastPhase=parseInt(localStorage.getItem("lastPhase")||"0",10);
+    const lastPhase=parseInt(localStorage.getItem(LAST_PHASE_KEY)||"0",10);
     goToPhase(isNaN(lastPhase)?0:lastPhase);
   }catch(e){
     console.error("Login error:",e);
@@ -2586,7 +2640,7 @@ async function handleLogin(){
   }
 }
 async function logoutStudent(){
-  localStorage.setItem("lastPhase", String(gameState.currentPhase));
+  localStorage.setItem(LAST_PHASE_KEY, String(gameState.currentPhase));
   try {
     await fetch("/api/logout", {
       method:"POST",
@@ -2618,14 +2672,14 @@ document.addEventListener("keydown",(e)=>{
    GAME STATE + NPCS
 ══════════════════════════════════════════════════════════════ */
 const npcs = [
-  {id:1,name:"Herr Dr. Julius Nagelsmann",role:"Geschäftsführung",     icon:"👨🏻‍💼"},
-  {id:2,name:"Prof. Dr. Klaus Ütter",     role:"Ärztliche Leitung",    icon:"👨🏻‍⚕️"},
-  {id:3,name:"Sabine Banse",              role:"Pflegerische Leitung", icon:"👩🏻‍⚕️"},
-  {id:4,name:"Peter Reincke",             role:"IT-Leiter",            icon:"👨‍💻"},
-  {id:5,name:"Verena Hecht",              role:"Datenschutzbeauftragte",  icon:"👩‍💼"},
+  {id:1,name:"Dr. Miriam Falk",          role:"Geschäftsführung",                        icon:"👩🏻‍💼"},
+  {id:2,name:"Prof. Dr. Daniel Neumann", role:"Ärztliche Leitung OP-Zentrum",           icon:"👨🏻‍⚕️"},
+  {id:3,name:"Anja Yilmaz",              role:"OP-Managerin",                            icon:"👩🏻‍⚕️"},
+  {id:4,name:"Timo Reuter",              role:"IT-Leiter",                               icon:"👨‍💻"},
+  {id:5,name:"Dr. Lena Vogt",            role:"Datenschutz- und KI-Compliance-Beauftragte", icon:"👩‍💼"},
 ];
 
-const GAME_STATE_KEY = "patientenportal_game_state";
+const GAME_STATE_KEY = `${CASE_ID}_game_state`;
 const GAME_STATE_VERSION = "1.0";
 
 function createDefaultGameState() {
@@ -2710,7 +2764,7 @@ function saveGameState() {
 
 let gameState = loadGameState();
 if (typeof gameState.currentPhase === "number") {
-  localStorage.setItem("lastPhase", String(gameState.currentPhase));
+  localStorage.setItem(LAST_PHASE_KEY, String(gameState.currentPhase));
 }
 
 function generateNPCs(){
@@ -2802,16 +2856,27 @@ async function loadSharedStateFromServer() {
 
     const serverState = await res.json();
 
-    const localBackup = JSON.parse(localStorage.getItem("backup_state") || "null");
+    const localBackup = JSON.parse(localStorage.getItem(BACKUP_STATE_KEY) || "null");
+    const fallbackEmptyState = {
+      caseId: CASE_ID,
+      history: [],
+      favorites: [],
+      gantt: { workPackages: [], milestones: [] },
+      steps: {}
+    };
+    const normalizedServerState =
+      serverState && serverState.caseId === CASE_ID
+        ? serverState
+        : fallbackEmptyState;
 
     const isServerEmpty =
-      !serverState ||
-      (!serverState.history?.length &&
-       !serverState.favorites?.length &&
-       !serverState.gantt?.workPackages?.length &&
-       !Object.keys(serverState.steps || {}).length);
+      !normalizedServerState ||
+      (!normalizedServerState.history?.length &&
+       !normalizedServerState.favorites?.length &&
+       !normalizedServerState.gantt?.workPackages?.length &&
+       !Object.keys(normalizedServerState.steps || {}).length);
 
-    const finalState = isServerEmpty && localBackup ? localBackup : serverState;
+    const finalState = isServerEmpty && localBackup ? localBackup : normalizedServerState;
 
     console.log("State geladen:", finalState);
 
@@ -2819,8 +2884,9 @@ async function loadSharedStateFromServer() {
   } catch (err) {
     console.error("Fehler beim Laden:", err);
 
-    const localBackup = JSON.parse(localStorage.getItem("backup_state") || "null");
+    const localBackup = JSON.parse(localStorage.getItem(BACKUP_STATE_KEY) || "null");
     return localBackup || {
+      caseId: CASE_ID,
       history: [],
       favorites: [],
       gantt: { workPackages: [], milestones: [] },
@@ -2834,7 +2900,7 @@ async function pushHistoryToServer(entry){
     method:"POST",
     credentials:"same-origin",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(entry)
+    body:JSON.stringify({ ...entry, caseId: CASE_ID })
   });
 }
 async function pushFavoritesToServer(){
@@ -2843,7 +2909,7 @@ async function pushFavoritesToServer(){
     method:"POST",
     credentials:"same-origin",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({favorites})
+    body:JSON.stringify({favorites, caseId: CASE_ID})
   });
 }
 async function pushGanttToServer(ganttState) {
@@ -2853,7 +2919,7 @@ async function pushGanttToServer(ganttState) {
     method: "POST",
     credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ gantt })
+    body: JSON.stringify({ gantt, caseId: CASE_ID })
   });
 
   const data = await res.json().catch(() => ({}));
@@ -3050,11 +3116,11 @@ Wichtige Regeln:
 8) Wenn du auf andere Perspektiven verweist, nenne passende andere Stakeholder aus dem Planspiel mit Namen. 
 
 Verfügbare Stakeholder:
-- Herr Dr. Julius Nagelsmann (Geschäftsführung)
-- Prof. Dr. Klaus Ütter (Ärztliche Leitung)
-- Sabine Banse (Pflegerische Leitung)
-- Peter Reincke (IT-Leiter)
-- Verena Hecht (Datenschutzbeauftragte)
+- Dr. Miriam Falk (Geschäftsführung)
+- Prof. Dr. Daniel Neumann (Ärztliche Leitung OP-Zentrum)
+- Anja Yilmaz (OP-Managerin)
+- Timo Reuter (IT-Leiter)
+- Dr. Lena Vogt (Datenschutz- und KI-Compliance-Beauftragte)
 
 9) Gib keine direkte Hilfe zur Musterlösung, zu konkreten Methoden oder zur Umsetzungsplanung.
 10) Wenn nach aktuellen Problemen gefragt wird, beziehe dich auf die im Fall beschriebene Ausgangssituation.
@@ -3123,15 +3189,15 @@ async function askQuestion(){
 /* ══════════════════════════════════════════════════════════════
    GESPRÄCHSVERLAUF
 ══════════════════════════════════════════════════════════════ */
-function storageKeyForNPC(id){return"triage_history_npc_"+id;}
+function storageKeyForNPC(id){return `${CASE_ID}_history_npc_${id}`;}
 function saveHistoryToStorage(id,arr){
   localStorage.setItem(storageKeyForNPC(id),JSON.stringify(arr||[]));
   gameState.npcConversationHistory[id] = arr || [];
   saveGameState();
 }
 function loadHistoryFromStorage(id){try{return JSON.parse(localStorage.getItem(storageKeyForNPC(id))||"[]");}catch(e){return[];}}
-const HISTORY_FILTER_KEY="history_filter_mode";
-const OWN_HISTORY_KEYS_STORAGE="own_history_keys_v1";
+const HISTORY_FILTER_KEY=`${CASE_ID}_history_filter_mode`;
+const OWN_HISTORY_KEYS_STORAGE=`${CASE_ID}_own_history_keys_v1`;
 let historyFilterMode = localStorage.getItem(HISTORY_FILTER_KEY) || "all";
 function getHistoryEntryKey(npcId,q,a){return `${Number(npcId)||0}||${String(q||"").trim()}||${String(a||"").trim()}`;}
 function loadOwnHistoryKeys(){
@@ -3164,7 +3230,7 @@ function toggleHistory(){
   if(!p.classList.contains("hidden")) renderHistoryPanel(true);
 }
 
-const OWN_FAVORITE_KEYS_STORAGE = "own_favorite_keys_v1";
+const OWN_FAVORITE_KEYS_STORAGE = `${CASE_ID}_own_favorite_keys_v1`;
 
 function getFavoriteKey(fav){
   return `${fav.npcId || 0}||${(fav.q || "").trim()}||${(fav.a || "").trim()}`;
@@ -3327,7 +3393,7 @@ function typewriterEffect(box, name, text){
   },speed);
 }
 
-const SHARED_STEPS_KEY = "shared_step_progress";
+const SHARED_STEPS_KEY = `${CASE_ID}_shared_step_progress`;
 
 /* STEP PROGRESS */
 function loadAllStepProgress(){
@@ -3368,7 +3434,7 @@ async function pushStepProgressToServer(){
     method: "POST",
     credentials: "same-origin",
     headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ steps })
+    body: JSON.stringify({ steps, caseId: CASE_ID })
   });
 
   const data = await res.json().catch(() => ({}));
@@ -3426,7 +3492,7 @@ if (gameState.currentPhase >= 2) {
 /* ══════════════════════════════════════════════════════════════
    GANTT CHART
 ══════════════════════════════════════════════════════════════ */
-const GANTT_KEY = "gantt_wps";
+const GANTT_KEY = `${CASE_ID}_gantt_wps`;
 const GANTT_MONTHS = 18;
 const WP_PALETTE = ["#6366f1", "#ec4899", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ef4444", "#14b8a6"];
 
@@ -4309,7 +4375,7 @@ function exportGanttXLSX() {
 /* ══════════════════════════════════════════════════════════════
    FAVORITES
 ══════════════════════════════════════════════════════════════ */
-const FAV_KEY="stakeholder_favorites";
+const FAV_KEY=`${CASE_ID}_stakeholder_favorites`;
 let pendingFav=null;
 let favPanelOpen=false;
 
@@ -4578,21 +4644,33 @@ async function resetTool() {
     sessionStorage.clear();
 
     const keysToRemove = [
-      "lastPhase",
+      LAST_PHASE_KEY,
       "loggedIn",
+      FAV_KEY,
+      SHARED_STEPS_KEY,
+      GANTT_KEY,
+      HISTORY_FILTER_KEY,
+      OWN_HISTORY_KEYS_STORAGE,
+      OWN_FAVORITE_KEYS_STORAGE,
+      UNLOCKED_SAMPLES_KEY,
+      BACKUP_STATE_KEY,
+      "lastPhase",
       "stakeholder_favorites",
       "shared_step_progress",
       "gantt_wps",
       "history_filter_mode",
       "own_history_keys_v1",
-      "unlockedSamples"
+      "own_favorite_keys_v1",
+      "unlockedSamples",
+      "backup_state",
+      "patientenportal_game_state"
     ];
 
     keysToRemove.forEach(k => localStorage.removeItem(k));
 
     // alle NPC-Verläufe löschen
     Object.keys(localStorage).forEach(key => {
-      if (key.startsWith("triage_history_npc_")) {
+      if (key.startsWith(`${CASE_ID}_history_npc_`) || key.startsWith("triage_history_npc_")) {
         localStorage.removeItem(key);
       }
     });
@@ -4614,13 +4692,14 @@ async function resetTool() {
 function updateBackupState() {
   try {
     const state = {
+      caseId: CASE_ID,
       history: window.__sharedHistory || [],
-      favorites: JSON.parse(localStorage.getItem("stakeholder_favorites") || "[]"),
-      gantt: JSON.parse(localStorage.getItem("gantt_wps") || "{}"),
-      steps: JSON.parse(localStorage.getItem("shared_step_progress") || "{}")
+      favorites: JSON.parse(localStorage.getItem(FAV_KEY) || "[]"),
+      gantt: JSON.parse(localStorage.getItem(GANTT_KEY) || "{}"),
+      steps: JSON.parse(localStorage.getItem(SHARED_STEPS_KEY) || "{}")
     };
 
-    localStorage.setItem("backup_state", JSON.stringify(state));
+    localStorage.setItem(BACKUP_STATE_KEY, JSON.stringify(state));
   } catch (e) {
     console.warn("Backup konnte nicht gespeichert werden", e);
   }
@@ -4633,13 +4712,13 @@ setInterval(updateBackupState, 2000); // alle 2 Sekunden speichern
 window.addEventListener("load", async ()=>{
   try {
     localStorage.removeItem("gantt_rows");
-    const raw=localStorage.getItem("gantt_wps");
+    const raw=localStorage.getItem(GANTT_KEY);
     if(raw){
       const data=JSON.parse(raw);
       const hasOldFormat=Array.isArray(data)&&data.some(wp=>
         Array.isArray(wp.activities)&&wp.activities.some(a=>"status" in a)
       );
-      if(hasOldFormat) localStorage.removeItem("gantt_wps");
+      if(hasOldFormat) localStorage.removeItem(GANTT_KEY);
     }
   } catch(e){}
 
@@ -4662,7 +4741,7 @@ window.addEventListener("load", async ()=>{
 
       showApp();
       await syncSharedStateSmoothly();
-      const lastPhase=parseInt(localStorage.getItem("lastPhase")||"0",10);
+      const lastPhase=parseInt(localStorage.getItem(LAST_PHASE_KEY)||"0",10);
       goToPhase(isNaN(lastPhase)?0:lastPhase);
       return;
     } catch(e){
@@ -4753,6 +4832,55 @@ window.updateMilestone = updateMilestone;
 
 
 <script>
+function getSelectedLanguage() {
+  return localStorage.getItem("selectedLang") || "en";
+}
+
+function setGoogleTranslateCookie(targetLang) {
+  const googtransValue = "/de/" + targetLang;
+  document.cookie = "googtrans=" + googtransValue + "; path=/";
+  document.cookie = "googtrans=" + googtransValue + "; domain=" + location.hostname + "; path=/";
+}
+
+function releaseInitialRender() {
+  document.documentElement.classList.remove("translate-pending");
+}
+
+function isEnglishTranslationVisible() {
+  return document.body.classList.contains("translated-ltr") ||
+    document.body.classList.contains("translated-rtl") ||
+    document.documentElement.lang === "en";
+}
+
+function armInitialRenderFallback() {
+  clearTimeout(window.__translateRevealTimer);
+  window.__translateRevealTimer = setTimeout(() => {
+    releaseInitialRender();
+  }, 2500);
+}
+
+function applyEnglishTranslation() {
+  const targetLang = getSelectedLanguage();
+  localStorage.setItem("selectedLang", targetLang);
+  setGoogleTranslateCookie(targetLang);
+
+  const select = document.querySelector(".goog-te-combo");
+  if (!select) return false;
+
+  if (select.value !== targetLang) {
+    select.value = targetLang;
+    select.dispatchEvent(new Event("change"));
+  }
+  return true;
+}
+
+function scheduleEnglishTranslation(delay = 300) {
+  clearTimeout(window.__translateTimer);
+  window.__translateTimer = setTimeout(() => {
+    applyEnglishTranslation();
+  }, delay);
+}
+
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({
     pageLanguage: 'de',
@@ -4761,21 +4889,53 @@ function googleTranslateElementInit() {
     autoDisplay: false
   }, 'google_translate_element');
 
-  const savedLang = localStorage.getItem("selectedLang");
-  if (savedLang) {
-    setTimeout(() => {
-      const select = document.querySelector(".goog-te-combo");
-      if (select) {
-        select.value = savedLang;
-        select.dispatchEvent(new Event("change"));
-      }
-    }, 800);
+  if (!localStorage.getItem("selectedLang")) {
+    localStorage.setItem("selectedLang", "en");
   }
+
+  armInitialRenderFallback();
+  setTimeout(() => scheduleEnglishTranslation(0), 800);
+  setTimeout(() => scheduleEnglishTranslation(0), 1600);
+  setTimeout(() => {
+    if (getSelectedLanguage() === "en" && isEnglishTranslationVisible()) {
+      releaseInitialRender();
+    }
+  }, 1200);
+
+  const observer = new MutationObserver(() => {
+    if (getSelectedLanguage() === "en") {
+      scheduleEnglishTranslation(250);
+      if (isEnglishTranslationVisible()) {
+        releaseInitialRender();
+      }
+    } else {
+      releaseInitialRender();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 }
 
 document.addEventListener("change", function(e) {
   if (e.target.classList.contains("goog-te-combo")) {
-    localStorage.setItem("selectedLang", e.target.value);
+    const nextLang = e.target.value || "en";
+    localStorage.setItem("selectedLang", nextLang);
+    setGoogleTranslateCookie(nextLang);
+    releaseInitialRender();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  if (!localStorage.getItem("selectedLang")) {
+    localStorage.setItem("selectedLang", "en");
+  }
+  if (getSelectedLanguage() !== "en") {
+    releaseInitialRender();
+  }
+});
+
+window.addEventListener("load", function() {
+  if (getSelectedLanguage() !== "en" || isEnglishTranslationVisible()) {
+    releaseInitialRender();
   }
 });
 </script>
