@@ -765,6 +765,7 @@ overflow: hidden;}
       grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
       gap:1rem;
       margin-top:1rem;
+      align-items:start;
     }
     .glossary-group{
       margin-top:1.75rem;
@@ -784,14 +785,85 @@ overflow: hidden;}
       background:rgba(15,23,42,.7);
       border:1px solid rgba(99,102,241,.18);
       border-radius:14px;
-      padding:1.15rem;
       box-shadow:0 8px 24px rgba(0,0,0,.18);
+      overflow:hidden;
+      align-self:start;
+      display:flex;
+      flex-direction:column;
+      transition:border-color .22s ease, box-shadow .22s ease, transform .22s ease;
+    }
+    .glossary-card:not(.is-open){
+      height:8.2rem;
+    }
+    .glossary-card:hover{
+      border-color:rgba(165,180,252,.42);
+      box-shadow:0 12px 28px rgba(0,0,0,.24);
+      transform:translateY(-2px);
+    }
+    .glossary-card.is-open{
+      border-color:rgba(165,180,252,.5);
+      box-shadow:0 14px 32px rgba(0,0,0,.26);
+    }
+    .glossary-summary{
+      cursor:pointer;
+      width:100%;
+      background:none;
+      border:none;
+      text-align:left;
+      padding:1.15rem;
+      font:inherit;
+      color:inherit;
+      min-height:100%;
+      display:flex;
+      overflow:hidden;
+    }
+    .glossary-summary-inner{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:1rem;
+      width:100%;
+      height:100%;
+    }
+    .glossary-summary-text{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      height:100%;
     }
     .glossary-card h4{
       font-family:'Bitter',serif;
-      font-size:1.02rem;
+      font-size:.98rem;
+      line-height:1.35;
       color:var(--text-primary);
-      margin-bottom:.35rem;
+      margin-bottom:0;
+    }
+    .glossary-toggle{
+      flex-shrink:0;
+      width:2rem;
+      height:2rem;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(99,102,241,.14);
+      border:1px solid rgba(165,180,252,.25);
+      transition:transform .22s ease, background .22s ease, border-color .22s ease;
+    }
+    .glossary-toggle::before{
+      content:"";
+      width:.55rem;
+      height:.55rem;
+      border-right:2px solid #c7d2fe;
+      border-bottom:2px solid #c7d2fe;
+      transform:translate(-1px,-2px) rotate(45deg);
+      transition:border-color .22s ease;
+    }
+    .glossary-card.is-open .glossary-toggle{
+      transform:rotate(180deg);
+      background:rgba(99,102,241,.26);
+      border-color:rgba(165,180,252,.4);
     }
     .glossary-short{
       color:#dbe4ff;
@@ -807,10 +879,20 @@ overflow: hidden;}
       margin-bottom:.35rem;
       font-weight:700;
     }
+    .glossary-details{
+      padding:0 1.15rem 1.15rem;
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+    .glossary-details[hidden]{
+      display:none;
+    }
     .glossary-card p{
       color:var(--text-secondary);
       line-height:1.7;
       margin-bottom:.75rem;
+    }
+    .glossary-details p:last-child{
+      margin-bottom:0;
     }
 
     /* NPC GRID */
@@ -961,6 +1043,14 @@ overflow: hidden;}
       .module-actions{ flex-direction:column; }
       .module-actions .btn,
       .module-actions a.btn{ width:100%; text-align:center; justify-content:center; }
+      .glossary-grid{ grid-template-columns:1fr; }
+      .glossary-summary-inner{ gap:.75rem; }
+      .glossary-card:not(.is-open){ height:6.8rem; }
+      .glossary-summary{ min-height:auto; }
+      .glossary-toggle{
+        width:1.85rem;
+        height:1.85rem;
+      }
     }
   
 #google_translate_element {
@@ -1354,100 +1444,100 @@ const GLOSSARY = [
   {
     category:"Entwicklung & Anwendungen",
     term:"Telematikinfrastruktur (TI)",
-    short:"Die TI ist die sichere digitale Infrastruktur im deutschen Gesundheitswesen.",
-    relevance:"Sie ist ein zentraler Bezugsrahmen für digitale Kommunikation und Vernetzung im Gesundheitswesen.",
-    exampleUse:"Der Begriff eignet sich als Ausgangspunkt für die eigene Recherche zu digitalen Infrastrukturen."
+    short:"Die TI ist die technische und organisatorische Infrastruktur, über die digitale Anwendungen im deutschen Gesundheitswesen sicher genutzt werden.",
+    relevance:"Sie bildet die Grundlage für Anwendungen wie ePA, E-Rezept und KIM und ist damit zentral für den sicheren Austausch von Gesundheitsdaten.",
+    exampleUse:"Der Begriff ist wichtig, wenn digitale Anwendungen, sichere Vernetzung und technische Anschlussfähigkeit im Gesundheitswesen betrachtet werden."
   },
   {
     category:"Entwicklung & Anwendungen",
-    term:"KIM (Kommunikation im Medizinwesen)",
-    short:"KIM steht für 'Kommunikation im Medizinwesen' und ist ein sicherer Kommunikationsdienst.",
-    relevance:"KIM ist im Kontext digitaler Kommunikationswege im Gesundheitswesen ein relevanter Fachbegriff.",
-    exampleUse:"Der Begriff kann als Rechercheanker für sichere Übermittlung medizinischer Dokumente dienen."
+    term:"Kommunikation im Medizinwesen (KIM)",
+    short:"KIM ist der einheitliche Standard für den sicheren Versand medizinischer Dokumente und Nachrichten per E-Mail im Gesundheitswesen.",
+    relevance:"KIM ermöglicht den datenschutzkonformen Austausch von Befunden, Arztbriefen und anderen Dokumenten zwischen Gesundheitseinrichtungen.",
+    exampleUse:"Der Begriff ist relevant, wenn sichere elektronische Übermittlung von Dokumenten und Nachrichten im Gesundheitswesen betrachtet wird."
   },
   {
     category:"Entwicklung & Anwendungen",
-    term:"ePA (Elektronische Patientenakte)",
-    short:"Die ePA ist eine digitale Akte für medizinische Informationen von Patient:innen.",
-    relevance:"Sie gehört zu den prägenden Begriffen der digitalen Versorgung und Informationsverfügbarkeit.",
-    exampleUse:"Sie kann als Bezugspunkt für Recherche zu Dokumentation, Zugriff und Informationsaustausch dienen."
+    term:"Elektronische Patientenakte (ePA)",
+    short:"Die ePA ist eine digitale Patientenakte, in der medizinische Informationen gebündelt und berechtigten Behandelnden digital zur Verfügung gestellt werden können.",
+    relevance:"Sie verbessert die Verfügbarkeit relevanter Gesundheitsdaten und ist ein zentraler Bezugspunkt für Dokumentation, Informationsaustausch und Versorgungskontinuität.",
+    exampleUse:"Der Begriff ist relevant, wenn digitale Dokumentation, strukturierte Informationsverfügbarkeit und sektorenübergreifender Datenaustausch betrachtet werden."
   },
   {
     category:"Entwicklung & Anwendungen",
     term:"Digitale Identitäten im Gesundheitswesen (GesundheitsID)",
-    short:"Die GesundheitsID beschreibt digitale Identitäten für den sicheren Zugang zu Anwendungen im Gesundheitswesen.",
-    relevance:"Sie ist wichtig für Authentifizierung, Zugriffssteuerung und die Nutzung digitaler Gesundheitsangebote.",
-    exampleUse:"Der Begriff eignet sich als Ausgangspunkt für die Recherche zu Anmeldestrukturen und digitalem Zugang im Gesundheitswesen."
+    short:"Die GesundheitsID ist eine digitale Identität, mit der sich Versicherte sicher bei Anwendungen der TI anmelden können.",
+    relevance:"Sie ermöglicht einen kartenlosen Zugang zu digitalen Anwendungen wie ePA oder E-Rezept und ist wichtig für moderne Authentifizierungsprozesse.",
+    exampleUse:"Der Begriff ist wichtig, wenn sichere Anmeldung, Authentifizierung und digitaler Zugang zu Gesundheitsanwendungen eingeordnet werden."
   },
   {
     category:"Entwicklung & Anwendungen",
     term:"TI-Messenger",
-    short:"Der TI-Messenger ist ein sicherer Nachrichtendienst innerhalb der Telematikinfrastruktur.",
-    relevance:"Er steht für moderne, geschützte Kommunikation zwischen Akteuren im Gesundheitswesen.",
-    exampleUse:"Der Begriff kann zur Recherche zu sicherer Echtzeitkommunikation und digitaler Zusammenarbeit genutzt werden."
+    short:"Der TI-Messenger ist ein sicherer Kurznachrichtendienst für die ad hoc-Kommunikation im Gesundheitswesen.",
+    relevance:"Er ergänzt KIM um schnelle, direkte Kommunikation zwischen Einrichtungen, Mitarbeitenden und perspektivisch auch Versicherten.",
+    exampleUse:"Der Begriff ist relevant, wenn schnelle und zugleich geschützte Kommunikation im Gesundheitswesen betrachtet wird."
   },
   {
     category:"Entwicklung & Anwendungen",
     term:"Digitale Gesundheitsanwendungen (DiGA)",
-    short:"Digitale Gesundheitsanwendungen sind digitale Angebote, die Patient:innen bei Erkennung, Behandlung oder Begleitung von Erkrankungen unterstützen können.",
-    relevance:"Sie sind ein prägender Bestandteil digitaler Versorgung und stehen für den praktischen Einsatz digitaler Anwendungen.",
-    exampleUse:"Der Begriff kann als Rechercheanker für digitale Versorgungsangebote und patientennahe Anwendungen dienen."
+    short:"DiGA sind digitale Anwendungen, meist in Form von Apps oder webbasierten Programmen, die Patientinnen und Patienten bei der Erkennung, Überwachung, Behandlung oder Linderung von Krankheiten unterstützen können.",
+    relevance:"Sie zeigen, wie digitale Anwendungen als Teil der regulären Versorgung eingesetzt und unter bestimmten Voraussetzungen auch erstattet werden können.",
+    exampleUse:"Der Begriff ist nützlich, wenn digitale Versorgungslösungen, Erstattungsfähigkeit und regulatorische Anforderungen eingeordnet werden sollen."
   },
   {
     category:"Entwicklung & Anwendungen",
     term:"eRezept",
-    short:"Das eRezept ist die digitale Form der Verordnung und Einlösung von verschreibungspflichtigen Arzneimitteln.",
-    relevance:"Es steht beispielhaft für digitale Prozesse an der Schnittstelle zwischen ärztlicher Versorgung, Apotheken und Patient:innen.",
-    exampleUse:"Der Begriff eignet sich als Ausgangspunkt für die Recherche zu digitalen Verordnungs- und Versorgungsprozessen."
+    short:"Das E-Rezept ist der digitale Standard für die Verordnung verschreibungspflichtiger Arzneimittel.",
+    relevance:"Es steht für medienbruchfreie Prozesse zwischen ärztlicher Verordnung, digitaler Signatur und Einlösung in der Apotheke.",
+    exampleUse:"Der Begriff ist hilfreich, wenn digitale Verordnungsprozesse und die Verbindung zwischen ärztlicher Versorgung, Apotheke und Patientenseite betrachtet werden."
   },
   {
     category:"Rechtliche Rahmen & Sicherheit",
     term:"Datenschutz",
-    short:"Datenschutz beschreibt den rechtlichen und organisatorischen Schutz personenbezogener Daten.",
-    relevance:"Im Gesundheitswesen ist er ein grundlegender Rahmen für den Umgang mit sensiblen Informationen.",
-    exampleUse:"Der Begriff kann zur Recherche rechtlicher Anforderungen an digitale Dokumentation genutzt werden."
+    short:"Datenschutz meint den rechtskonformen Umgang mit personenbezogenen Daten und den Schutz der Rechte betroffener Personen.",
+    relevance:"Im Gesundheitswesen ist Datenschutz besonders wichtig, weil Gesundheitsdaten zu den besonders sensiblen personenbezogenen Daten gehören.",
+    exampleUse:"Der Begriff ist wichtig, wenn rechtmäßige Datenverarbeitung, Betroffenenrechte und organisatorische Schutzmaßnahmen betrachtet werden."
   },
   {
     category:"Rechtliche Rahmen & Sicherheit",
-    term:"DSGVO",
-    short:"Die DSGVO ist die europäische Datenschutz-Grundverordnung.",
-    relevance:"Sie bildet einen zentralen rechtlichen Rahmen für die Verarbeitung personenbezogener Daten.",
-    exampleUse:"Der Begriff kann als Ausgangspunkt für die Recherche zu Datenschutzanforderungen im Gesundheitswesen dienen."
+    term:"Datenschutz-Grundverordnung (DSGVO)",
+    short:"Die DSGVO ist die EU-Verordnung, die Grundregeln für die Verarbeitung personenbezogener Daten festlegt.",
+    relevance:"Sie bildet den zentralen Rechtsrahmen für Datenschutz und ist auch für digitale Prozesse im Gesundheitswesen maßgeblich.",
+    exampleUse:"Der Begriff ist relevant, wenn Anforderungen an rechtmäßige Verarbeitung, Transparenz und Datensicherheit eingeordnet werden."
   },
   {
     category:"Institutionen & Akteure",
-    term:"gematik",
-    short:"Die gematik ist eine zentrale Organisation für digitale Infrastruktur und Standards im Gesundheitswesen.",
-    relevance:"Sie prägt zentrale Vorgaben, Anwendungen und technische Rahmenbedingungen der Digitalisierung im Gesundheitswesen.",
-    exampleUse:"Der Begriff eignet sich als Rechercheanker für nationale Digitalisierungsstrukturen und Zuständigkeiten."
+    term:"Nationale Agentur für Digitale Medizin (gematik)",
+    short:"Die gematik verantwortet zentrale Teile der digitalen Infrastruktur im Gesundheitswesen und gestaltet Anwendungen der TI mit.",
+    relevance:"Sie definiert Spezifikationen, koordiniert die Weiterentwicklung der TI und ist damit ein zentraler Akteur der Gesundheitsdigitalisierung in Deutschland.",
+    exampleUse:"Der Begriff ist wichtig, wenn Zuständigkeiten, technische Standards und zentrale Anwendungen der Gesundheitsdigitalisierung eingeordnet werden."
   },
   {
     category:"Institutionen & Akteure",
-    term:"BSI",
-    short:"Das BSI ist das Bundesamt fuer Sicherheit in der Informationstechnik.",
-    relevance:"Es setzt wichtige Impulse fuer Cybersicherheit, IT-Schutzmassnahmen und Sicherheitsstandards, die auch im Gesundheitswesen relevant sind.",
-    exampleUse:"Das BSI ist besonders wichtig, wenn es um Anforderungen an sichere digitale Systeme und den Schutz sensibler Daten geht."
+    term:"Bundesamt für Sicherheit in der Informationstechnik (BSI)",
+    short:"Das BSI ist die Cybersicherheitsbehörde des Bundes und befasst sich mit Fragen der IT- und Informationssicherheit.",
+    relevance:"Seine Standards, Empfehlungen und Sicherheitsvorgaben sind auch für digitale Anwendungen im Gesundheitswesen relevant.",
+    exampleUse:"Der Begriff ist relevant, wenn Sicherheitsstandards, Schutzmaßnahmen und Cybersicherheit im Gesundheitswesen betrachtet werden."
   },
   {
     category:"Institutionen & Akteure",
-    term:"BfArM",
-    short:"Das BfArM ist das Bundesinstitut fuer Arzneimittel und Medizinprodukte.",
-    relevance:"Es spielt eine zentrale Rolle bei regulatorischen Fragen zu digitalen Gesundheitsanwendungen und weiteren digitalen Loesungen im Gesundheitswesen.",
-    exampleUse:"Das BfArM ist vor allem dort relevant, wo Digitalisierung, Regulierung und medizinische Anwendungen zusammenkommen."
+    term:"Bundesinstitut für Arzneimittel und Medizinprodukte (BfArM)",
+    short:"Das BfArM ist das Bundesinstitut für Arzneimittel und Medizinprodukte und unter anderem für regulatorische Fragen zu bestimmten digitalen Medizinprodukten zuständig.",
+    relevance:"Besonders bei DiGA ist das BfArM zentral, weil es das Fast-Track-Verfahren und das DiGA-Verzeichnis verantwortet.",
+    exampleUse:"Der Begriff ist relevant, wenn digitale Anwendungen im Gesundheitswesen auch aus regulatorischer Perspektive eingeordnet werden sollen."
   },
   {
     category:"Institutionen & Akteure",
-    term:"BMG",
-    short:"Das BMG ist das Bundesministerium fuer Gesundheit.",
-    relevance:"Es setzt politische Rahmenbedingungen und strategische Leitlinien fuer die Weiterentwicklung des Gesundheitswesens und seiner Digitalisierung.",
-    exampleUse:"Das BMG ist wichtig, um uebergeordnete gesundheitspolitische Zielsetzungen und Digitalisierungsstrategien einzuordnen."
+    term:"Bundesministerium für Gesundheit (BMG)",
+    short:"Das BMG ist das Bundesministerium für Gesundheit und setzt die politischen Rahmenbedingungen für das Gesundheitswesen in Deutschland.",
+    relevance:"Es entwickelt Gesetze, Strategien und Reformvorhaben, die die Digitalisierung im Gesundheitswesen wesentlich prägen.",
+    exampleUse:"Der Begriff ist wichtig, wenn gesundheitspolitische Zielsetzungen, Strategien und regulatorische Entwicklungen eingeordnet werden."
   },
   {
     category:"Rechtliche Rahmen & Sicherheit",
     term:"IT-Sicherheit",
-    short:"IT-Sicherheit umfasst Maßnahmen zum Schutz digitaler Systeme, Daten und Prozesse.",
-    relevance:"Sie ist ein grundlegender Rahmen für den sicheren Betrieb digitaler Anwendungen.",
-    exampleUse:"Der Begriff kann zur Recherche technischer und organisatorischer Schutzmaßnahmen genutzt werden."
+    short:"IT-Sicherheit umfasst technische und organisatorische Maßnahmen zum Schutz von Systemen, Anwendungen, Daten und Netzwerken.",
+    relevance:"Sie ist Voraussetzung dafür, dass digitale Anwendungen im Gesundheitswesen zuverlässig, vertraulich und vor unbefugtem Zugriff geschützt betrieben werden können.",
+    exampleUse:"Der Begriff ist relevant, wenn Schutz von Systemen, Zugriffssteuerung, Verfügbarkeit und Absicherung sensibler Informationen betrachtet werden."
   }
 ];
 
@@ -1965,7 +2055,7 @@ function allPhases(){
   return [
     {icon:"📋", title:"Fallbeispiel"},
     {icon:"🧭", title:"Auftrag & Arbeitslogik"},
-    {icon:"📚", title:"Glossar & Überblick", hint:"Digitalisierung im Gesundheitswesen"},
+    {icon:"📚", title:"Digitalisierung im Gesundheitswesen", hint:"Begriffe und Entwicklungen als Orientierung fuer die eigene Recherche"},
     ...MODULES.map(m=>({icon:m.icon, title:m.title, hint:m.subtitle}))
   ];
 }
@@ -2091,7 +2181,7 @@ function updateProgressUI(phase){
     } else if (phase === 1) {
       progressText.textContent = "Auftrag & Arbeitslogik";
     } else if (phase === 2) {
-      progressText.textContent = "Glossar & Überblick";
+      progressText.textContent = "Digitalisierung im Gesundheitswesen";
     } else {
       progressText.textContent = `Methode ${currentMethodIndex + 1} / ${totalMethods}`;
     }
@@ -2156,15 +2246,27 @@ function renderGlossaryPage(){
   const glossarySections = glossaryCategories.map(category => {
     const glossaryCards = GLOSSARY
       .filter(entry => entry.category === category.title)
-      .map(entry => `
+      .map(entry => {
+        const glossaryPanelId = `glossary-panel-${entry.term.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+        return `
         <article class="glossary-card">
-          <h4>${entry.term}</h4>
-          <p class="glossary-short">${entry.short}</p>
-          <div class="glossary-meta">Einordnung</div>
-          <p>${entry.relevance}</p>
-          <p>${entry.exampleUse}</p>
+          <button class="glossary-summary" type="button" aria-expanded="false" aria-controls="${glossaryPanelId}" onclick="return toggleGlossaryItem(event, this)">
+            <div class="glossary-summary-inner">
+              <div class="glossary-summary-text">
+                <h4>${entry.term}</h4>
+              </div>
+              <span class="glossary-toggle" aria-hidden="true"></span>
+            </div>
+          </button>
+          <div class="glossary-details" id="${glossaryPanelId}" hidden>
+            <p class="glossary-short">${entry.short}</p>
+            <div class="glossary-meta">Einordnung</div>
+            <p>${entry.relevance}</p>
+            <p>${entry.exampleUse}</p>
+          </div>
         </article>
-      `).join("");
+      `;
+      }).join("");
 
     return `
       <section class="glossary-group">
@@ -2196,6 +2298,24 @@ function renderGlossaryPage(){
       </div>
     </div>
   `;
+}
+
+function toggleGlossaryItem(event, button){
+  if(event){
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  if(!button) return false;
+  const card = button.closest(".glossary-card");
+  const panelId = button.getAttribute("aria-controls");
+  const panel = panelId ? document.getElementById(panelId) : null;
+  if(!card || !panel) return false;
+
+  const isExpanded = button.getAttribute("aria-expanded") === "true";
+  button.setAttribute("aria-expanded", String(!isExpanded));
+  card.classList.toggle("is-open", !isExpanded);
+  panel.hidden = isExpanded;
+  return false;
 }
   
 /* ══════════════════════════════════════════════════════════════
