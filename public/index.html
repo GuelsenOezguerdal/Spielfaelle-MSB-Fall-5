@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Einführung einer KI-gestützten OP-Planung im KHZG-Kontext</title>
+  <title>Einführung einer KI-gestützten OP-Planung</title>
   <script>
     (function() {
       const defaultLang = "en";
@@ -755,6 +755,63 @@ overflow: hidden;}
       background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(5,150,105,.2));
       border:2px solid var(--success); color:#6ee7b7; font-weight:700;
     }
+    .glossary-intro{
+      line-height:1.8;
+      color:var(--text-secondary);
+      margin-bottom:1.6rem;
+    }
+    .glossary-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:1rem;
+      margin-top:1rem;
+    }
+    .glossary-group{
+      margin-top:1.75rem;
+    }
+    .glossary-group:first-of-type{
+      margin-top:1rem;
+    }
+    .glossary-group h3{
+      margin-bottom:.35rem;
+    }
+    .glossary-group-intro{
+      color:var(--text-secondary);
+      line-height:1.7;
+      margin-bottom:.9rem;
+    }
+    .glossary-card{
+      background:rgba(15,23,42,.7);
+      border:1px solid rgba(99,102,241,.18);
+      border-radius:14px;
+      padding:1.15rem;
+      box-shadow:0 8px 24px rgba(0,0,0,.18);
+    }
+    .glossary-card h4{
+      font-family:'Bitter',serif;
+      font-size:1.02rem;
+      color:var(--text-primary);
+      margin-bottom:.35rem;
+    }
+    .glossary-short{
+      color:#dbe4ff;
+      font-weight:600;
+      margin-bottom:.75rem;
+      line-height:1.55;
+    }
+    .glossary-meta{
+      font-size:.8rem;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      color:#a5b4fc;
+      margin-bottom:.35rem;
+      font-weight:700;
+    }
+    .glossary-card p{
+      color:var(--text-secondary);
+      line-height:1.7;
+      margin-bottom:.75rem;
+    }
 
     /* NPC GRID */
     .npc-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:1rem; margin-top:1rem; }
@@ -994,8 +1051,8 @@ overflow: hidden;}
   <header>
     <div class="header-top" style="align-items:stretch;">
       <div class="header-titles">
-        <h1>Einführung einer KI-gestützten OP-Planung im KHZG-Kontext</h1>
-        <p class="subtitle">KHZG-gefördertes OP-Digitalisierungsprojekt</p>
+        <h1>Einführung einer KI-gestützten OP-Planung</h1>
+        <p class="subtitle">Strategisches Transformationsprojekt</p>
       </div>
      <div style="display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end; gap:6px;">
   <div id="google_translate_element"></div>
@@ -1166,6 +1223,9 @@ Ziel ist es, aus euren Erkenntnissen nachvollziehbare Entscheidungen abzuleiten 
   </div>
 </div>
 
+<!-- Glossar & Anwendungen -->
+<div id="phaseGlossary" class="phase-content hidden"></div>
+
 <!-- STAKEHOLDER OVERLAY -->
 <div id="stakeholderBackdrop" onclick="closeStakeholderDrawer()"></div>
 <div id="stakeholderModal">
@@ -1289,6 +1349,107 @@ function buildReflectionStep(url) {
 function buildEvaluationStep(url) {
   return `Füllt die Methodenevaluation jeweils einzeln aus und beantwortet alle Fragen im <a href="${url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();">Fragebogen</a>. Eure Antworten bleiben anonym.`;
 }
+
+const GLOSSARY = [
+  {
+    category:"Entwicklung & Anwendungen",
+    term:"Telematikinfrastruktur (TI)",
+    short:"Die TI ist die sichere digitale Infrastruktur im deutschen Gesundheitswesen.",
+    relevance:"Sie ist ein zentraler Bezugsrahmen für digitale Kommunikation und Vernetzung im Gesundheitswesen.",
+    exampleUse:"Der Begriff eignet sich als Ausgangspunkt für die eigene Recherche zu digitalen Infrastrukturen."
+  },
+  {
+    category:"Entwicklung & Anwendungen",
+    term:"KIM (Kommunikation im Medizinwesen)",
+    short:"KIM steht für 'Kommunikation im Medizinwesen' und ist ein sicherer Kommunikationsdienst.",
+    relevance:"KIM ist im Kontext digitaler Kommunikationswege im Gesundheitswesen ein relevanter Fachbegriff.",
+    exampleUse:"Der Begriff kann als Rechercheanker für sichere Übermittlung medizinischer Dokumente dienen."
+  },
+  {
+    category:"Entwicklung & Anwendungen",
+    term:"ePA (Elektronische Patientenakte)",
+    short:"Die ePA ist eine digitale Akte für medizinische Informationen von Patient:innen.",
+    relevance:"Sie gehört zu den prägenden Begriffen der digitalen Versorgung und Informationsverfügbarkeit.",
+    exampleUse:"Sie kann als Bezugspunkt für Recherche zu Dokumentation, Zugriff und Informationsaustausch dienen."
+  },
+  {
+    category:"Entwicklung & Anwendungen",
+    term:"Digitale Identitäten im Gesundheitswesen (GesundheitsID)",
+    short:"Die GesundheitsID beschreibt digitale Identitäten für den sicheren Zugang zu Anwendungen im Gesundheitswesen.",
+    relevance:"Sie ist wichtig für Authentifizierung, Zugriffssteuerung und die Nutzung digitaler Gesundheitsangebote.",
+    exampleUse:"Der Begriff eignet sich als Ausgangspunkt für die Recherche zu Anmeldestrukturen und digitalem Zugang im Gesundheitswesen."
+  },
+  {
+    category:"Entwicklung & Anwendungen",
+    term:"TI-Messenger",
+    short:"Der TI-Messenger ist ein sicherer Nachrichtendienst innerhalb der Telematikinfrastruktur.",
+    relevance:"Er steht für moderne, geschützte Kommunikation zwischen Akteuren im Gesundheitswesen.",
+    exampleUse:"Der Begriff kann zur Recherche zu sicherer Echtzeitkommunikation und digitaler Zusammenarbeit genutzt werden."
+  },
+  {
+    category:"Entwicklung & Anwendungen",
+    term:"Digitale Gesundheitsanwendungen (DiGA)",
+    short:"Digitale Gesundheitsanwendungen sind digitale Angebote, die Patient:innen bei Erkennung, Behandlung oder Begleitung von Erkrankungen unterstützen können.",
+    relevance:"Sie sind ein prägender Bestandteil digitaler Versorgung und stehen für den praktischen Einsatz digitaler Anwendungen.",
+    exampleUse:"Der Begriff kann als Rechercheanker für digitale Versorgungsangebote und patientennahe Anwendungen dienen."
+  },
+  {
+    category:"Entwicklung & Anwendungen",
+    term:"eRezept",
+    short:"Das eRezept ist die digitale Form der Verordnung und Einlösung von verschreibungspflichtigen Arzneimitteln.",
+    relevance:"Es steht beispielhaft für digitale Prozesse an der Schnittstelle zwischen ärztlicher Versorgung, Apotheken und Patient:innen.",
+    exampleUse:"Der Begriff eignet sich als Ausgangspunkt für die Recherche zu digitalen Verordnungs- und Versorgungsprozessen."
+  },
+  {
+    category:"Rechtliche Rahmen & Sicherheit",
+    term:"Datenschutz",
+    short:"Datenschutz beschreibt den rechtlichen und organisatorischen Schutz personenbezogener Daten.",
+    relevance:"Im Gesundheitswesen ist er ein grundlegender Rahmen für den Umgang mit sensiblen Informationen.",
+    exampleUse:"Der Begriff kann zur Recherche rechtlicher Anforderungen an digitale Dokumentation genutzt werden."
+  },
+  {
+    category:"Rechtliche Rahmen & Sicherheit",
+    term:"DSGVO",
+    short:"Die DSGVO ist die europäische Datenschutz-Grundverordnung.",
+    relevance:"Sie bildet einen zentralen rechtlichen Rahmen für die Verarbeitung personenbezogener Daten.",
+    exampleUse:"Der Begriff kann als Ausgangspunkt für die Recherche zu Datenschutzanforderungen im Gesundheitswesen dienen."
+  },
+  {
+    category:"Institutionen & Akteure",
+    term:"gematik",
+    short:"Die gematik ist eine zentrale Organisation für digitale Infrastruktur und Standards im Gesundheitswesen.",
+    relevance:"Sie prägt zentrale Vorgaben, Anwendungen und technische Rahmenbedingungen der Digitalisierung im Gesundheitswesen.",
+    exampleUse:"Der Begriff eignet sich als Rechercheanker für nationale Digitalisierungsstrukturen und Zuständigkeiten."
+  },
+  {
+    category:"Institutionen & Akteure",
+    term:"BSI",
+    short:"Das BSI ist das Bundesamt fuer Sicherheit in der Informationstechnik.",
+    relevance:"Es setzt wichtige Impulse fuer Cybersicherheit, IT-Schutzmassnahmen und Sicherheitsstandards, die auch im Gesundheitswesen relevant sind.",
+    exampleUse:"Das BSI ist besonders wichtig, wenn es um Anforderungen an sichere digitale Systeme und den Schutz sensibler Daten geht."
+  },
+  {
+    category:"Institutionen & Akteure",
+    term:"BfArM",
+    short:"Das BfArM ist das Bundesinstitut fuer Arzneimittel und Medizinprodukte.",
+    relevance:"Es spielt eine zentrale Rolle bei regulatorischen Fragen zu digitalen Gesundheitsanwendungen und weiteren digitalen Loesungen im Gesundheitswesen.",
+    exampleUse:"Das BfArM ist vor allem dort relevant, wo Digitalisierung, Regulierung und medizinische Anwendungen zusammenkommen."
+  },
+  {
+    category:"Institutionen & Akteure",
+    term:"BMG",
+    short:"Das BMG ist das Bundesministerium fuer Gesundheit.",
+    relevance:"Es setzt politische Rahmenbedingungen und strategische Leitlinien fuer die Weiterentwicklung des Gesundheitswesens und seiner Digitalisierung.",
+    exampleUse:"Das BMG ist wichtig, um uebergeordnete gesundheitspolitische Zielsetzungen und Digitalisierungsstrategien einzuordnen."
+  },
+  {
+    category:"Rechtliche Rahmen & Sicherheit",
+    term:"IT-Sicherheit",
+    short:"IT-Sicherheit umfasst Maßnahmen zum Schutz digitaler Systeme, Daten und Prozesse.",
+    relevance:"Sie ist ein grundlegender Rahmen für den sicheren Betrieb digitaler Anwendungen.",
+    exampleUse:"Der Begriff kann zur Recherche technischer und organisatorischer Schutzmaßnahmen genutzt werden."
+  }
+];
 
 const MODULES = [
   {
@@ -1804,6 +1965,7 @@ function allPhases(){
   return [
     {icon:"📋", title:"Fallbeispiel"},
     {icon:"🧭", title:"Auftrag & Arbeitslogik"},
+    {icon:"📚", title:"Glossar & Überblick", hint:"Digitalisierung im Gesundheitswesen"},
     ...MODULES.map(m=>({icon:m.icon, title:m.title, hint:m.subtitle}))
   ];
 }
@@ -1834,11 +1996,14 @@ function canOpenPhase(targetPhase){
   // Auftrag & Arbeitslogik
   if(targetPhase === 1) return true;
 
-  // Erstes Modul darf nach der zweiten statischen Seite geöffnet werden
+  // Glossar-Seite darf nach der zweiten statischen Seite geöffnet werden
   if(targetPhase === 2) return true;
 
+  // Erstes Modul darf nach dem Glossar geöffnet werden
+  if(targetPhase === 3) return true;
+
   // Danach: vorheriges Modul muss vollständig erledigt sein
-  const previousModuleIdx = targetPhase - 3;
+  const previousModuleIdx = targetPhase - 4;
   return isModuleFullyDone(previousModuleIdx);
 }
 
@@ -1851,7 +2016,7 @@ function renderJourneyList(){
   phases.forEach((p, i) => {
     const active = i === cur;
 
-    const modIdx = i - 2;
+    const modIdx = i - 3;
     const allStepsDone = modIdx >= 0 ? isModuleFullyDone(modIdx) : false;
     const visitedPast = i < cur;
     const done = modIdx >= 0 ? allStepsDone : visitedPast;
@@ -1903,7 +2068,7 @@ function renderJourneyList(){
 ══════════════════════════════════════════════════════════════ */
 function updateProgressUI(phase){
   const totalMethods = MODULES.length;
-  const currentMethodIndex = phase - 2; // Phase 2 = erste Methode
+  const currentMethodIndex = phase - 3; // Phase 3 = erste Methode
 
   let progress = 0;
 
@@ -1925,6 +2090,8 @@ function updateProgressUI(phase){
       progressText.textContent = "Fallbeispiel";
     } else if (phase === 1) {
       progressText.textContent = "Auftrag & Arbeitslogik";
+    } else if (phase === 2) {
+      progressText.textContent = "Glossar & Überblick";
     } else {
       progressText.textContent = `Methode ${currentMethodIndex + 1} / ${totalMethods}`;
     }
@@ -1936,6 +2103,8 @@ function updateProgressUI(phase){
       currentStepIcon.textContent = "📋";
     } else if (phase === 1) {
       currentStepIcon.textContent = "🧭";
+    } else if (phase === 2) {
+      currentStepIcon.textContent = "📚";
     } else if (MODULES[currentMethodIndex]) {
       currentStepIcon.textContent = MODULES[currentMethodIndex].icon;
     }
@@ -1943,7 +2112,7 @@ function updateProgressUI(phase){
 
   const chip = document.getElementById("stepProgressChip");
   if (chip) {
-    if (phase >= 2 && MODULES[currentMethodIndex]) {
+    if (phase >= 3 && MODULES[currentMethodIndex]) {
       const mod = MODULES[currentMethodIndex];
       const prog = loadStepProgress(mod.key);
       const done = mod.instructions.filter((_, i) => prog[i]).length;
@@ -1961,8 +2130,72 @@ function updateProgressUI(phase){
 
   const pillRow = document.getElementById("current-step-row-el");
   if (pillRow) {
-    pillRow.style.display = phase >= 2 ? "flex" : "none";
+    pillRow.style.display = phase >= 3 ? "flex" : "none";
   }
+}
+
+function renderGlossaryPage(){
+  const glossaryRoot = document.getElementById("phaseGlossary");
+  if(!glossaryRoot) return;
+
+  const glossaryCategories = [
+    {
+      title:"Entwicklung & Anwendungen",
+      intro:"Begriffe rund um digitale Infrastruktur, Anwendungen und die technische Weiterentwicklung im Gesundheitswesen."
+    },
+    {
+      title:"Institutionen & Akteure",
+      intro:"Organisationen und zentrale Stellen, die digitale Standards, Prozesse und Zuständigkeiten mitgestalten."
+    },
+    {
+      title:"Rechtliche Rahmen & Sicherheit",
+      intro:"Begriffe zu Datenschutz, regulatorischen Vorgaben und zum sicheren Umgang mit sensiblen Informationen."
+    }
+  ];
+
+  const glossarySections = glossaryCategories.map(category => {
+    const glossaryCards = GLOSSARY
+      .filter(entry => entry.category === category.title)
+      .map(entry => `
+        <article class="glossary-card">
+          <h4>${entry.term}</h4>
+          <p class="glossary-short">${entry.short}</p>
+          <div class="glossary-meta">Einordnung</div>
+          <p>${entry.relevance}</p>
+          <p>${entry.exampleUse}</p>
+        </article>
+      `).join("");
+
+    return `
+      <section class="glossary-group">
+        <h3>${category.title}</h3>
+        <p class="glossary-group-intro">${category.intro}</p>
+        <div class="glossary-grid">${glossaryCards}</div>
+      </section>
+    `;
+  }).join("");
+
+  glossaryRoot.innerHTML = `
+    <div class="card">
+      <h2>Überblick: Digitalisierung im Gesundheitswesen</h2>
+      <h3>Begriffe und Entwicklungen</h3>
+      <p class="glossary-intro">
+        Im Folgenden wird eine Übersicht zentraler Entwicklungen und Begrifflichkeiten im Kontext der digitalen Transformation im Gesundheitswesen dargestellt. Ziel dieser Zusammenstellung ist es, ein grundlegendes Orientierungswissen bereitzustellen, das euch bei der Bearbeitung eures Digitalisierungsprojekts unterstützen kann.
+      </p>
+      <p class="glossary-intro">
+        Die dargestellten Inhalte sind nicht als vollständig zu beherrschender Wissenskatalog zu verstehen. Vielmehr dienen sie als konzeptioneller Rahmen, um relevante Entwicklungen einordnen und zentrale Begriffe situativ anwenden zu können. Je nach Projektkontext kann es sinnvoll sein, einzelne Aspekte gezielt zu vertiefen und bei der Entwicklung der Umsetzungsstrategie zu berücksichtigen.
+      </p>
+
+      <div class="module-section">
+        ${glossarySections}
+      </div>
+
+      <div class="phase-nav">
+        <button class="btn btn-secondary" onclick="goToPhase(1)">&larr; Zurück</button>
+        <button class="btn btn-primary" onclick="goToPhase(3)">Weiter &rarr;</button>
+      </div>
+    </div>
+  `;
 }
   
 /* ══════════════════════════════════════════════════════════════
@@ -1977,12 +2210,17 @@ function goToPhase(phase){
 
   document.getElementById("phase0").classList.toggle("hidden", phase !== 0);
   document.getElementById("phase1").classList.toggle("hidden", phase !== 1);
-  document.getElementById("phaseModule").classList.toggle("hidden", phase < 2);
+  document.getElementById("phaseGlossary").classList.toggle("hidden", phase !== 2);
+  document.getElementById("phaseModule").classList.toggle("hidden", phase < 3);
 
   updateProgressUI(phase);
 
-  if (phase >= 2) {
-    renderModulePage(phase - 2);
+  if (phase === 2) {
+    renderGlossaryPage();
+  }
+
+  if (phase >= 3) {
+    renderModulePage(phase - 3);
   }
 
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1993,8 +2231,8 @@ function goToPhase(phase){
 ══════════════════════════════════════════════════════════════ */
 async function reloadSharedStepsAndRefresh(){
   await reloadSharedSteps();
-  if (gameState.currentPhase >= 2) {
-    renderModulePage(gameState.currentPhase - 2);
+  if (gameState.currentPhase >= 3) {
+    renderModulePage(gameState.currentPhase - 3);
     updateProgressUI(gameState.currentPhase);
   }
 }
@@ -2035,7 +2273,7 @@ function renderModulePage(idx){
   if(!mod) return;
 
   const isLast = idx === MODULES.length - 1;
-  const nextPhase = idx + 3;
+  const nextPhase = idx + 4;
   const iconMap = { video:"🎥", book:"📚", documents:"📄", link:"🔗" };
 
   const resourcesHTML = (mod.resources || []).map(r => `
@@ -2136,7 +2374,7 @@ ${toolsSectionHTML}
               <button class="btn btn-secondary" onclick="openSampleModal(${idx})">🔒 Musterlösung</button>
 
             <div class="phase-nav">
-        <button class="btn btn-secondary" onclick="goToPhase(${idx === 0 ? 1 : idx + 1})">&larr; Zurück</button>
+        <button class="btn btn-secondary" onclick="goToPhase(${idx === 0 ? 2 : idx + 2})">&larr; Zurück</button>
         ${nextBtnHTML}
       </div>
     </div>
@@ -2712,11 +2950,11 @@ document.addEventListener("keydown",(e)=>{
    GAME STATE + NPCS
 ══════════════════════════════════════════════════════════════ */
 const npcs = [
-  {id:1,name:"Dr. Miriam Falk",          role:"Geschäftsführung",                        icon:"👩🏻‍💼"},
-  {id:2,name:"Prof. Dr. Daniel Neumann", role:"Ärztliche Leitung OP-Zentrum",           icon:"👨🏻‍⚕️"},
-  {id:3,name:"Anja Yilmaz",              role:"OP-Managerin",                            icon:"👩🏻‍⚕️"},
-  {id:4,name:"Timo Reuter",              role:"IT-Leiter",                               icon:"👨‍💻"},
-  {id:5,name:"Dr. Lena Vogt",            role:"Leitung Medizincontrolling und Digitale Transformation", icon:"👩‍💼"},
+  {id:1,name:"Dr. Katharina Berg",       role:"Geschäftsführung",                        icon:"👩🏻‍💼"},
+  {id:2,name:"Prof. Dr. Markus Weber",   role:"Ärztliche Leitung OP-Zentrum",           icon:"👨🏻‍⚕️"},
+  {id:3,name:"Sabine Müller",            role:"OP-Managerin",                            icon:"👩🏻‍⚕️"},
+  {id:4,name:"Stefan Lorenz",            role:"IT-Leiter",                               icon:"👨‍💻"},
+  {id:5,name:"Dr. Julia Hartmann",       role:"Leitung Medizincontrolling und Digitale Transformation", icon:"👩‍💼"},
 ];
 
 const GAME_STATE_KEY = `${CASE_ID}_game_state`;
@@ -3035,9 +3273,9 @@ function getHistorySignatureForCurrentNPC(){
   return JSON.stringify(loadHistoryFromStorage(gameState.currentNPC.id) || []) + "||" + historyFilterMode;
 }
 function applyModuleStepProgressToVisibleView(){
-  if(gameState.currentPhase < 2) return;
+  if(gameState.currentPhase < 3) return;
 
-  const mod = MODULES[gameState.currentPhase - 2];
+  const mod = MODULES[gameState.currentPhase - 3];
   if(!mod) return;
 
   const section = document.querySelector(`.module-steps-section[data-module-key="${mod.key}"]`)
@@ -3173,11 +3411,11 @@ Wichtige Regeln:
 8) Wenn du auf andere Perspektiven verweist, nenne passende andere Stakeholder aus dem Planspiel mit Namen. 
 
 Verfügbare Stakeholder:
-- Dr. Miriam Falk (Geschäftsführung)
-- Prof. Dr. Daniel Neumann (Ärztliche Leitung OP-Zentrum)
-- Anja Yilmaz (OP-Managerin)
-- Timo Reuter (IT-Leiter)
-- Dr. Lena Vogt (Leitung Medizincontrolling und Digitale Transformation)
+- Dr. Katharina Berg (Geschäftsführung)
+- Prof. Dr. Markus Weber (Ärztliche Leitung OP-Zentrum)
+- Sabine Müller (OP-Managerin)
+- Stefan Lorenz (IT-Leiter)
+- Dr. Julia Hartmann (Leitung Medizincontrolling und Digitale Transformation)
 
 9) Gib keine direkte Hilfe zur Musterlösung, zu konkreten Methoden oder zur Umsetzungsplanung.
 10) Wenn nach aktuellen Problemen gefragt wird, beziehe dich auf die im Fall beschriebene Ausgangssituation.
@@ -3540,8 +3778,8 @@ function toggleStep(moduleKey, stepIdx, el, total){
 
   saveStepProgress(moduleKey, prog);
 
-if (gameState.currentPhase >= 2) {
-  renderModulePage(gameState.currentPhase - 2);
+if (gameState.currentPhase >= 3) {
+  renderModulePage(gameState.currentPhase - 3);
   updateProgressUI(gameState.currentPhase);
 }
 
